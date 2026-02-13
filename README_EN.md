@@ -18,10 +18,8 @@
 | Feb 21, 2025     | ✅ **Login Interface** - Core Functionality Completed |
 | Mar 17, 2025     | ✅ **Video Playback** - UI Completed       |
 | Mar 18, 2025     | 🔄 Video Player UI Improvements           |
-| Mar 21, 2025     | 📁 Added Nezha Materials                  |
 | Mar 12, 2025     | 📝 Added "Star History" to README         |
 | Mar 13, 2025     | 🔧 README Improvements                    |
-| Mar 15, 2025     | 🗑️ Removed Nezha Materials (Moved to [NeZha Repo](https://github.com/Zmh20121211/NeZha)) |
 
 ### Q2 2025
 
