@@ -1,1537 +1,616 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>21306 项目展示</title>
-	<link rel="icon" href="./favicon.ico">
-	<style>
-		/* ===== CSS Variables - 设计系统基础 ===== */
-		:root {
-			/* 浅色主题 */
-			--bg-primary: #fafafa;
-			--bg-secondary: #f0f0f0;
-			--bg-card: rgba(255, 255, 255, 0.85);
-			--bg-card-hover: rgba(255, 255, 255, 0.95);
-			--text-primary: #1a1a2e;
-			--text-secondary: #4a4a6a;
-			--text-muted: #8888a0;
-			--accent: #6366f1;
-			--accent-light: #818cf8;
-			--accent-dark: #4f46e5;
-			--accent-subtle: rgba(99, 102, 241, 0.08);
-			--border: rgba(0, 0, 0, 0.06);
-			--border-hover: rgba(99, 102, 241, 0.2);
-			--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-			--shadow-md: 0 4px 6px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-			--shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
-			--shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
-			--radius-sm: 8px;
-			--radius-md: 12px;
-			--radius-lg: 16px;
-			--radius-xl: 24px;
-			--transition: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-			--transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-			--transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
-
-			/* 语义色 */
-			--success: #10b981;
-			--warning: #f59e0b;
-			--error: #ef4444;
-			--info: #3b82f6;
-		}
-
-		/* 深色主题 */
-		.dark-theme {
-			--bg-primary: #0a0a0f;
-			--bg-secondary: #14141f;
-			--bg-card: rgba(20, 20, 31, 0.8);
-			--bg-card-hover: rgba(30, 30, 45, 0.9);
-			--text-primary: #e8e8ed;
-			--text-secondary: #a0a0b8;
-			--text-muted: #606078;
-			--accent: #818cf8;
-			--accent-light: #a5b4fc;
-			--accent-dark: #6366f1;
-			--accent-subtle: rgba(129, 140, 248, 0.08);
-			--border: rgba(255, 255, 255, 0.06);
-			--border-hover: rgba(129, 140, 248, 0.3);
-			--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-			--shadow-md: 0 4px 6px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15);
-			--shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
-			--shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.4), 0 5px 15px rgba(0, 0, 0, 0.2);
-		}
-
-		/* ===== Reset & Base ===== */
-		*, *::before, *::after {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
-
-		html {
-			scroll-behavior: smooth;
-		}
-
-		body {
-			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-			line-height: 1.6;
-			color: var(--text-primary);
-			background: var(--bg-primary);
-			min-height: 100vh;
-			transition: background var(--transition-slow), color var(--transition-slow);
-			-webkit-font-smoothing: antialiased;
-			-moz-osx-font-smoothing: grayscale;
-		}
-
-		/* ===== 主题切换按钮 ===== */
-		.theme-toggle {
-			position: fixed;
-			top: 24px;
-			right: 24px;
-			width: 48px;
-			height: 48px;
-			border-radius: var(--radius-md);
-			border: 1px solid var(--border);
-			background: var(--bg-card);
-			backdrop-filter: blur(20px);
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			transition: all var(--transition);
-			z-index: 1000;
-			box-shadow: var(--shadow-md);
-		}
-
-		.theme-toggle:hover {
-			transform: scale(1.05);
-			box-shadow: var(--shadow-lg);
-			border-color: var(--border-hover);
-		}
-
-		.theme-toggle:active {
-			transform: scale(0.95);
-		}
-
-		.theme-toggle svg {
-			width: 22px;
-			height: 22px;
-			color: var(--text-primary);
-			transition: all var(--transition);
-		}
-
-		.theme-toggle .sun-icon {
-			position: absolute;
-			opacity: 1;
-			transform: rotate(0) scale(1);
-		}
-
-		.theme-toggle .moon-icon {
-			position: absolute;
-			opacity: 0;
-			transform: rotate(-90deg) scale(0.5);
-		}
-
-		.dark-theme .theme-toggle .sun-icon {
-			opacity: 0;
-			transform: rotate(90deg) scale(0.5);
-		}
-
-		.dark-theme .theme-toggle .moon-icon {
-			opacity: 1;
-			transform: rotate(0) scale(1);
-		}
-
-		/* ===== 主布局 ===== */
-		.app-layout {
-			display: flex;
-			min-height: 100vh;
-		}
-
-		/* ===== 侧边栏 ===== */
-		.sidebar {
-			position: fixed;
-			right: 0;
-			top: 0;
-			bottom: 0;
-			width: 240px;
-			background: var(--bg-card);
-			backdrop-filter: blur(30px);
-			border-left: 1px solid var(--border);
-			padding: 32px 20px;
-			z-index: 100;
-			overflow-y: auto;
-			transition: all var(--transition-slow);
-		}
-
-		.sidebar-header {
-			margin-bottom: 24px;
-		}
-
-		.sidebar-title {
-			font-size: 13px;
-			font-weight: 600;
-			text-transform: uppercase;
-			letter-spacing: 0.5px;
-			color: var(--text-muted);
-			margin-bottom: 16px;
-		}
-
-		.sidebar-divider {
-			height: 1px;
-			background: var(--border);
-			margin-bottom: 16px;
-		}
-
-		.project-nav-item {
-			display: flex;
-			align-items: center;
-			gap: 12px;
-			padding: 12px 14px;
-			border-radius: var(--radius-sm);
-			cursor: pointer;
-			transition: all var(--transition);
-			margin-bottom: 4px;
-			color: var(--text-secondary);
-			font-size: 14px;
-			font-weight: 500;
-		}
-
-		.project-nav-item:hover {
-			background: var(--accent-subtle);
-			color: var(--accent);
-			transform: translateX(4px);
-		}
-
-		.project-nav-item.active {
-			background: var(--accent);
-			color: white;
-			box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-		}
-
-		.project-nav-item.active:hover {
-			transform: translateX(0);
-		}
-
-		.nav-icon {
-			font-size: 18px;
-			width: 24px;
-			text-align: center;
-		}
-
-		/* ===== 主内容区 ===== */
-		.main-content {
-			flex: 1;
-			max-width: 1200px;
-			margin: 0 auto;
-			padding: 48px 40px 48px 40px;
-			padding-right: 280px;
-		}
-
-		/* ===== 页面头部 ===== */
-		.page-header {
-			text-align: center;
-			margin-bottom: 48px;
-			animation: fadeInUp 0.6s ease;
-		}
-
-		@keyframes fadeInUp {
-			from {
-				opacity: 0;
-				transform: translateY(20px);
-			}
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
-		}
-
-		.page-title {
-			font-size: 32px;
-			font-weight: 700;
-			color: var(--text-primary);
-			margin-bottom: 8px;
-			letter-spacing: -0.5px;
-		}
-
-		.page-subtitle {
-			font-size: 16px;
-			color: var(--text-muted);
-			font-weight: 400;
-		}
-
-		/* ===== 项目详情 ===== */
-		.project-view {
-			display: none;
-			animation: fadeIn 0.3s ease;
-		}
-
-		.project-view.active {
-			display: block;
-		}
-
-		@keyframes fadeIn {
-			from { opacity: 0; }
-			to { opacity: 1; }
-		}
-
-		/* ===== 项目头部卡片 ===== */
-		.project-hero {
-			background: var(--bg-card);
-			backdrop-filter: blur(20px);
-			border: 1px solid var(--border);
-			border-radius: var(--radius-xl);
-			padding: 40px;
-			margin-bottom: 32px;
-			box-shadow: var(--shadow-lg);
-			text-align: center;
-			transition: all var(--transition);
-		}
-
-		.project-hero:hover {
-			box-shadow: var(--shadow-xl);
-		}
-
-		.project-hero-icon {
-			font-size: 48px;
-			margin-bottom: 16px;
-			display: block;
-		}
-
-		.project-hero-title {
-			font-size: 28px;
-			font-weight: 700;
-			color: var(--text-primary);
-			margin-bottom: 8px;
-			letter-spacing: -0.3px;
-		}
-
-		.project-hero-desc {
-			font-size: 16px;
-			color: var(--text-secondary);
-			max-width: 500px;
-			margin: 0 auto 24px;
-			line-height: 1.7;
-		}
-
-		.badge-group {
-			display: flex;
-			justify-content: center;
-			gap: 8px;
-			flex-wrap: wrap;
-		}
-
-		.badge {
-			display: inline-flex;
-			align-items: center;
-			gap: 6px;
-			padding: 6px 14px;
-			border-radius: 20px;
-			font-size: 13px;
-			font-weight: 500;
-			background: var(--accent-subtle);
-			color: var(--accent);
-			border: 1px solid rgba(99, 102, 241, 0.15);
-			transition: all var(--transition-fast);
-		}
-
-		.badge:hover {
-			transform: translateY(-1px);
-			box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
-		}
-
-		/* ===== 特性亮点区 ===== */
-		.highlights-grid {
-			display: grid;
-			grid-template-columns: repeat(3, 1fr);
-			gap: 24px;
-			margin-bottom: 32px;
-		}
-
-		.highlight-card {
-			background: var(--bg-card);
-			backdrop-filter: blur(20px);
-			border: 1px solid var(--border);
-			border-radius: var(--radius-lg);
-			padding: 28px;
-			text-align: center;
-			transition: all var(--transition);
-			box-shadow: var(--shadow-sm);
-		}
-
-		.highlight-card:hover {
-			box-shadow: var(--shadow-lg);
-			transform: translateY(-4px);
-			border-color: var(--border-hover);
-		}
-
-		.highlight-icon {
-			width: 56px;
-			height: 56px;
-			margin: 0 auto 16px;
-			border-radius: var(--radius-md);
-			background: var(--accent-subtle);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			font-size: 28px;
-		}
-
-		.highlight-title {
-			font-size: 16px;
-			font-weight: 600;
-			color: var(--text-primary);
-			margin-bottom: 8px;
-		}
-
-		.highlight-desc {
-			font-size: 14px;
-			color: var(--text-muted);
-			line-height: 1.6;
-		}
-
-		/* ===== 截图展示区 ===== */
-		.screenshot-section {
-			text-align: center;
-			margin-bottom: 32px;
-		}
-
-		.screenshot-container {
-			background: var(--bg-card);
-			backdrop-filter: blur(20px);
-			border: 1px solid var(--border);
-			border-radius: var(--radius-xl);
-			padding: 40px;
-			box-shadow: var(--shadow-lg);
-			margin-top: 24px;
-		}
-
-		.screenshot-placeholder {
-			width: 100%;
-			max-width: 700px;
-			height: 400px;
-			margin: 0 auto;
-			border-radius: var(--radius-lg);
-			background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--accent-subtle) 100%);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			color: var(--text-muted);
-			font-size: 14px;
-			border: 2px dashed var(--border-hover);
-		}
-
-		/* ===== 统计数据区 ===== */
-		.stats-grid {
-			display: grid;
-			grid-template-columns: repeat(4, 1fr);
-			gap: 24px;
-			margin: 32px 0;
-		}
-
-		.stat-item {
-			text-align: center;
-			padding: 24px;
-			background: var(--bg-card);
-			backdrop-filter: blur(20px);
-			border: 1px solid var(--border);
-			border-radius: var(--radius-lg);
-			transition: all var(--transition);
-		}
-
-		.stat-item:hover {
-			transform: translateY(-2px);
-			box-shadow: var(--shadow-md);
-		}
-
-		.stat-value {
-			font-size: 32px;
-			font-weight: 700;
-			color: var(--accent);
-			margin-bottom: 4px;
-		}
-
-		.stat-label {
-			font-size: 14px;
-			color: var(--text-muted);
-		}
-
-		/* ===== 页脚 ===== */
-		.page-footer {
-			text-align: center;
-			padding: 40px 24px;
-			margin-top: 48px;
-			border-top: 1px solid var(--border);
-		}
-
-		.footer-text {
-			font-size: 14px;
-			color: var(--text-muted);
-			margin-bottom: 16px;
-		}
-
-		.footer-links {
-			display: flex;
-			justify-content: center;
-			gap: 24px;
-			margin-bottom: 16px;
-		}
-
-		.footer-link {
-			color: var(--text-secondary);
-			text-decoration: none;
-			font-size: 14px;
-			transition: color var(--transition-fast);
-		}
-
-		.footer-link:hover {
-			color: var(--accent);
-		}
-
-		/* ===== 响应式调整 ===== */
-		@media (max-width: 900px) {
-			.highlights-grid {
-				grid-template-columns: repeat(2, 1fr);
-			}
-
-			.stats-grid {
-				grid-template-columns: repeat(2, 1fr);
-			}
-		}
-
-		@media (max-width: 768px) {
-			.highlights-grid {
-				grid-template-columns: 1fr;
-			}
-
-			.stats-grid {
-				grid-template-columns: repeat(2, 1fr);
-				gap: 12px;
-			}
-
-			.stat-item {
-				padding: 16px;
-			}
-
-			.stat-value {
-				font-size: 24px;
-			}
-		}
-
-		/* ===== 内容区块 ===== */
-		.section {
-			background: var(--bg-card);
-			backdrop-filter: blur(20px);
-			border: 1px solid var(--border);
-			border-radius: var(--radius-lg);
-			padding: 28px;
-			margin-bottom: 24px;
-			box-shadow: var(--shadow-sm);
-			transition: all var(--transition);
-		}
-
-		.section:hover {
-			box-shadow: var(--shadow-md);
-			border-color: var(--border-hover);
-		}
-
-		.section-header {
-			display: flex;
-			align-items: center;
-			gap: 12px;
-			margin-bottom: 20px;
-		}
-
-		.section-icon {
-			width: 36px;
-			height: 36px;
-			border-radius: var(--radius-sm);
-			background: var(--accent-subtle);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			font-size: 18px;
-			flex-shrink: 0;
-		}
-
-		.section-title {
-			font-size: 18px;
-			font-weight: 600;
-			color: var(--text-primary);
-		}
-
-		.section-content {
-			color: var(--text-secondary);
-			line-height: 1.8;
-			font-size: 15px;
-		}
-
-		.section-content p {
-			margin-bottom: 12px;
-		}
-
-		.section-content p:last-child {
-			margin-bottom: 0;
-		}
-
-		/* ===== 特性列表 ===== */
-		.feature-grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-			gap: 12px;
-		}
-
-		.feature-item {
-			display: flex;
-			align-items: flex-start;
-			gap: 10px;
-			padding: 12px 16px;
-			border-radius: var(--radius-sm);
-			background: var(--bg-secondary);
-			transition: all var(--transition-fast);
-		}
-
-		.feature-item:hover {
-			background: var(--accent-subtle);
-			transform: translateX(4px);
-		}
-
-		.feature-check {
-			width: 20px;
-			height: 20px;
-			border-radius: 50%;
-			background: var(--accent);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			flex-shrink: 0;
-			margin-top: 2px;
-		}
-
-		.feature-check svg {
-			width: 12px;
-			height: 12px;
-			color: white;
-		}
-
-		.feature-text {
-			font-size: 14px;
-			color: var(--text-secondary);
-			line-height: 1.6;
-		}
-
-		/* ===== 警告框 ===== */
-		.warning-box {
-			background: rgba(239, 68, 68, 0.06);
-			border: 1px solid rgba(239, 68, 68, 0.15);
-			border-radius: var(--radius-md);
-			padding: 20px 24px;
-			margin: 24px 0;
-		}
-
-		.warning-box-header {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			margin-bottom: 8px;
-			color: var(--error);
-			font-weight: 600;
-			font-size: 15px;
-		}
-
-		.warning-box-content {
-			color: var(--text-secondary);
-			font-size: 14px;
-			line-height: 1.7;
-		}
-
-		/* ===== 兼容性表格 ===== */
-		.compat-table {
-			width: 100%;
-			border-collapse: separate;
-			border-spacing: 0;
-			overflow: hidden;
-			border-radius: var(--radius-md);
-			border: 1px solid var(--border);
-		}
-
-		.compat-table thead {
-			background: var(--bg-secondary);
-		}
-
-		.compat-table th {
-			padding: 14px 20px;
-			text-align: left;
-			font-size: 13px;
-			font-weight: 600;
-			text-transform: uppercase;
-			letter-spacing: 0.3px;
-			color: var(--text-muted);
-			border-bottom: 1px solid var(--border);
-		}
-
-		.compat-table td {
-			padding: 14px 20px;
-			font-size: 14px;
-			color: var(--text-secondary);
-			border-bottom: 1px solid var(--border);
-			transition: background var(--transition-fast);
-		}
-
-		.compat-table tr:last-child td {
-			border-bottom: none;
-		}
-
-		.compat-table tr:hover td {
-			background: var(--accent-subtle);
-		}
-
-		.compat-status {
-			display: inline-flex;
-			align-items: center;
-			gap: 4px;
-		}
-
-		.compat-status svg {
-			width: 18px;
-			height: 18px;
-		}
-
-		/* ===== 操作按钮 ===== */
-		.action-bar {
-			display: flex;
-			gap: 12px;
-			justify-content: center;
-			flex-wrap: wrap;
-			margin-top: 32px;
-		}
-
-		.btn {
-			display: inline-flex;
-			align-items: center;
-			gap: 8px;
-			padding: 12px 28px;
-			border-radius: var(--radius-md);
-			font-size: 14px;
-			font-weight: 600;
-			text-decoration: none;
-			transition: all var(--transition);
-			cursor: pointer;
-			border: none;
-			font-family: inherit;
-		}
-
-		.btn-primary {
-			background: var(--accent);
-			color: white;
-			box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
-		}
-
-		.btn-primary:hover {
-			background: var(--accent-dark);
-			transform: translateY(-2px);
-			box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
-		}
-
-		.btn-primary:active {
-			transform: translateY(0);
-		}
-
-		.btn-secondary {
-			background: var(--bg-secondary);
-			color: var(--text-primary);
-			border: 1px solid var(--border);
-		}
-
-		.btn-secondary:hover {
-			background: var(--accent-subtle);
-			border-color: var(--border-hover);
-			color: var(--accent);
-			transform: translateY(-2px);
-		}
-
-		.btn-secondary:active {
-			transform: translateY(0);
-		}
-
-		.btn svg {
-			width: 16px;
-			height: 16px;
-		}
-
-		/* ===== 背景粒子画布 ===== */
-		#bg-canvas {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			z-index: -1;
-			pointer-events: none;
-		}
-
-		/* ===== 响应式设计 ===== */
-		@media (max-width: 900px) {
-			.main-content {
-				padding-right: 20px;
-				padding-left: 20px;
-				padding-top: 32px;
-			}
-
-			.sidebar {
-				width: 200px;
-				padding: 24px 16px;
-			}
-
-			.project-hero {
-				padding: 28px 24px;
-			}
-
-			.section {
-				padding: 20px;
-			}
-		}
-
-		@media (max-width: 768px) {
-			.sidebar {
-				position: fixed;
-				top: auto;
-				bottom: 0;
-				left: 0;
-				right: 0;
-				width: 100%;
-				height: auto;
-				max-height: 120px;
-				border-left: none;
-				border-top: 1px solid var(--border);
-				padding: 16px;
-				overflow-x: auto;
-				overflow-y: hidden;
-			}
-
-			.sidebar-header {
-				display: none;
-			}
-
-			.project-nav-list {
-				display: flex;
-				gap: 8px;
-			}
-
-			.project-nav-item {
-				white-space: nowrap;
-				padding: 10px 16px;
-				margin-bottom: 0;
-			}
-
-			.project-nav-item:hover {
-				transform: translateY(-2px);
-			}
-
-			.main-content {
-				padding: 32px 20px 160px;
-			}
-
-			.page-title {
-				font-size: 24px;
-			}
-
-			.project-hero-title {
-				font-size: 22px;
-			}
-
-			.feature-grid {
-				grid-template-columns: 1fr;
-			}
-
-			.action-bar {
-				flex-direction: column;
-				align-items: stretch;
-			}
-
-			.btn {
-				justify-content: center;
-			}
-		}
-
-		@media (max-width: 480px) {
-			.page-title {
-				font-size: 20px;
-			}
-
-			.project-hero {
-				padding: 24px 20px;
-			}
-
-			.section {
-				padding: 16px;
-			}
-
-			.compat-table th,
-			.compat-table td {
-				padding: 10px 14px;
-				font-size: 13px;
-			}
-		}
-
-		/* ===== 滚动条美化 ===== */
-		::-webkit-scrollbar {
-			width: 6px;
-			height: 6px;
-		}
-
-		::-webkit-scrollbar-track {
-			background: transparent;
-		}
-
-		::-webkit-scrollbar-thumb {
-			background: var(--border-hover);
-			border-radius: 3px;
-		}
-
-		::-webkit-scrollbar-thumb:hover {
-			background: var(--accent);
-		}
-	</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>21306 — 项目集</title>
+  <meta name="description" content="ZMH 的个人项目展示站：ClassIn 视频下载器、LlamaUI 桌面控制台、Blender 插件汉化合集及实用工具。">
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+      line-height: 1.6;
+      transition: background .3s, color .3s;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Light Theme ── */
+    :root, :root.light {
+      --bg:          #f4f6fb;
+      --bg-elevated: #ffffff;
+      --bg-card:     #ffffff;
+      --bg-card-alt: #f0f4ff;
+      --text:        #1a1d2e;
+      --text-mid:    #4a5568;
+      --text-dim:    #718096;
+      --border:      rgba(0,0,0,.08);
+      --accent:      #4f46e5;
+      --accent-soft: rgba(79,70,229,.10);
+      --accent-glow: rgba(79,70,229,.18);
+      --green:       #10b981;
+      --amber:       #f59e0b;
+      --red:         #ef4444;
+      --shadow:      0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+      --shadow-lg:   0 4px 24px rgba(0,0,0,.08), 0 1px 4px rgba(0,0,0,.04);
+      --radius:      12px;
+      --radius-lg:   18px;
+      --nav-h:       56px;
+    }
+    /* ── Dark Theme ── */
+    :root.dark {
+      --bg:          #0c0e18;
+      --bg-elevated: #151828;
+      --bg-card:     #1a1e30;
+      --bg-card-alt: #1e2340;
+      --text:        #e8eaf6;
+      --text-mid:    #a0aec0;
+      --text-dim:    #64748b;
+      --border:      rgba(255,255,255,.07);
+      --accent:      #818cf8;
+      --accent-soft: rgba(129,140,248,.10);
+      --accent-glow: rgba(129,140,248,.18);
+      --green:       #34d399;
+      --amber:       #fbbf24;
+      --red:         #f87171;
+      --shadow:      0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+      --shadow-lg:   0 4px 24px rgba(0,0,0,.5), 0 1px 4px rgba(0,0,0,.3);
+    }
+
+    body { background: var(--bg); color: var(--text); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    img { max-width: 100%; display: block; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    /* ── Container ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* ══════════════════════════════════════
+       NAVBAR
+    ══════════════════════════════════════ */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      z-index: 200;
+      transition: background .3s, border-color .3s;
+    }
+    .navbar .container {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 100%;
+    }
+    .nav-logo {
+      font-size: 18px; font-weight: 700; letter-spacing: -.5px;
+      color: var(--text); text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 8px; list-style: none; }
+    .nav-links a {
+      padding: 6px 14px; border-radius: 8px;
+      color: var(--text-mid); font-size: 14px; font-weight: 500;
+      text-decoration: none; transition: all .2s;
+    }
+    .nav-links a:hover { background: var(--accent-soft); color: var(--accent); text-decoration: none; }
+    .nav-right { display: flex; align-items: center; gap: 8px; }
+
+    /* Theme Toggle */
+    .theme-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--bg-card);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all .2s; color: var(--text-mid);
+    }
+    .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .theme-btn svg { width: 18px; height: 18px; }
+    .sun-icon  { display: block; }
+    .moon-icon { display: none; }
+    .dark .sun-icon  { display: none; }
+    .dark .moon-icon { display: block; }
+
+    /* Mobile menu */
+    .menu-toggle {
+      display: none; width: 36px; height: 36px;
+      border-radius: 8px; border: 1px solid var(--border);
+      background: var(--bg-card); cursor: pointer;
+      align-items: center; justify-content: center; color: var(--text-mid);
+    }
+    .menu-toggle svg { width: 18px; height: 18px; }
+
+    /* ══════════════════════════════════════
+       HERO
+    ══════════════════════════════════════ */
+    .hero {
+      padding: 140px 0 80px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 14px; border-radius: 20px;
+      background: var(--accent-soft); color: var(--accent);
+      font-size: 13px; font-weight: 600; margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+    .hero h1 {
+      font-size: clamp(32px, 6vw, 56px);
+      font-weight: 800; letter-spacing: -1.5px;
+      line-height: 1.1; margin-bottom: 16px;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent) 0%, #06b6d4 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 18px; color: var(--text-mid);
+      max-width: 540px; margin: 0 auto 32px; line-height: 1.7;
+    }
+    .hero-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 24px; border-radius: 10px;
+      font-size: 14px; font-weight: 600;
+      text-decoration: none; transition: all .2s;
+      border: none; cursor: pointer; font-family: inherit;
+    }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      box-shadow: 0 2px 12px var(--accent-glow);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px var(--accent-glow); text-decoration: none; }
+    .btn-secondary {
+      background: var(--bg-card); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+
+    /* ══════════════════════════════════════
+       SECTION
+    ══════════════════════════════════════ */
+    .section { padding: 64px 0; }
+    .section-label {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--accent); margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: clamp(24px, 4vw, 36px); font-weight: 700;
+      letter-spacing: -0.5px; margin-bottom: 8px;
+    }
+    .section-desc { font-size: 16px; color: var(--text-mid); max-width: 520px; margin-bottom: 40px; }
+
+    /* ══════════════════════════════════════
+       PROJECT CARDS GRID
+    ══════════════════════════════════════ */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .project-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      transition: all .25s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .project-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), #06b6d4);
+      opacity: 0; transition: opacity .25s;
+    }
+    .project-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
+    }
+    .project-card:hover::before { opacity: 1; }
+
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+    .card-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      background: var(--accent-soft);
+    }
+    .card-lang {
+      font-size: 11px; font-weight: 600; padding: 3px 10px;
+      border-radius: 20px; background: var(--bg-card-alt);
+      color: var(--text-dim); border: 1px solid var(--border);
+    }
+    .card-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; letter-spacing: -.3px; }
+    .card-desc { font-size: 14px; color: var(--text-mid); line-height: 1.65; margin-bottom: 20px; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+    .tag {
+      font-size: 12px; padding: 3px 10px; border-radius: 6px;
+      background: var(--bg-card-alt); color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .card-footer {
+      display: flex; align-items: center; gap: 16px;
+      padding-top: 16px; border-top: 1px solid var(--border);
+      font-size: 13px; color: var(--text-dim);
+    }
+    .card-footer a {
+      display: inline-flex; align-items: center; gap: 4px;
+      color: var(--accent); font-weight: 500; text-decoration: none;
+    }
+    .card-footer a:hover { text-decoration: underline; }
+    .card-footer svg { width: 14px; height: 14px; }
+
+    /* ══════════════════════════════════════
+       TOOL CARDS
+    ══════════════════════════════════════ */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex; align-items: center; gap: 16px;
+      text-decoration: none; color: inherit;
+      transition: all .2s;
+    }
+    .tool-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+      border-color: var(--accent);
+      text-decoration: none; color: inherit;
+    }
+    .tool-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+      background: var(--accent-soft);
+    }
+    .tool-info { flex: 1; min-width: 0; }
+    .tool-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+    .tool-desc { font-size: 13px; color: var(--text-dim); }
+    .tool-arrow { color: var(--text-dim); transition: transform .2s; }
+    .tool-card:hover .tool-arrow { transform: translateX(3px); color: var(--accent); }
+    .tool-arrow svg { width: 16px; height: 16px; }
+
+    /* ══════════════════════════════════════
+       STATS
+    ══════════════════════════════════════ */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 48px;
+    }
+    .stat-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px; text-align: center;
+      transition: all .2s;
+    }
+    .stat-item:hover { border-color: var(--accent); }
+    .stat-num {
+      font-size: 28px; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), #06b6d4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; line-height: 1.2;
+    }
+    .stat-label { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    .footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 32px;
+    }
+    .footer-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-copy { font-size: 13px; color: var(--text-dim); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a {
+      font-size: 13px; color: var(--text-dim);
+      text-decoration: none; transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--accent); text-decoration: none; }
+
+    /* ══════════════════════════════════════
+       SCROLL REVEAL
+    ══════════════════════════════════════ */
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity .5s ease, transform .5s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ══════════════════════════════════════
+       MOBILE
+    ══════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .nav-links { 
+        display: none; position: fixed;
+        top: var(--nav-h); left: 0; right: 0;
+        background: var(--bg-elevated);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column; padding: 16px;
+        gap: 4px;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a { padding: 10px 14px; width: 100%; }
+      .menu-toggle { display: flex; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .hero { padding: 110px 0 60px; }
+      .section { padding: 48px 0; }
+    }
+    @media (max-width: 480px) {
+      .projects-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
 </head>
 <body>
-	<!-- 主题切换按钮 -->
-	<button class="theme-toggle" aria-label="切换主题" onclick="toggleTheme()">
-		<svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-			<circle cx="12" cy="12" r="5"/>
-			<line x1="12" y1="1" x2="12" y2="3"/>
-			<line x1="12" y1="21" x2="12" y2="23"/>
-			<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-			<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-			<line x1="1" y1="12" x2="3" y2="12"/>
-			<line x1="21" y1="12" x2="23" y2="12"/>
-			<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-			<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-		</svg>
-		<svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-			<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-		</svg>
-	</button>
 
-	<!-- 背景粒子画布 -->
-	<canvas id="bg-canvas"></canvas>
+<!-- ═══════════════ NAVBAR ═══════════════ -->
+<nav class="navbar">
+  <div class="container">
+    <a href="#" class="nav-logo">21306<span>.top</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#projects">项目</a></li>
+      <li><a href="#tools">工具箱</a></li>
+      <li><a href="https://github.com/ZMH21306" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://qm.qq.com/q/PlUBdzqZCm" target="_blank" rel="noopener">QQ 群</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-btn" onclick="toggleTheme()" aria-label="切换主题">
+        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+      <button class="menu-toggle" onclick="toggleMenu()" aria-label="菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>
 
-	<div class="app-layout">
-		<!-- 侧边栏 -->
-		<aside class="sidebar">
-			<div class="sidebar-header">
-				<div class="sidebar-title">项目列表</div>
-				<div class="sidebar-divider"></div>
-			</div>
-			<div class="project-nav-list">
-				<div class="project-nav-item active" onclick="switchProject('classin-dl', this)" role="button" tabindex="0">
-					<span class="nav-icon">📹</span>
-					<span>ClassIn-DL</span>
-				</div>
-				<div class="project-nav-item" onclick="switchProject('llamaui', this)" role="button" tabindex="0">
-					<span class="nav-icon">🦙</span>
-					<span>LlamaUI</span>
-				</div>
-			</div>
-		</aside>
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="container">
+    <div class="reveal">
+      <div class="hero-badge">🛠️ 开源 · 个人项目</div>
+      <h1>构建实用工具，<br><span class="gradient">解决真实问题</span></h1>
+      <p>专注于桌面应用与创意工具开发，涵盖视频处理、LLM 部署、3D 建模辅助等多个方向。</p>
+      <div class="hero-actions">
+        <a href="#projects" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          浏览项目
+        </a>
+        <a href="https://github.com/ZMH21306" target="_blank" rel="noopener" class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 
-		<!-- 主内容区 -->
-		<main class="main-content">
-			<!-- ClassIn-DL 项目 -->
-			<div class="project-view active" id="project-classin-dl">
-				<!-- 项目英雄区 -->
-				<div class="project-hero">
-					<span class="project-hero-icon">📹</span>
-					<h2 class="project-hero-title">ClassIn 视频下载器</h2>
-					<p class="project-hero-desc">一款功能强大的 ClassIn 视频下载工具，提供图形界面和命令行两种版本，支持高速下载与批量处理</p>
-					<div class="badge-group">
-						<span class="badge">C#</span>
-						<span class="badge">Avalonia</span>
-						<span class="badge">跨平台</span>
-						<span class="badge">v1.0.0</span>
-						<span class="badge">GPL v3.0</span>
-					</div>
-				</div>
+<!-- ═══════════════ PROJECTS ═══════════════ -->
+<section class="section" id="projects">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Projects</div>
+      <h2 class="section-title">主要项目</h2>
+      <p class="section-desc">三个独立开源项目，覆盖视频处理、本地 AI 部署、3D 建模工具汉化。</p>
+    </div>
 
-				<!-- 特性亮点 -->
-				<div class="highlights-grid">
-					<div class="highlight-card">
-						<div class="highlight-icon">🚀</div>
-						<h3 class="highlight-title">高速下载</h3>
-						<p class="highlight-desc">多线程并发下载，充分利用带宽，快速获取视频资源</p>
-					</div>
-					<div class="highlight-card">
-						<div class="highlight-icon">📦</div>
-						<h3 class="highlight-title">批量处理</h3>
-						<p class="highlight-desc">支持批量下载多个视频，一键搞定大量课程资源</p>
-					</div>
-					<div class="highlight-card">
-						<div class="highlight-icon">🎨</div>
-						<h3 class="highlight-title">友好界面</h3>
-						<p class="highlight-desc">基于 Avalonia 的现代化图形界面，操作简单直观</p>
-					</div>
-				</div>
+    <div class="projects-grid">
 
-				<!-- 截图展示 -->
-				<div class="screenshot-section">
-					<div class="screenshot-container">
-						<div class="screenshot-placeholder">
-							<div>
-								<div style="font-size: 48px; margin-bottom: 12px;">🖥️</div>
-								<div>界面截图展示区</div>
-								<div style="font-size: 12px; margin-top: 8px; opacity: 0.6;">ClassIn-DL 图形界面预览</div>
-							</div>
-						</div>
-					</div>
-				</div>
+      <!-- ClassIn-DL -->
+      <div class="project-card reveal" onclick="location.href='#classin'">
+        <div class="card-header">
+          <div class="card-icon">📹</div>
+          <span class="card-lang">C# · Avalonia</span>
+        </div>
+        <h3 class="card-title">ClassIn-DL</h3>
+        <p class="card-desc">ClassIn 课程视频下载器。支持多线程高速下载、批量任务管理、实时进度跟踪，提供 Avalonia 图形界面与命令行双模式。</p>
+        <div class="card-tags">
+          <span class="tag">多线程下载</span>
+          <span class="tag">跨平台</span>
+          <span class="tag">批量处理</span>
+        </div>
+        <div class="card-footer">
+          <a href="https://github.com/ZMH21306/ClassIn-DL" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            GitHub
+          </a>
+          <a href="https://github.com/ZMH21306/ClassIn-DL/releases" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Releases
+          </a>
+        </div>
+      </div>
 
-				<!-- 统计数据 -->
-				<div class="stats-grid">
-					<div class="stat-item">
-						<div class="stat-value">1.0</div>
-						<div class="stat-label">当前版本</div>
-					</div>
-					<div class="stat-item">
-						<div class="stat-value">11+</div>
-						<div class="stat-label">已完成功能</div>
-					</div>
-					<div class="stat-item">
-						<div class="stat-value">3</div>
-						<div class="stat-label">支持平台</div>
-					</div>
-					<div class="stat-item">
-						<div class="stat-value">GPL</div>
-						<div class="stat-label">开源协议</div>
-					</div>
-				</div>
+      <!-- LlamaUI -->
+      <div class="project-card reveal" onclick="location.href='#llamaui'">
+        <div class="card-header">
+          <div class="card-icon">🦙</div>
+          <span class="card-lang">Rust · Tauri 2</span>
+        </div>
+        <h3 class="card-title">LlamaUI</h3>
+        <p class="card-desc">LLM 本地部署桌面控制台。图形化管理 llama-server，支持自动检测、三种参数模式、实时性能监控与日志导出。</p>
+        <div class="card-tags">
+          <span class="tag">RCE 防护</span>
+          <span class="tag">161 单元测试</span>
+          <span class="tag">性能监控</span>
+        </div>
+        <div class="card-footer">
+          <a href="https://github.com/ZMH21306/LlamaUI" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            GitHub
+          </a>
+          <a href="https://github.com/ZMH21306/LlamaUI/releases" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Releases
+          </a>
+        </div>
+      </div>
 
-				<!-- 关于项目 -->
-				<section class="section">
-					<div class="section-header">
-						<div class="section-icon">ℹ️</div>
-						<h3 class="section-title">关于项目</h3>
-					</div>
-					<div class="section-content">
-						<p>具备高速下载、批量处理功能，并提供基于 C# 构建的友好 Avalonia 图形界面。支持解析 ClassIn 平台的视频链接，高效管理下载任务。需要使用 HTTP Debugger Pro 捕获视频请求，为获取视频资源提供可靠方式。</p>
-						<p><em>项目仍处于测试阶段，预计在1.5版本完成所有问题修复。</em></p>
-					</div>
-				</section>
+      <!-- Blender-plugin-to-ZH -->
+      <div class="project-card reveal" onclick="location.href='#blender'">
+        <div class="card-header">
+          <div class="card-icon">🎨</div>
+          <span class="card-lang">Python · 汉化</span>
+        </div>
+        <h3 class="card-title">Blender 插件汉化合集</h3>
+        <p class="card-desc">精选 7 款 Blender 插件的简体中文汉化版本，包括 BlenderMCP、GIS 导入、3D 素材库、地形工具等，一键安装。</p>
+        <div class="card-tags">
+          <span class="tag">7 款插件</span>
+          <span class="tag">Blender 3.0+</span>
+          <span class="tag">MIT 协议</span>
+        </div>
+        <div class="card-footer">
+          <a href="https://github.com/ZMH21306/Blender-plugin-to-ZH" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            GitHub
+          </a>
+        </div>
+      </div>
 
-				<!-- 警告声明 -->
-				<div class="warning-box">
-					<div class="warning-box-header">
-						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-						重要声明
-					</div>
-					<div class="warning-box-content">
-						本工具为技术学习项目。根据 ClassIn 平台规则，学生账户通常仅拥有课程回放的<strong>观看权</strong>，<strong>无下载权</strong>。未经授权下载课程内容可能<strong>侵犯知识产权并违反平台用户协议</strong>。请仅在拥有合法权利的课程内容上使用本工具，并自行承担相关风险。
-					</div>
-				</div>
+    </div>
 
-				<!-- 兼容性 -->
-				<section class="section">
-					<div class="section-header">
-						<div class="section-icon">💻</div>
-						<h3 class="section-title">兼容性</h3>
-					</div>
-					<table class="compat-table">
-						<thead>
-							<tr>
-								<th>平台</th>
-								<th>最低要求</th>
-								<th>架构</th>
-								<th>状态</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>🪟 Windows</td>
-								<td>7 SP1+</td>
-								<td>x86_64 / x86 / arm64</td>
-								<td><span class="compat-status"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 支持</span></td>
-							</tr>
-							<tr>
-								<td>🐧 Linux</td>
-								<td>glibc 2.35+</td>
-								<td>x86_64 / arm64</td>
-								<td><span class="compat-status"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 支持</span></td>
-							</tr>
-							<tr>
-								<td>🍎 macOS</td>
-								<td>11.0+</td>
-								<td>x86_64 / arm64</td>
-								<td><span class="compat-status"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 支持</span></td>
-							</tr>
-						</tbody>
-					</table>
-				</section>
+    <!-- Stats -->
+    <div class="stats-row reveal">
+      <div class="stat-item">
+        <div class="stat-num">3</div>
+        <div class="stat-label">活跃项目</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3</div>
+        <div class="stat-label">技术栈</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">7+</div>
+        <div class="stat-label">发布组件</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">161</div>
+        <div class="stat-label">单元测试</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-				<!-- 已完成功能 -->
-				<section class="section">
-					<div class="section-header">
-						<div class="section-icon">✅</div>
-						<h3 class="section-title">已完成功能</h3>
-					</div>
-					<div class="feature-grid">
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">图形用户界面 (WPF/Avalonia)</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">命令行界面支持</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">基本的 ClassIn 视频下载功能</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">批量视频下载</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">从 HTTP 请求中解析视频链接</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">可配置线程数的多线程下载</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">实时下载速度显示</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">下载进度跟踪</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">错误处理和日志记录</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">可配置的下载目录</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">可调节的并发下载限制</span>
-						</div>
-					</div>
-				</section>
+<!-- ═══════════════ TOOLS ═══════════════ -->
+<section class="section" id="tools" style="background: var(--bg-elevated);">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Tools</div>
+      <h2 class="section-title">实用工具</h2>
+      <p class="section-desc">轻量级在线工具，无需安装，直接打开即用。</p>
+    </div>
+    <div class="tools-grid reveal">
+      <a href="./clock/" class="tool-card">
+        <div class="tool-icon">⏱️</div>
+        <div class="tool-info">
+          <div class="tool-name">模拟时钟</div>
+          <div class="tool-desc">全屏模拟时钟，支持多端自适应</div>
+        </div>
+        <div class="tool-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </a>
+      <a href="./vsbm/" class="tool-card">
+        <div class="tool-icon">⚡</div>
+        <div class="tool-info">
+          <div class="tool-name">毒蘑菇性能测试</div>
+          <div class="tool-desc">WebGL Mandelbulb 渲染，测试设备 GPU 性能</div>
+        </div>
+        <div class="tool-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </a>
+      <a href="./arduino/" class="tool-card">
+        <div class="tool-icon">🔌</div>
+        <div class="tool-info">
+          <div class="tool-name">Arduino 资源</div>
+          <div class="tool-desc">Arduino 相关数据文件与代码资源</div>
+        </div>
+        <div class="tool-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </a>
+    </div>
+  </div>
+</section>
 
-				<!-- 计划中功能 -->
-				<section class="section">
-					<div class="section-header">
-						<div class="section-icon">🔮</div>
-						<h3 class="section-title">计划中功能</h3>
-					</div>
-					<div class="feature-grid">
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">自助抓包 (长期目标)</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">自动编码修复 (GBK→UTF-8)</span>
-						</div>
-					</div>
-				</section>
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-copy">© 2025–2026 ZMH · 21306.top</div>
+      <div class="footer-links">
+        <a href="https://github.com/ZMH21306" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://qm.qq.com/q/PlUBdzqZCm" target="_blank" rel="noopener">QQ 群 2130606191</a>
+        <a href="mailto:zhounbdev@gmail.com">Email</a>
+      </div>
+    </div>
+  </div>
+</footer>
 
-				<!-- 操作按钮 -->
-				<div class="action-bar">
-					<a href="https://github.com/ZMH21306/ClassIn-DL" target="_blank" class="btn btn-primary">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-						GitHub 仓库
-					</a>
-					<a href="https://github.com/ZMH21306/ClassIn-DL/releases" target="_blank" class="btn btn-primary">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-						下载 releases
-					</a>
-					<a href="https://github.com/ZMH21306/ClassIn-DL/issues" target="_blank" class="btn btn-secondary">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-						报告问题
-					</a>
-				</div>
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script>
+  /* ── Theme ── */
+  function getPreferredTheme() {
+    const stored = localStorage.getItem('theme');
+    if (stored) return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function setTheme(theme) {
+    document.documentElement.className = theme === 'dark' ? 'dark' : 'light';
+    localStorage.setItem('theme', theme);
+  }
+  function toggleTheme() { setTheme(getPreferredTheme() === 'dark' ? 'light' : 'dark'); }
+  setTheme(getPreferredTheme());
 
-				<!-- 页脚 -->
-				<footer class="page-footer">
-					<div class="footer-text">ClassIn-DL 使用 GPL-v3.0 协议开源</div>
-					<div class="footer-links">
-						<a href="https://github.com/ZMH21306/ClassIn-DL" class="footer-link" target="_blank">GitHub</a>
-						<a href="https://github.com/ZMH21306/ClassIn-DL/releases" class="footer-link" target="_blank">下载</a>
-						<a href="https://github.com/ZMH21306/ClassIn-DL/issues" class="footer-link" target="_blank">问题反馈</a>
-					</div>
-					<div class="footer-text" style="font-size: 12px;">© 2024 ZMH21306. All rights reserved.</div>
-				</footer>
-			</div>
+  /* ── Mobile Menu ── */
+  function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('open');
+  }
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+  });
 
-			<!-- LlamaUI 项目 -->
-			<div class="project-view" id="project-llamaui">
-				<!-- 项目英雄区 -->
-				<div class="project-hero">
-					<span class="project-hero-icon">🦙</span>
-					<h2 class="project-hero-title">LlamaUI</h2>
-					<p class="project-hero-desc">LLM 桌面控制台 - 用于管理 llama-server 的现代化桌面应用，让本地大模型部署更简单</p>
-					<div class="badge-group">
-						<span class="badge">Rust</span>
-						<span class="badge">Tauri</span>
-						<span class="badge">跨平台</span>
-						<span class="badge">v0.2.1</span>
-						<span class="badge">MIT</span>
-					</div>
-				</div>
-
-				<!-- 特性亮点 -->
-				<div class="highlights-grid">
-					<div class="highlight-card">
-						<div class="highlight-icon">⚡</div>
-						<h3 class="highlight-title">高性能</h3>
-						<p class="highlight-desc">基于 Rust 构建，内存安全且性能卓越，启动速度快</p>
-					</div>
-					<div class="highlight-card">
-						<div class="highlight-icon">🖥️</div>
-						<h3 class="highlight-title">现代化界面</h3>
-						<p class="highlight-desc">Tauri 2 打造的现代化桌面应用，交互流畅直观</p>
-					</div>
-					<div class="highlight-card">
-						<div class="highlight-icon">🌍</div>
-						<h3 class="highlight-title">跨平台</h3>
-						<p class="highlight-desc">一套代码运行在 Windows、macOS、Linux 三大平台</p>
-					</div>
-				</div>
-
-				<!-- 截图展示 -->
-				<div class="screenshot-section">
-					<div class="screenshot-container">
-						<div class="screenshot-placeholder">
-							<div>
-								<div style="font-size: 48px; margin-bottom: 12px;">🖥️</div>
-								<div>界面截图展示区</div>
-								<div style="font-size: 12px; margin-top: 8px; opacity: 0.6;">LlamaUI 图形界面预览</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- 统计数据 -->
-				<div class="stats-grid">
-					<div class="stat-item">
-						<div class="stat-value">0.2.1</div>
-						<div class="stat-label">当前版本</div>
-					</div>
-					<div class="stat-item">
-						<div class="stat-value">5+</div>
-						<div class="stat-label">核心依赖</div>
-					</div>
-					<div class="stat-item">
-						<div class="stat-value">3</div>
-						<div class="stat-label">支持平台</div>
-					</div>
-					<div class="stat-item">
-						<div class="stat-value">MIT</div>
-						<div class="stat-label">开源协议</div>
-					</div>
-				</div>
-
-				<!-- 关于项目 -->
-				<section class="section">
-					<div class="section-header">
-						<div class="section-icon">ℹ️</div>
-						<h3 class="section-title">关于项目</h3>
-					</div>
-					<div class="section-content">
-						<p>LlamaUI 是一个基于 Rust 和 Tauri 构建的现代化桌面应用，专为 LLM（大语言模型）爱好者和开发者设计。它提供了一个友好的图形界面来管理 llama-server 进程，让本地 LLM 的部署和运行变得更加简单直观。</p>
-						<p>通过 Tauri 框架，LlamaUI 实现了轻量级、高性能的跨平台支持，同时保持了原生应用的流畅体验。</p>
-					</div>
-				</section>
-
-				<!-- 技术栈 -->
-				<section class="section">
-					<div class="section-header">
-						<div class="section-icon">🛠️</div>
-						<h3 class="section-title">技术栈</h3>
-					</div>
-					<div class="feature-grid">
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text"><strong>Rust</strong> - 核心逻辑使用安全、高性能的 Rust 编写</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text"><strong>Tauri 2</strong> - 现代化的跨平台桌面应用框架</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text"><strong>Tokio</strong> - 异步运行时，确保流畅的并发处理</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text"><strong>Sysinfo</strong> - 系统信息监控</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text"><strong>Serde</strong> - 强大的序列化/反序列化支持</span>
-						</div>
-					</div>
-				</section>
-
-				<!-- 代码质量 -->
-				<section class="section">
-					<div class="section-header">
-						<div class="section-icon">✨</div>
-						<h3 class="section-title">代码质量</h3>
-					</div>
-					<div class="section-content">
-						<p>项目遵循严格的 Rust 代码质量规范：</p>
-					</div>
-					<div class="feature-grid">
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">禁止未显式标注的不安全代码</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">强制错误处理，禁止随意 unwrap/expect</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">禁止 panic，确保应用稳定性</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">使用日志而非 print! 输出</span>
-						</div>
-						<div class="feature-item">
-							<div class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-							<span class="feature-text">避免不必要的类型转换和 clone</span>
-						</div>
-					</div>
-				</section>
-
-				<!-- 兼容性 -->
-				<section class="section">
-					<div class="section-header">
-						<div class="section-icon">💻</div>
-						<h3 class="section-title">兼容性</h3>
-					</div>
-					<table class="compat-table">
-						<thead>
-							<tr>
-								<th>平台</th>
-								<th>架构</th>
-								<th>状态</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>🪟 Windows</td>
-								<td>x86_64 / arm64</td>
-								<td><span class="compat-status"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 支持</span></td>
-							</tr>
-							<tr>
-								<td>🐧 Linux</td>
-								<td>x86_64 / arm64</td>
-								<td><span class="compat-status"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 支持</span></td>
-							</tr>
-							<tr>
-								<td>🍎 macOS</td>
-								<td>x86_64 / arm64</td>
-								<td><span class="compat-status"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 支持</span></td>
-							</tr>
-						</tbody>
-					</table>
-				</section>
-
-				<!-- 操作按钮 -->
-				<div class="action-bar">
-					<a href="https://github.com/ZMH21306/LlamaUI" target="_blank" class="btn btn-primary">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-						GitHub 仓库
-					</a>
-					<a href="https://github.com/ZMH21306/LlamaUI/releases" target="_blank" class="btn btn-primary">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-						下载 releases
-					</a>
-					<a href="https://github.com/ZMH21306/LlamaUI/issues" target="_blank" class="btn btn-secondary">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-						报告问题
-					</a>
-				</div>
-
-				<!-- 页脚 -->
-				<footer class="page-footer">
-					<div class="footer-text">LlamaUI 使用 MIT 协议开源</div>
-					<div class="footer-links">
-						<a href="https://github.com/ZMH21306/LlamaUI" class="footer-link" target="_blank">GitHub</a>
-						<a href="https://github.com/ZMH21306/LlamaUI/releases" class="footer-link" target="_blank">下载</a>
-						<a href="https://github.com/ZMH21306/LlamaUI/issues" class="footer-link" target="_blank">问题反馈</a>
-					</div>
-					<div class="footer-text" style="font-size: 12px;">© 2024 ZMH21306. All rights reserved.</div>
-				</footer>
-			</div>
-		</main>
-	</div>
-
-	<script>
-		// ===== 主题切换 =====
-		function toggleTheme() {
-			const body = document.body;
-			body.classList.toggle('dark-theme');
-			const isDark = body.classList.contains('dark-theme');
-			localStorage.setItem('theme', isDark ? 'dark' : 'light');
-		}
-
-		function initTheme() {
-			const savedTheme = localStorage.getItem('theme');
-			if (savedTheme === 'dark') {
-				document.body.classList.add('dark-theme');
-			} else if (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-				document.body.classList.add('dark-theme');
-			}
-		}
-
-		initTheme();
-
-		// ===== 项目切换 =====
-		function switchProject(projectId, element) {
-			// 隐藏所有项目
-			document.querySelectorAll('.project-view').forEach(el => {
-				el.classList.remove('active');
-			});
-
-			// 显示选中的项目
-			document.getElementById('project-' + projectId).classList.add('active');
-
-			// 更新导航状态
-			document.querySelectorAll('.project-nav-item').forEach(el => {
-				el.classList.remove('active');
-			});
-			element.classList.add('active');
-		}
-
-		// ===== 粒子背景效果 =====
-		function createParticleBackground() {
-			const canvas = document.getElementById('bg-canvas');
-			const ctx = canvas.getContext('2d');
-
-			function resize() {
-				canvas.width = window.innerWidth;
-				canvas.height = window.innerHeight;
-			}
-			resize();
-			window.addEventListener('resize', resize);
-
-			const particles = [];
-			const ripples = [];
-
-			class Particle {
-				constructor(x, y) {
-					this.x = x;
-					this.y = y;
-					this.size = Math.random() * 2 + 1;
-					this.speedX = Math.random() * 2 - 1;
-					this.speedY = Math.random() * 2 - 1;
-					this.alpha = 1;
-					this.color = `hsla(${200 + Math.random() * 60}, 40%, 60%, ${this.alpha})`;
-				}
-				update() {
-					this.x += this.speedX;
-					this.y += this.speedY;
-					this.alpha -= 0.008;
-					this.size *= 0.98;
-				}
-			}
-
-			class Ripple {
-				constructor(x, y) {
-					this.x = x;
-					this.y = y;
-					this.radius = 0;
-					this.maxRadius = this.generateRandomSize();
-					this.color = `hsla(${Math.random() * 360}, 85%, 65%, 1)`;
-					this.alpha = 1;
-					this.expandSpeed = this.calculateExpandSpeed();
-					this.lineWidth = 4 + Math.random() * 4;
-				}
-
-				generateRandomSize() {
-					const sizes = [80, 120, 160, 200];
-					return sizes[Math.floor(Math.random() * sizes.length)] + Math.random() * 40;
-				}
-
-				calculateExpandSpeed() {
-					return 3 - (this.maxRadius / 220) * 1.5;
-				}
-
-				update() {
-					this.radius += this.expandSpeed;
-					this.alpha -= 0.01;
-					if (this.alpha < 0) this.alpha = 0;
-				}
-
-				isDone() {
-					return this.alpha <= 0 || this.radius >= this.maxRadius;
-				}
-			}
-
-			document.addEventListener('mousemove', e => {
-				for (let i = 0; i < 2; i++) {
-					particles.push(new Particle(e.x + Math.random() * 10 - 5, e.y + Math.random() * 10 - 5));
-				}
-			});
-
-			document.addEventListener('click', e => {
-				const rippleCount = 3 + Math.floor(Math.random() * 3);
-				for(let i = 0; i < rippleCount; i++) {
-					const offset = 30 - Math.random() * 60;
-					ripples.push(new Ripple(e.clientX + offset, e.clientY + offset));
-				}
-			});
-
-			function animate() {
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-				particles.forEach((particle, index) => {
-					particle.update();
-					ctx.fillStyle = particle.color;
-					ctx.beginPath();
-					ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-					ctx.fill();
-					if (particle.alpha <= 0) particles.splice(index, 1);
-				});
-
-				ripples.forEach((ripple, index) => {
-					ripple.update();
-
-					const layers = [
-						{ offset: 0, width: ripple.lineWidth },
-						{ offset: 3, width: ripple.lineWidth * 0.7 },
-						{ offset: -2, width: ripple.lineWidth * 0.5 }
-					];
-
-					layers.forEach(layer => {
-						ctx.beginPath();
-						ctx.arc(ripple.x + layer.offset, ripple.y + layer.offset, Math.max(0, ripple.radius), 0, Math.PI * 2);
-
-						const gradient = ctx.createRadialGradient(ripple.x, ripple.y, 0, ripple.x, ripple.y, ripple.radius);
-						gradient.addColorStop(0, `${ripple.color.replace('1)', `${ripple.alpha})`)}`);
-						gradient.addColorStop(1, `${ripple.color.replace('1)', '0)')}`);
-
-						ctx.strokeStyle = gradient;
-						ctx.lineWidth = layer.width;
-						ctx.stroke();
-					});
-
-					if (ripple.isDone()) ripples.splice(index, 1);
-				});
-
-				requestAnimationFrame(animate);
-			}
-			animate();
-		}
-		createParticleBackground();
-	</script>
+  /* ── Scroll Reveal ── */
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+</script>
 </body>
 </html>
