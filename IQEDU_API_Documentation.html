@@ -1343,6 +1343,108 @@ curl -X POST &quot;http://gateway.iqcedu.com/apps/course/setting/subject/list&qu
                 });
             });
         });
+        <!-- 全屏提示弹窗 -->
+    <div id="consentOverlay" style="
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        font-size: 1.2rem;
+        text-align: center;
+        padding: 20px;
+    ">
+        <div style="background: rgba(0,0,0,0.6); padding: 40px; border-radius: 16px; max-width: 90%;">
+            <p style="margin: 0 0 20px;">请确保您是自愿浏览，内容由诡异的Y1入制作</p>
+            <button id="consentBtn" style="
+                background: #2563eb;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 1rem;
+                cursor: pointer;
+                box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            ">
+                确定
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 显示全屏提示框
+            const overlay = document.getElementById('consentOverlay');
+            const btn = document.getElementById('consentBtn');
+            
+            // 等待用户点击"确定"后才初始化其他功能
+            btn.addEventListener('click', function() {
+                overlay.style.display = 'none';
+                
+                // 现在才初始化主题切换、平滑滚动、代码复制等功能
+                const themeToggle = document.querySelector('.theme-toggle');
+                
+                // Check for saved theme preference or use system preference
+                const savedTheme = localStorage.getItem('theme') || 
+                    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                
+                if (savedTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+                
+                themeToggle.addEventListener('click', function() {
+                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+                
+                // Smooth scrolling for anchor links
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const target = document.querySelector(this.getAttribute('href'));
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    });
+                });
+                
+                // Add copy buttons to code blocks
+                document.querySelectorAll('pre').forEach((block, index) => {
+                    const btn = document.createElement('button');
+                    btn.textContent = '复制';
+                    btn.style.position = 'absolute';
+                    btn.style.top = '8px';
+                    btn.style.right = '12px';
+                    btn.style.background = '#2563eb';
+                    btn.style.color = 'white';
+                    btn.style.border = 'none';
+                    btn.style.borderRadius = '4px';
+                    btn.style.padding = '4px 8px';
+                    btn.style.fontSize = '12px';
+                    btn.style.cursor = 'pointer';
+                    btn.style.boxShadow = '0 2px 4px -1px rgba(0,0,0,0.1)';
+                    btn.style.zIndex = '10';
+                    
+                    block.style.position = 'relative';
+                    block.appendChild(btn);
+                    
+                    btn.addEventListener('click', () => {
+                        const code = block.querySelector('code');
+                        if (code) {
+                            navigator.clipboard.writeText(code.textContent);
+                            const originalText = btn.textContent;
+                            btn.textContent = '已复制!';
+                            setTimeout(() => btn.textContent = originalText, 2000);
+                        }
+                    });
+                });
+            });
+        });
     </script>
 </body>
 </html>
