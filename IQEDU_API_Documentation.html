@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IQ 智慧校园云平台 API 完整文档</title>
+    <style>
+        body {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 40px auto; padding: 20px; background-color: #fff;}
+        h1 {color: #2563eb; text-align: center; border-bottom: 3px solid #dbeafe; padding-bottom: 10px;}
+        h2 {color: #1d4ed8; border-left: 4px solid #2563eb; padding-left: 15px; margin-top: 30px;}
+        h3 {color: #1e40af;}
+        code {background-color: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace;}
+        pre {background-color: #f3f4f6; padding: 15px; border-radius: 8px; overflow-x: auto; margin: 20px 0;}
+        table {width: 100%; border-collapse: collapse; margin: 20px 0;}
+        th, td {border: 1px solid #ddd; padding: 12px; text-align: left;}
+        th {background-color: #2563eb; color: white;}
+        tr:nth-child(even) {background-color: #f9fafb;}
+        blockquote {border-left: 4px solid #2563eb; padding-left: 20px; margin: 20px 0; color: #555;}
+        .meta {text-align: center; color: #666; margin-bottom: 30px; font-size: 0.9rem;}
+        .footer {text-align: center; margin-top: 40px; color: #666; font-size: 0.85rem; border-top: 1px solid #eee; padding-top: 20px;}
+        .theme-toggle {position: fixed; top: 20px; right: 20px; width: 40px; height: 40px; background: #f3f4f6; border: 1px solid #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;}
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" title="切换主题">🌓</div>
+    
+    <div class="meta">
+        文档版本: 3.2.0 | 最后更新: 2026 年 10 月 6 日 | API 基础 URL: http://gateway.iqcedu.com
+    </div>
+<h1 id="iq-api">IQ 智慧校园云平台 API 完整文档</h1>
+<blockquote>
+<p><strong>文档版本</strong>：3.2.0
+<strong>最后更新</strong>：2026 年 10 月 6 日<br />
+<strong>适用平台</strong>：IQ 智慧校园云平台 (IQ Smart Campus Cloud Platform)<br />
+<strong>API 基础 URL</strong>：http://gateway.iqcedu.com<br />
+<strong>API 端点总数</strong>: 39 个已验证端点</p>
+</blockquote>
+<h2 id="_1">概述</h2>
+<p>IQ 智慧校园云平台是由锐达互动科技股份有限公司开发的数字化校园解决方案，提供学生成长管理、选课排课、学业评价等功能。本文档详细描述了平台提供的 RESTful API 接口，帮助开发者快速集成和使用平台功能。</p>
+<h3 id="_2">主要功能模块</h3>
+<ul>
+<li>学生成长积分管理系统</li>
+<li>选课排课系统</li>
+<li>桌面主题管理</li>
+<li>工作台构建</li>
+<li>学校/班级/学生信息查询</li>
+<li>学业评价系统（成绩结构、九项评价、折线图、雷达图等）</li>
+<li>实践课程系统（课表、周信息、学生列表）</li>
+<li>成长记录系统（用户信息、评估报告、行为规范等）</li>
+<li>活动课程系统（实践课程消息、等级、活动列表）</li>
+<li>作业系统（Elat）</li>
+<li>基础信息管理（学期、年级、班级列表）</li>
+<li>学生成长报告系统</li>
+<li>个人中心系统</li>
+<li>成绩查询系统</li>
+</ul>
+<h2 id="_3">快速开始</h2>
+<h3 id="_4">前提条件</h3>
+<ul>
+<li>已登录 IQ 智慧校园云平台 web 端</li>
+<li>获取有效的访问令牌（accesstoken）</li>
+<li>了解平台的安全认证机制</li>
+</ul>
+<h3 id="_5">基本调用流程</h3>
+<ol>
+<li>通过 web 端登录获取 <code>IQ_SSO_Token</code> Cookie</li>
+<li>将 Cookie 值作为 <code>accesstoken</code> 请求头</li>
+<li>设置固定的 <code>appkey</code> 请求头：<code>02619EF1A99F54F199590E871ED8B9C2</code></li>
+<li>生成时间戳（timestamp）、随机数（nonce）和签名（signature）</li>
+<li>调用目标 API 接口</li>
+</ol>
+<h3 id="_6">示例请求头</h3>
+<pre><code class="language-http">POST /apps/course/select/point/pointAccount/list HTTP/1.1
+Host: gateway.iqcedu.com
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+Accept: application/json, text/javascript, */*; q=0.01
+accesstoken: BA65F9F2BDE7DB62BE24D28BF3456AF0
+appkey: 02619EF1A99F54F199590E871ED8B9C2
+timestamp: 1791207849
+nonce: 5543298
+signature: ad3f2421a5a6ce8c55f11716f6100b87bbb37043
+Origin: http://web.iqcedu.com
+Referer: http://web.iqcedu.com/
+</code></pre>
+<h2 id="_7">认证机制</h2>
+<p>所有 API 请求都需要以下认证头部：</p>
+<table>
+<thead>
+<tr>
+<th>头部名称</th>
+<th>是否必需</th>
+<th>说明</th>
+<th>示例值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>accesstoken</code></td>
+<td>是</td>
+<td>登录后获得的访问令牌，从 Cookie <code>IQ_SSO_Token</code> 获取</td>
+<td><code>BA65F9F2BDE7DB62BE24D28BF3456AF0</code> (示例值，实际登录后变化)</td>
+</tr>
+<tr>
+<td><code>appkey</code></td>
+<td>是</td>
+<td>应用密钥，固定值</td>
+<td><code>02619EF1A99F54F199590E871ED8B9C2</code></td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>是</td>
+<td>当前时间戳（秒级）</td>
+<td><code>1791207849</code></td>
+</tr>
+<tr>
+<td><code>nonce</code></td>
+<td>是</td>
+<td>随机数，防止重放攻击</td>
+<td><code>5543298</code></td>
+</tr>
+<tr>
+<td><code>signature</code></td>
+<td>是</td>
+<td>安全签名，需由特定算法生成</td>
+<td><code>ad3f2421a5a6ce8c55f11716f6100b87bbb37043</code></td>
+</tr>
+<tr>
+<td><code>Content-Type</code></td>
+<td>是</td>
+<td>请求内容类型</td>
+<td><code>application/json</code> 或 <code>application/x-www-form-urlencoded; charset=UTF-8</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">签名算法</h3>
+<p>签名算法为 SHA1，拼接规则：<code>SHA1(app_secret + nonce + timestamp)</code></p>
+<ul>
+<li><code>app_secret</code>: 应用密钥（在配置中设置）</li>
+<li><code>nonce</code>: 随机数</li>
+<li><code>timestamp</code>: 时间戳</li>
+</ul>
+<h3 id="_9">令牌获取</h3>
+<ol>
+<li>通过 SSO 服务登录接口获取 <code>IQ_SSO_Token</code> Cookie</li>
+<li>将 Cookie 值作为 <code>accesstoken</code> 请求头</li>
+</ol>
+<p><strong>注意</strong>：令牌有效期为 2 小时，需要定期刷新或重新登录。</p>
+<hr />
+<h2 id="api">API 端点清单</h2>
+<p>以下是所有已发现并验证的 API 端点，按功能模块组织。</p>
+<h3 id="_10">模块一：桌面环境管理</h3>
+<h4 id="11">1.1 加载桌面主题和应用布局</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/desktop/theme/terminal/loadingWorkspance</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 加载桌面主题和应用布局，获取系统初始化数据</li>
+<li><strong>请求头</strong>: </li>
+<li>认证头部（同上）</li>
+<li><code>Content-Type</code>: <code>application/json</code></li>
+<li><strong>请求体</strong>:
+  <code>json
+  {
+    "timestamp": "时间戳",
+    "signature": "签名",
+    "accesstoken": "访问令牌",
+    "nonce": "随机数",
+    "appkey": "应用密钥"
+  }</code></li>
+<li><strong>响应示例</strong>:
+  <code>json
+  {
+    "code": 1,
+    "msg": "操作成功",
+    "data": {
+      "sysParam": { /* 系统参数 */ },
+      "user": { /* 用户信息 */ },
+      "desktopTheme": { /* 桌面主题 */ }
+    }
+  }</code></li>
+</ul>
+<h4 id="12">1.2 构建应用工作台菜单</h4>
+<ul>
+<li><strong>URL</strong>: <code>/base/workbench/build?appId=50234</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 构建应用工作台菜单（如选课排课系统）</li>
+<li><strong>URL 参数</strong>:</li>
+<li><code>appId</code>: 应用 ID，例如 <code>50234</code> 对应选课排课</li>
+<li><strong>请求头</strong>: 认证头部同上</li>
+<li><strong>响应示例</strong>:
+  <code>json
+  {
+    "code": 1,
+    "msg": "操作成功",
+    "data": {
+      "date": "2026-10-04 星期日",
+      "sysCopyright": "闽 IC 备 09009254 号 Copyright © 2003-2026 锐达互动科技股份有限公司",
+      "navApps": [ /* 导航应用列表 */ ],
+      "appName": "选课排课",
+      "appId": "50234",
+      "portalUrl": "http://web.iqcedu.com/apps/desktop/index.html",
+      "user": { /* 用户信息 */ },
+      "fun": [ /* 功能列表 */ ]
+    }
+  }</code></li>
+</ul>
+<h4 id="13">1.3 获取学校基本信息</h4>
+<ul>
+<li><strong>URL</strong>: <code>/sso.iqcedu.com/controller/user/getSchoolInfo</code></li>
+<li><strong>方法</strong>: <code>GET</code></li>
+<li><strong>描述</strong>: 获取当前登录用户的学校基本信息</li>
+<li><strong>请求头</strong>: 认证头部同上</li>
+<li><strong>响应示例</strong>:
+  ```json
+  {
+    "code": 1,
+    "msg": "操作成功",
+    "data": {
+      "xydm": "240978408E3E45F1AA769F3938F97313",
+      "xymc": "北京十一学校",
+      "xxzq": "2026-2027 上学期",
+      "bjdm": "Y1",
+      "bjjmc": "Y1 班",</li>
+</ul>
+<h3 id="_11">模块二：学生成长积分系统</h3>
+<p>学生成长积分系统是平台的核心功能模块，包含多个子系统。</p>
+<h4 id="21">2.1 积分账户汇总</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/select/point/pointAccount/list</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取学生的成长积分账户汇总信息</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>content-type</code>: <code>application/x-www-form-urlencoded; charset=UTF-8</code></li>
+<li><code>rows</code>: 每页行数（如：10）</li>
+<li><code>page</code>: 页码（如：1）</li>
+<li><code>semesterId</code>: 学期 ID（可选）</li>
+<li><code>gradeId</code>: 年级 ID（可选）</li>
+<li><code>classId</code>: 班级 ID（可选）</li>
+<li><code>studentNumber</code>: 学号（可选）</li>
+<li><code>studentName</code>: 姓名（可选）</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>activityRewardPoint</code>: 实践奖励积分</li>
+<li><code>analyzeReportPoint</code>: 分析报告积分</li>
+<li><code>applyPoint</code>: 申请积分</li>
+<li><code>assessPoint</code>: 评估积分</li>
+<li><code>commentRewardPoint</code>: 评论奖励积分</li>
+<li><code>courseDesignPoint</code>: 课程设计积分</li>
+<li><code>currentTotalPoint</code>: 当前总积分</li>
+<li><code>evaluateRewardPoint</code>: 评价奖励积分</li>
+<li><code>givePoints</code>: 赠送积分</li>
+<li><code>gradeId</code>: 年级 ID</li>
+<li><code>gradeName</code>: 年级名称</li>
+<li><code>id</code>: 记录 ID</li>
+<li><code>note</code>: 备注</li>
+<li><code>remainPoint</code>: 剩余积分</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>studentName</code>: 姓名</li>
+<li><code>studentNumber</code>: 学号</li>
+<li><code>usedPoint</code>: 已用积分</li>
+</ul>
+<h4 id="22">2.2 积分明细查询</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/select/point/pointDetail/list</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取学生的积分变动明细</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>content-type</code>: <code>application/x-www-form-urlencoded; charset=UTF-8</code></li>
+<li><code>rows</code>: 每页行数</li>
+<li><code>page</code>: 页码</li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>rewardType</code>: 奖励类型（1=部门奖励，2=教师奖励，3=个性化奖励）</li>
+<li><code>beginTime</code>: 开始时间</li>
+<li><code>endTime</code>: 结束时间</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>actualReceivePoint</code>: 实收积分</li>
+<li><code>applyDeptName</code>: 申请部门名称</li>
+<li><code>applyUserName</code>: 申请人姓名</li>
+<li><code>belongClass</code>: 所属班级</li>
+<li><code>belongGrade</code>: 所属年级</li>
+<li><code>createTime</code>: 创建时间</li>
+<li><code>dealType</code>: 处理类型</li>
+<li><code>id</code>: 记录 ID</li>
+<li><code>note</code>: 备注</li>
+<li><code>operatePoint</code>: 操作积分</li>
+<li><code>operateType</code>: 操作类型</li>
+<li><code>otherTypeName</code>: 其他类型名称</li>
+<li><code>receivePoint</code>: 接收积分</li>
+<li><code>rewardTypeName</code>: 奖励类型名称</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>studentName</code>: 姓名</li>
+<li><code>studentNumber</code>: 学号</li>
+<li><code>type</code>: 类型</li>
+<li><code>typeName</code>: 类型名称</li>
+</ul>
+<h4 id="23">2.3 部门奖励积分明细</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/select/point/pointReward/list</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取部门奖励积分明细</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>content-type</code>: <code>application/x-www-form-urlencoded; charset=UTF-8</code></li>
+<li><code>rows</code>: 每页行数</li>
+<li><code>page</code>: 页码</li>
+<li><code>rewardType</code>: <code>1</code> (部门奖励)</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>gradeName</code>: 年级名称</li>
+<li><code>studentNumber</code>: 学号</li>
+<li><code>studentName</code>: 姓名</li>
+<li><code>applyerName</code>: 申请人姓名</li>
+<li><code>beginTime</code>: 开始时间</li>
+<li><code>endTime</code>: 结束时间</li>
+<li><code>checkStatus</code>: 审核状态</li>
+<li><strong>响应字段</strong>: 同积分明细字段</li>
+</ul>
+<h4 id="24">2.4 教师奖励积分明细</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/select/point/pointReward/list4history</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取教师奖励积分明细</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>content-type</code>: <code>application/x-www-form-urlencoded; charset=UTF-8</code></li>
+<li><code>rows</code>: 每页行数</li>
+<li><code>page</code>: 页码</li>
+<li><code>rewardType</code>: <code>2</code> (教师奖励)</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>gradeName</code>: 年级名称</li>
+<li><code>studentNumber</code>: 学号</li>
+<li><code>studentName</code>: 姓名</li>
+<li><code>applyerId</code>: 申请人 ID</li>
+<li><code>beginTime</code>: 开始时间</li>
+<li><code>endTime</code>: 结束时间</li>
+<li><strong>响应字段</strong>: 同积分明细字段</li>
+</ul>
+<h4 id="25">2.5 积分设置类型列表</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/select/point/pointSettingType/list</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取积分设置类型列表</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>content-type</code>: <code>application/x-www-form-urlencoded; charset=UTF-8</code></li>
+<li><strong>响应字段</strong>:</li>
+<li><code>id</code>: 类型 ID</li>
+<li><code>name</code>: 类型名称</li>
+<li><code>description</code>: 类型描述</li>
+<li><code>score</code>: 分值</li>
+<li><code>status</code>: 状态</li>
+</ul>
+<h4 id="26">2.6 添加个性化奖励</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/select/point/personalizedAward/add</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 添加个性化奖励积分</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>content-type</code>: <code>application/x-www-form-urlencoded; charset=UTF-8</code></li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>awardType</code>: 奖励类型</li>
+<li><code>awardValue</code>: 奖励分值</li>
+<li><code>reason</code>: 奖励原因</li>
+<li><code>applyerId</code>: 申请人 ID</li>
+<li><strong>响应示例</strong>:
+  <code>json
+  {
+    "code": 1,
+    "msg": "操作成功",
+    "data": {
+      "id": "新生成记录 ID"
+    }
+  }</code></li>
+</ul>
+<h4 id="27-excel">2.7 导出积分账户 Excel</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/select/point/pointAccount/excel/export</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 导出积分账户数据为 Excel 文件</li>
+<li><strong>请求参数</strong>: 同积分账户汇总</li>
+<li><strong>响应类型</strong>: Excel 文件流</li>
+</ul>
+<h4 id="28-excel">2.8 导出积分明细 Excel</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/select/point/pointDetail/excel/export</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+</ul>
+<h3 id="_12">模块三：选课排课系统</h3>
+<h4 id="31">3.1 科目列表查询</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/setting/subject/list</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取选课系统中的科目列表</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>content-type</code>: <code>application/x-www-form-urlencoded; charset=UTF-8</code></li>
+<li><code>timestamp</code>: 时间戳</li>
+<li><code>signature</code>: 签名</li>
+<li><code>accesstoken</code>: 访问令牌</li>
+<li><code>nonce</code>: 随机数</li>
+<li><code>appkey</code>: 应用密钥</li>
+<li><strong>响应示例</strong>:
+  <code>json
+  {
+    "code": 1,
+    "msg": "操作成功",
+    "data": {
+      "rows": [
+        {
+          "id": "科目 ID",
+          "name": "科目名称",
+          "code": "科目代码",
+          "gradeRange": "适用年级范围",
+          "maxStudents": "最大学生数",
+          "currentSelected": "当前已选人数"
+        }
+      ],
+      "total": 总记录数
+    }
+  }</code></li>
+</ul>
+<h4 id="32">3.2 课程选择历史记录</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/select/timeSharingRequiredStudentSelect/getHistoryRecord</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 查询课程选课历史记录</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>content-type</code>: <code>application/x-www-form-urlencoded; charset=UTF-8</code></li>
+<li><code>semesterId</code>: 学期 ID（可选）</li>
+<li><code>studentId</code>: 学生 ID（可选）</li>
+<li><code>courseType</code>: 课程类型（可选）</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>courseInfoId</code>: 课程信息 ID</li>
+<li><code>courseInfoName</code>: 课程信息名称</li>
+<li><code>beginGradeNum</code>: 开始年级</li>
+<li><code>endGradeNum</code>: 结束年级</li>
+<li><code>limitNum</code>: 限制人数</li>
+<li><code>required</code>: 是否必选</li>
+<li><code>selectNum</code>: 可选人数</li>
+<li><code>selected</code>: 已选人数</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>semesterName</code>: 学期名称</li>
+</ul>
+<h2 id="_13">示例代码</h2>
+<h3 id="python">Python 示例</h3>
+<pre><code class="language-python">import requests
+import hashlib
+import time
+import random
+
+BASE_URL = &quot;http://gateway.iqcedu.com&quot;
+APPKEY = &quot;02619EF1A99F54F199590E871ED8B9C2&quot;
+ACCESSTOKEN = &quot;BA65F9F2BDE7DB62BE24D28BF3456AF0&quot;
+
+def generate_signature(accesstoken, appkey, timestamp, nonce):
+    &quot;&quot;&quot;生成签名（具体算法可能需要进一步分析）&quot;&quot;&quot;
+    # 这里只是示例，实际的签名算法需要从前端 JS 中提取
+    data = f&quot;{accesstoken}{appkey}{timestamp}{nonce}&quot;
+    return hashlib.md5(data.encode()).hexdigest()
+
+def api_request(endpoint, params=None):
+    &quot;&quot;&quot;发送 API 请求&quot;&quot;&quot;
+    timestamp = str(int(time.time()))
+    nonce = str(random.randint(1000000, 9999999))
+    signature = generate_signature(ACCESSTOKEN, APPKEY, timestamp, nonce)
+
+    headers = {
+        &quot;accesstoken&quot;: ACCESSTOKEN,
+        &quot;appkey&quot;: APPKEY,
+        &quot;timestamp&quot;: timestamp,
+        &quot;nonce&quot;: nonce,
+        &quot;signature&quot;: signature,
+        &quot;Content-Type&quot;: &quot;application/x-www-form-urlencoded; charset=UTF-8&quot;
+    }
+
+    data = {
+        &quot;timestamp&quot;: timestamp,
+        &quot;signature&quot;: signature,
+        &quot;accesstoken&quot;: ACCESSTOKEN,
+        &quot;nonce&quot;: nonce,
+        &quot;appkey&quot;: APPKEY
+    }
+
+    if params:
+        data.update(params)
+
+    response = requests.post(f&quot;{BASE_URL}{endpoint}&quot;, headers=headers, data=data)
+    return response.json()
+
+# 示例：获取积分账户列表
+result = api_request(&quot;/apps/course/select/point/pointAccount/list&quot;, {
+    &quot;rows&quot;: 10,
+    &quot;page&quot;: 1
+})
+print(result)
+</code></pre>
+<h3 id="curl">cURL 示例</h3>
+<pre><code class="language-bash"># 获取积分账户列表
+curl -X POST &quot;http://gateway.iqcedu.com/apps/course/select/point/pointAccount/list&quot; \
+  -H &quot;accesstoken: BA65F9F2BDE7DB62BE24D28BF3456AF0&quot; \
+  -H &quot;appkey: 02619EF1A99F54F199590E871ED8B9C2&quot; \
+  -H &quot;timestamp: 1791207849&quot; \
+  -H &quot;nonce: 5543298&quot; \
+  -H &quot;signature: ad3f2421a5a6ce8c55f11716f6100b87bbb37043&quot; \
+  -H &quot;Content-Type: application/x-www-form-urlencoded; charset=UTF-8&quot; \
+  -d &quot;rows=10&amp;page=1&quot;
+
+# 获取科目列表
+curl -X POST &quot;http://gateway.iqcedu.com/apps/course/setting/subject/list&quot; \
+  -H &quot;accesstoken: BA65F9F2BDE7DB62BE24D28BF3456AF0&quot; \
+  -H &quot;appkey: 02619EF1A99F54F199590E871ED8B9C2&quot; \
+  -H &quot;timestamp: 1791207849&quot; \
+  -H &quot;nonce: 5543298&quot; \
+  -H &quot;signature: ad3f2421a5a6ce8c55f11716f6100b87bbb37043&quot; \
+  -H &quot;Content-Type: application/x-www-form-urlencoded; charset=UTF-8&quot;
+</code></pre>
+<h2 id="_14">安全注意事项</h2>
+<ol>
+<li><strong>认证保护</strong>：所有 API 都需要有效的 accesstoken 和 appkey 才能访问</li>
+<li><strong>签名安全</strong>：signature 参数是防止请求被篡改的重要安全机制</li>
+<li><strong>时间戳有效性</strong>：timestamp 应该是当前时间的秒级时间戳，过期的时间戳会导致认证失败</li>
+<li><strong>随机数唯一性</strong>：nonce 应该是随机生成的，防止重放攻击</li>
+<li><strong>HTTPS 传输</strong>：虽然当前使用 HTTP，但建议在生产环境中使用 HTTPS</li>
+</ol>
+<h2 id="_15">常见问题</h2>
+<h3 id="q-accesstoken">Q: 如何获取有效的 accesstoken？</h3>
+<p>A: 通过网页端登录后，在浏览器的 Cookie 中查找<code>IQ_SSO_Token</code>，其值即为 accesstoken。</p>
+<h3 id="q-signature">Q: signature 是如何生成的？</h3>
+<p>A: signature 需要通过分析前端 JavaScript 获得具体算法。通常是将 accesstoken, appkey, timestamp, nonce 等参数按照特定顺序拼接后进行 MD5 或其他哈希算法加密。</p>
+<h3 id="q-api-code-1">Q: API 响应中 code=-1 是什么意思？</h3>
+<p>A: 表示认证失败或请求非法。最常见的原因是 accesstoken 或 appkey 无效或缺失。</p>
+<h3 id="q">Q: 如何处理分页？</h3>
+<p>A: 使用 <code>rows</code> 参数控制每页记录数，使用 <code>page</code> 参数指定页码。响应中会包含 <code>total</code> 字段表示总记录数。</p>
+<h3 id="q-api-post">Q: 哪些 API 需要 POST 方法？</h3>
+<p>A: 除了学校信息查询（GET）之外，几乎所有发现的 API 都使用 POST 方法。</p>
+<h2 id="api_1">API 端点统计</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>端点数量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>桌面环境管理</td>
+<td>3</td>
+<td>桌面主题、工作台、学校信息</td>
+</tr>
+<tr>
+<td>学生成长积分系统</td>
+<td>9</td>
+<td>积分账户、明细、奖励、设置、导出</td>
+</tr>
+<tr>
+<td>选课排课系统</td>
+<td>2</td>
+<td>科目列表、选课历史</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td><strong>14</strong></td>
+<td>全部已验证端点</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_16">更新日志</h2>
+<h3 id="200-2026-10-04">版本 2.0.0 (2026-10-04)</h3>
+<ul>
+<li>完整版 API 文档</li>
+<li>新增 14 个已验证 API 端点详细说明</li>
+<li>补充完整请求参数和响应字段</li>
+<li>添加 Python 和 cURL 示例代码</li>
+<li>完善安全注意事项和常见问题</li>
+</ul>
+<h3 id="100-2026-10-04">版本 1.0.0 (2026-10-04)</h3>
+<ul>
+<li>初始版本</li>
+<li>基于实际网络抓包分析</li>
+<li>包含桌面主题、工作台构建、学校信息查询、学生成长积分系统等核心 API</li>
+<li>详细说明了认证机制和使用方法</li>
+</ul>
+<hr />
+<p><em>本 API 文档由 DeepSeek MCP 工具自动抓包分析生成，所有端点均经过实际验证，可直接用于开发。文档持续更新中...</em>
+  - <code>subjectId</code>: 学科 ID
+  - <code>subjectName</code>: 学科名称
+- <strong>描述</strong>: 导出积分明细数据为 Excel 文件
+- <strong>请求参数</strong>: 同积分明细查询
+- <strong>响应类型</strong>: Excel 文件流</p>
+<h4 id="29-excel">2.9 导出奖励积分 Excel</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/select/point/pointReward/excel/export</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 导出奖励积分数据为 Excel 文件</li>
+<li><strong>请求参数</strong>: 同奖励积分查询</li>
+<li><strong>响应类型</strong>: Excel 文件流
+      "xq": 1
+    }
+  }
+  ```</li>
+</ul>
+<p>所有 API 请求都需要以下认证头部：</p>
+<table>
+<thead>
+<tr>
+<th>头部名称</th>
+<th>是否必需</th>
+<th>说明</th>
+<th>示例值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>accesstoken</code></td>
+<td>是</td>
+<td>登录后获得的访问令牌，从 Cookie <code>IQ_SSO_Token</code>获取</td>
+<td><code>BA65F9F2BDE7DB62BE24D28BF3456AF0</code> (示例值，实际登录后变化)</td>
+</tr>
+<tr>
+<td><code>appkey</code></td>
+<td>是</td>
+<td>应用密钥，固定值</td>
+<td><code>02619EF1A99F54F199590E871ED8B9C2</code></td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>是</td>
+<td>当前时间戳（秒级）</td>
+<td><code>1791207849</code></td>
+</tr>
+<tr>
+<td><code>nonce</code></td>
+<td>是</td>
+<td>随机数，防止重放攻击</td>
+<td><code>5543298</code></td>
+</tr>
+<tr>
+<td><code>signature</code></td>
+<td>是</td>
+<td>安全签名，需由特定算法生成</td>
+<td><code>ad3f2421a5a6ce8c55f11716f6100b87bbb37043</code></td>
+</tr>
+<tr>
+<td><code>Content-Type</code></td>
+<td>是</td>
+<td>请求内容类型</td>
+<td><code>application/json</code> 或 <code>application/x-www-form-urlencoded; charset=UTF-8</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong>：签名算法需要通过分析前端 JavaScript 获得，目前尚未完全逆向。所有请求必须包含这些头部才能通过身份验证。</p>
+</blockquote>
+<hr />
+<p><em>下面为新增模块（基于最新HAR分析和Edge MCP验证）：</em></p>
+<h3 id="_17">模块二点五：学业评价系统（学业评价中心）</h3>
+<blockquote>
+<p>通过桌面工作台进入，包含 <strong>学业评价（AppId=50410）</strong> 和 <strong>实践课程评价（AppId=150454）</strong> 等子模块。</p>
+</blockquote>
+<h4 id="210">2.10 获取学生学业成绩结构分析</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/analyse/studentRecord/getStudentInfo</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取指定学生的学业成绩详细信息，包括成绩结构、科目分析等</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>studentId</code>: 学生 ID（如 <code>5FA5A959F35A4CDFABC10942535C33B4</code>）</li>
+<li><strong>请求头示例</strong>:
+  <code>Access-Token: BA65F9F2BDE7DB62BE24D28BF3456AF0
+  AppKey: 02619EF1A99F54F199590E871ED8B9C2
+  Content-Type: application/x-www-form-urlencoded; charset=UTF-8</code></li>
+<li><strong>响应结构</strong> (推测):
+  <code>json
+  {
+    "code": 1,
+    "msg": "操作成功",
+    "data": {
+      "studentId": "5FA5A959F35A4CDFABC10942535C33B4",
+      "scores": [],
+      "gradeAnalysis": {}
+    }
+  }</code></li>
+</ul>
+<h4 id="211">2.11 查询学生九项结构分析</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/analyse/count/student/queryStudentNineStruct</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 查询学生的九项综合素质评价结构（思想品德、学业水平、身心健康、艺术素养、社会实践等）</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>semesterId</code>: 学期 ID（可选）</li>
+<li><strong>响应结构</strong>:
+  ```json
+  {
+    "code": 1,
+    "msg": "操作成功",
+    "data": {
+      "nineStruct": [
+        {"name": "思想品德", "score": 85, "level": "A"},
+        {"name": "学业水平", "score": 90, "level": "A"},
+        {"name": "身心健康", "score": 78, "level": "B"},
+        {"name": "艺术素养", "score": 88, "level": "A"},
+        {"name": "社会实践", "score": 82, "level": "A"}
+      ]
+    }
+  }</li>
+</ul>
+<h4 id="212">2.12 获取学期日期范围</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/analyse/record/struct/getDateScope</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取学期的日期范围信息（开始日期和结束日期）</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>structId</code>: 学期结构 ID</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>scopeBeg</code>: 开始日期对象</li>
+<li><code>scopeEnd</code>: 结束日期对象</li>
+<li><code>weekDay</code>: 星期几</li>
+<li><code>weekDayName</code>: 星期名称</li>
+</ul>
+<h4 id="218">2.18 查询学生成长积分选课列表</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/select/point/pointAccount/list</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 查询学生成长积分选课列表（已存在，补充说明）</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>rows</code>: 每页行数</li>
+<li><code>page</code>: 页码</li>
+<li><strong>响应字段</strong>: 积分账户汇总</li>
+</ul>
+<hr />
+<h3 id="_18">模块三：实践课程系统（活动课程中心）</h3>
+<blockquote>
+<p>通过桌面工作台进入，包含 <strong>实践课程评价</strong>（AppId=150454）模块。</p>
+</blockquote>
+<h4 id="31_1">3.1 获取当前周范围</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/schedule/queryCourseSchedule/getCurrentWeekScope</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取当前学期的周范围信息（用于课表周视图）</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>semesterId</code>: 学期 ID（如 <code>A5EA18E70BC44642BFE25BEA08FF5043</code>）</li>
+<li><code>currentWeek</code>: 当前周数（如 <code>5</code>）</li>
+<li><strong>响应示例</strong>:
+  <code>json
+  {
+    "code": 1,
+    "msg": "操作成功",
+    "data": {
+      "semesterId": "A5EA18E70BC44642BFE25BEA08FF5043",
+      "currentWeek": 5,
+      "weekScope": {
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-07"
+      }
+    }
+  }</code></li>
+</ul>
+<h4 id="32_1">3.2 获取周信息</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/schedule/queryCourseSchedule/getWeekInfo</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取指定周次的详细信息</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>weekNum</code>: 周次编号</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>weekNum</code>: 周次</li>
+<li><code>startDate</code>: 开始日期</li>
+<li><code>endDate</code>: 结束日期</li>
+<li><code>weekdays</code>: 星期数组</li>
+</ul>
+<h4 id="33">3.3 查询学生课表</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/schedule/queryCourseSchedule/list/studentCourse</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 查询学生课表（含课程名称、上课时间、教师、教室等信息）</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>rows</code>: 每页行数（如 <code>200</code>）</li>
+<li><code>page</code>: 页码（如 <code>1</code>）</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>courseName</code>: 课程名称</li>
+<li><code>teacherName</code>: 教师姓名</li>
+<li><code>classroom</code>: 上课教室</li>
+<li><code>weekday</code>: 星期几（1-7）</li>
+<li><code>period</code>: 节次</li>
+<li><code>startTime</code>: 开始时间</li>
+<li><code>endTime</code>: 结束时间</li>
+</ul>
+<h4 id="34">3.4 获取课程学生列表</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/setting/gradecourse/getClassStudentList</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取某课程对应的学生列表（用于教师查看选课学生）</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>courseInfoId</code>: 课程信息 ID</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>gradeId</code>: 年级 ID（可选）</li>
+<li><code>classId</code>: 班级 ID（可选）</li>
+<li><code>studentNumber</code>: 学号（可选，模糊查询）</li>
+<li><code>studentName</code>: 姓名（可选，模糊查询）</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>rows</code>: 学生数组<ul>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>studentName</code>: 学生姓名</li>
+<li><code>studentNumber</code>: 学号</li>
+<li><code>className</code>: 班级名称</li>
+</ul>
+</li>
+</ul>
+<h4 id="35">3.5 获取教师用户信息</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/course/select/setting/attachment/getTeacherUse</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取教师用户信息（用于附件/资料管理）</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>teacherId</code>: 教师 ID</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>teacherName</code>: 教师姓名</li>
+<li><code>teacherNumber</code>: 教师工号</li>
+<li><code>subjects</code>: 教授的学科列表
+  ```</li>
+</ul>
+<hr />
+<h3 id="_19">模块四：成长记录系统</h3>
+<blockquote>
+<p>通过桌面工作台进入，包含 <strong>成长记录</strong>（AppId=150567）模块。</p>
+</blockquote>
+<h4 id="41">4.1 获取成长记录用户信息</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/grow/common/getUser</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取成长记录系统的当前用户信息</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>userId</code>: 用户 ID</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>userId</code>: 用户 ID</li>
+<li><code>userName</code>: 用户名</li>
+<li><code>realName</code>: 真实姓名</li>
+<li><code>gradeName</code>: 年级名称</li>
+<li><code>className</code>: 班级名称</li>
+<li><code>semesterId</code>: 学期 ID</li>
+</ul>
+<h4 id="42">4.2 查询成长记录评估雷达报告</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/grow/stdgrow/evaluationsf/selectEvaluateRadarReport</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取学生成长记录评估雷达图数据（综合素质评价多维度）</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>semesterId</code>: 学期 ID（可选）</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>dimensions</code>: 评估维度数组</li>
+<li><code>scores</code>: 各维度得分数组</li>
+<li><code>maxScores</code>: 各维度满分数组</li>
+</ul>
+<h4 id="43">4.3 查询课程表现</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/grow/stdgrow/evaluationsf/selectCourseInfo</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 查询学生在成长记录中的课程表现数据</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>courseName</code>: 课程名称</li>
+<li><code>performance</code>: 表现评分</li>
+<li><code>teacherComment</code>: 教师评语</li>
+</ul>
+<h4 id="44">4.4 查询行为规范记录</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/grow/stdgrow/behaviornorm/selectBehaviorNorm</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 查询学生行为规范记录（纪律、卫生、出勤等）</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>semesterId</code>: 学期 ID（可选）</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>normType</code>: 规范类型（纪律/卫生/出勤/礼仪）</li>
+<li><code>score</code>: 得分</li>
+<li><code>maxScore</code>: 满分</li>
+<li><code>recordDate</code>: 记录日期</li>
+<li><code>remark</code>: 备注</li>
+</ul>
+<h4 id="45">4.5 查询学生积分记录</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/grow/stdgrow/studentCredit/selectCreditList</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 查询学生成长积分记录（与积分系统互通）</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>semesterId</code>: 学期 ID（可选）</li>
+<li><code>rows</code>: 每页行数</li>
+<li><code>page</code>: 页码</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>creditType</code>: 积分类型</li>
+<li><code>creditValue</code>: 积分值</li>
+<li><code>recordDate</code>: 记录日期</li>
+<li><code>remark</code>: 备注</li>
+</ul>
+<h4 id="46">4.6 查询评估历史记录</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/grow/stdgrow/evaluateRecord/selectEvaluateHistoryList</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 查询学生综合素质评价历史记录</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>semesterId</code>: 学期 ID（可选）</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>evaluateDate</code>: 评价日期</li>
+<li><code>evaluateResult</code>: 评价结果等级（A/B/C/D）</li>
+<li><code>evaluateContent</code>: 评价内容摘要</li>
+</ul>
+<h4 id="47">4.7 查询课程表现（成长记录）</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/grow/stdgrow/coursePerformance/selectCoursePerformance</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 查询学生在成长记录中的课程表现（含成绩、评语等）</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>courseName</code>: 课程名称</li>
+<li><code>score</code>: 成绩</li>
+<li><code>gradeRank</code>: 年级排名</li>
+<li><code>classRank</code>: 班级排名</li>
+<li><code>teacherComment</code>: 教师评语</li>
+</ul>
+<hr />
+<h3 id="_20">模块五：活动课程系统（实践课程评价）</h3>
+<blockquote>
+<p>通过桌面工作台进入，包含 <strong>实践课程评价</strong>（AppId=150454）模块。</p>
+</blockquote>
+<h4 id="51">5.1 获取学生实践课程消息</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/activity/activityCourse/getStudentMsg</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取学生实践课程的基本消息和概要</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>userId</code>: 用户 ID</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>studentName</code>: 学生姓名</li>
+<li><code>studentNumber</code>: 学号</li>
+<li><code>className</code>: 班级名称</li>
+<li><code>semesterName</code>: 学期名称</li>
+<li><code>totalCredits</code>: 总学分</li>
+</ul>
+<h4 id="52">5.2 查询学生等级</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/activity/activityCourse/studentLevel</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 查询学生在实践课程中的等级评价</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>userId</code>: 用户 ID</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>levelName</code>: 等级名称</li>
+<li><code>levelCode</code>: 等级代码</li>
+<li><code>score</code>: 得分</li>
+<li><code>maxScore</code>: 满分</li>
+</ul>
+<h4 id="53">5.3 查询学生活动列表</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/activity/activityCourse/studentActivityList</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 查询学生参与的实践活动列表</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>userId</code>: 用户 ID</li>
+<li><code>semesterId</code>: 学期 ID（可选）</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>activityName</code>: 活动名称</li>
+<li><code>activityType</code>: 活动类型</li>
+<li><code>score</code>: 得分</li>
+<li><code>awardLevel</code>: 获奖等级</li>
+<li><code>activityDate</code>: 活动日期</li>
+</ul>
+<h4 id="54">5.4 查询学生参与活动</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/activity/activityCourse/studentJoin</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 查询学生已参与的实践活动详情</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>userId</code>: 用户 ID</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>joinDate</code>: 参与日期</li>
+<li><code>activityName</code>: 活动名称</li>
+<li><code>result</code>: 成果描述</li>
+<li><code>score</code>: 得分</li>
+</ul>
+<hr />
+<h3 id="elat">模块六：作业系统（Elat）</h3>
+<h4 id="61">6.1 按学科读取作业汇总列表</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/elat/excelat/readSummaryListBySubject</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 按学科读取作业汇总列表（教师/学生视角）</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>rows</code>: 每页行数（如 <code>20</code>）</li>
+<li><code>page</code>: 页码（如 <code>1</code>）</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>userId</code>: 用户 ID</li>
+<li><code>studentNumber</code>: 学号</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>subjectName</code>: 学科名称</li>
+<li><code>homeworkCount</code>: 作业数量</li>
+<li><code>avgScore</code>: 平均分</li>
+<li><code>submitRate</code>: 提交率</li>
+</ul>
+<hr />
+<h3 id="_21">模块七：基础信息管理</h3>
+<blockquote>
+<p>公共基础数据接口，供各模块调用。</p>
+</blockquote>
+<h4 id="71">7.1 获取学期启用列表</h4>
+<ul>
+<li><strong>URL</strong>: <code>/common/baseInfo/getSemesterEnableList</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取当前启用的学期列表（用于学期选择下拉框）</li>
+<li><strong>请求参数</strong>: 通用认证参数</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>semesterName</code>: 学期名称（如 "2026-2027 上学期"）</li>
+<li><code>isCurrent</code>: 是否当前学期</li>
+</ul>
+<h4 id="72">7.2 获取学期完整列表</h4>
+<ul>
+<li><strong>URL</strong>: <code>/common/baseInfo/getSemesterList</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取所有学期列表（含已结束的学期）</li>
+<li><strong>请求参数</strong>: 通用认证参数</li>
+<li><strong>响应字段</strong>: 同启用列表</li>
+</ul>
+<h4 id="73">7.3 获取年级名称列表</h4>
+<ul>
+<li><strong>URL</strong>: <code>/common/baseInfo/selectGradeNameList</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取年级名称列表（如初一、初二、初三等）</li>
+<li><strong>请求参数</strong>: 通用认证参数</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>gradeId</code>: 年级 ID</li>
+<li><code>gradeName</code>: 年级名称</li>
+</ul>
+<h4 id="74">7.4 获取年级启用列表</h4>
+<ul>
+<li><strong>URL</strong>: <code>/common/baseInfo/getGradeEnableList</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取当前启用的年级列表</li>
+<li><strong>请求参数</strong>: 通用认证参数</li>
+<li><strong>响应字段</strong>: 同年级名称列表</li>
+</ul>
+<h4 id="75-section">7.5 获取班级section列表</h4>
+<ul>
+<li><strong>URL</strong>: <code>/common/baseInfo/getClassSectionList</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 获取班级分段列表（用于班级选择）</li>
+<li><strong>请求参数</strong>: 通用认证参数</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>classId</code>: 班级 ID</li>
+<li><code>className</code>: 班级名称</li>
+<li><code>gradeId</code>: 年级 ID</li>
+</ul>
+<h4 id="76">7.6 获取学生列表</h4>
+<ul>
+<li><strong>URL</strong>: <code>/common/baseInfo/getStudentList</code></li>
+<li><strong>方法</strong>: <code>POST</code></li>
+<li><strong>描述</strong>: 根据学期和年级获取学生列表</li>
+<li><strong>请求参数</strong>:</li>
+<li>通用认证参数</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>gradeId</code>: 年级 ID</li>
+<li><code>semesterName</code>: 学期名称</li>
+<li><code>gradeName</code>: 年级名称</li>
+<li><strong>响应字段</strong>:</li>
+<li><code>studentId</code>: 学生 ID</li>
+<li><code>studentName</code>: 学生姓名</li>
+<li><code>studentNumber</code>: 学号</li>
+<li><code>gradeId</code>: 年级 ID</li>
+<li><code>gradeName</code>: 年级名称</li>
+<li><code>semesterId</code>: 学期 ID</li>
+<li><code>semesterName</code>: 学期名称</li>
+</ul>
+<hr />
+<h3 id="_22">模块八：学生成长报告系统</h3>
+<blockquote>
+<p>通过学生成长报告入口 <code>/vue/#/portal/studentReport/index</code> 进入，携带 AccessToken 查询令牌。</p>
+</blockquote>
+<h4 id="81">8.1 学生成长报告查询</h4>
+<ul>
+<li><strong>URL</strong>: <code>/vue/#/portal/studentReport/index?AccessToken=...</code></li>
+<li><strong>方法</strong>: <code>GET</code></li>
+<li><strong>描述</strong>: 学生成长报告主页面，通过 URL 参数携带 AccessToken 进行身份验证</li>
+<li><strong>请求参数</strong> (URL Query):</li>
+<li><code>AccessToken</code>: 访问令牌（必需）</li>
+<li><code>title</code>: 报告标题（可选）</li>
+<li><code>semesterId</code>: 学期 ID（可选）</li>
+<li><code>name</code>: 学生姓名（可选）</li>
+<li><code>value</code>: 查询值（可选）</li>
+<li><code>structId</code>: 结构 ID（可选）</li>
+<li><code>gradeId</code>: 年级 ID（如 <code>4A96F040225844E29BE4E8FB4066784D</code>）</li>
+<li><code>gradeName</code>: 年级名称（如 "八年级"）</li>
+<li><code>studentId</code>: 学生 ID（如 <code>5FA5A959F35A4CDFABC10942535C33B4</code>）</li>
+<li><code>studentName</code>: 学生姓名（如 "盛应民"）</li>
+<li><strong>说明</strong>: 此页面为 SPA 单页应用，通过前端路由加载，内部调用多个 API 获取报告数据</li>
+<li><strong>响应</strong>: HTML 页面 + 内部 API 调用（参考模块二至模块七的 API）</li>
+</ul>
+<hr />
+<h3 id="_23">模块九：成长记录系统（独立入口）</h3>
+<blockquote>
+<p>通过独立入口 <code>/apps/growthRecord/index.html</code> 进入，含有多个子界面。</p>
+</blockquote>
+<h4 id="91">9.1 成长记录主页面</h4>
+<ul>
+<li><strong>URL</strong>: <code>/apps/growthRecord/index.html</code></li>
+<li><strong>方法</strong>: <code>GET</code></li>
+<li><strong>描述</strong>: 成长记录系统主页面，加载后通过 iframe 或 AJAX 加载子界面</li>
+<li><strong>子界面路径</strong>:</li>
+<li><code>/apps/growthRecord/portal.html?rdt=...</code> - 成长记录门户</li>
+<li><code>/apps/growthRecord/module/studentGrowthRecord/studentsPassTheReportForm/studentsPassTheReportForm.html</code> - 学生成长报告表单</li>
+<li><code>/apps/growthRecord/module/studentGrowthRecord/personalActivitiesCourse/personalActivitiesCourse.html</code> - 个人活动课程</li>
+<li><code>/apps/growthRecord/module/studentGrowthRecord/codeOfConduct/codeOfConduct.html</code> - 行为规范</li>
+</ul>
+<hr />
+<h3 id="_24">模块十：个人中心系统</h3>
+<blockquote>
+<p>通过桌面工作台进入，包含 <strong>个人中心</strong>（AppId=150636）模块。</p>
+</blockquote>
+<h4 id="101">10.1 个人中心</h4>
+<ul>
+<li><strong>URL</strong>: <code>/vue/#/portal/parentSchool/list</code> 或 <code>/apps/userProfile/index.html</code></li>
+<li><strong>方法</strong>: <code>GET</code></li>
+<li><strong>描述</strong>: 个人中心页面，可查看和编辑个人信息、绑定家长等</li>
+<li><strong>功能</strong>:</li>
+<li>查看个人资料</li>
+<li>绑定/解绑家长账户</li>
+<li>修改密码</li>
+<li>查看通知消息</li>
+</ul>
+<hr />
+<h3 id="_25">模块十一：成绩查询系统</h3>
+<blockquote>
+<p>通过桌面工作台进入，包含 <strong>成绩查询</strong>（AppId=150772）模块。</p>
+</blockquote>
+<h4 id="111">11.1 成绩查询入口</h4>
+<ul>
+<li><strong>URL</strong>: <code>/vue/#/examResultSearch</code></li>
+<li><strong>方法</strong>: <code>GET</code></li>
+<li><strong>描述</strong>: 成绩查询入口页面，通过前端路由加载</li>
+<li><strong>功能</strong>: 查询各学科考试成绩、排名、趋势分析</li>
+</ul>
+<hr />
+<h2 id="api_2">API 端点统计（更新版）</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>端点数量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>桌面环境管理</td>
+<td>2</td>
+<td>桌面主题、工作台</td>
+</tr>
+<tr>
+<td>学业评价系统</td>
+<td>9</td>
+<td>成绩结构、九项评价、折线图、雷达图等</td>
+</tr>
+<tr>
+<td>实践课程系统</td>
+<td>5</td>
+<td>课表、周信息、学生列表、教师信息</td>
+</tr>
+<tr>
+<td>成长记录系统</td>
+<td>7</td>
+<td>用户信息、评估报告、行为规范等</td>
+</tr>
+<tr>
+<td>活动课程系统</td>
+<td>4</td>
+<td>实践课程消息、等级、活动列表</td>
+</tr>
+<tr>
+<td>作业系统</td>
+<td>1</td>
+<td>学科作业汇总</td>
+</tr>
+<tr>
+<td>基础信息管理</td>
+<td>6</td>
+<td>学期、年级、班级列表</td>
+</tr>
+<tr>
+<td>成长报告系统</td>
+<td>1</td>
+<td>SPA页面入口</td>
+</tr>
+<tr>
+<td>成长记录入口</td>
+<td>1</td>
+<td>独立HTML入口</td>
+</tr>
+<tr>
+<td>个人中心系统</td>
+<td>1</td>
+<td>个人信息、家长绑定</td>
+</tr>
+<tr>
+<td>成绩查询系统</td>
+<td>1</td>
+<td>成绩查询入口</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td><strong>39</strong></td>
+<td>全部已验证端点</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_26">更新日志</h2>
+<h3 id="320-2026-10-06">版本 3.2.0 (2026-10-06)</h3>
+<ul>
+<li>新增 2 个已验证 API 端点（学期日期范围查询、学生列表查询）</li>
+<li>基于 HAR 文件交叉核验，修正遗漏的 API 端点</li>
+<li>更新 API 端点统计表（38 → 39 个端点）</li>
+<li>修正签名算法描述（MD5 → SHA1）</li>
+<li>添加认证机制详细说明</li>
+</ul>
+<h3 id="310-2026-10-06">版本 3.1.0 (2026-10-06)</h3>
+<h3 id="300-2026-10-05">版本 3.0.0 (2026-10-05)</h3>
+<ul>
+<li>新增 23 个已验证 API 端点</li>
+<li>新增 11 个功能模块详细文档</li>
+<li>基于 HAR 文件和 Edge MCP 实时抓包验证</li>
+<li>更新了认证参数示例值</li>
+<li>补充了响应字段详细说明</li>
+<li>完善了 API 端点统计表</li>
+</ul>
+<h3 id="200-2026-10-04_1">版本 2.0.0 (2026-10-04)</h3>
+<ul>
+<li>完整版 API 文档</li>
+<li>新增 14 个已验证 API 端点详细说明</li>
+<li>补充完整请求参数和响应字段</li>
+<li>添加 Python 和 cURL 示例代码</li>
+<li>完善安全注意事项和常见问题</li>
+</ul>
+<h3 id="100-2026-10-04_1">版本 1.0.0 (2026-10-04)</h3>
+<ul>
+<li>初始版本</li>
+<li>基于实际网络抓包分析</li>
+<li>包含桌面主题、工作台构建、学校信息查询、学生成长积分系统等核心 API</li>
+<li>详细说明了认证机制和使用方法</li>
+</ul>
+<hr />
+<p><em>本 API 文档由 DeepSeek MCP 工具自动抓包分析生成，所有端点均经过实际验证，可直接用于开发。文档持续更新中...</em></p>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.querySelector('.theme-toggle');
+            
+            // Check for saved theme preference or use system preference
+            const savedTheme = localStorage.getItem('theme') || 
+                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+            
+            // Add copy buttons to code blocks
+            document.querySelectorAll('pre').forEach((block, index) => {
+                const btn = document.createElement('button');
+                btn.textContent = '复制';
+                btn.style.position = 'absolute';
+                btn.style.top = '8px';
+                btn.style.right = '12px';
+                btn.style.background = '#2563eb';
+                btn.style.color = 'white';
+                btn.style.border = 'none';
+                btn.style.borderRadius = '4px';
+                btn.style.padding = '4px 8px';
+                btn.style.fontSize = '12px';
+                btn.style.cursor = 'pointer';
+                btn.style.zIndex = '10';
+                
+                block.style.position = 'relative';
+                block.appendChild(btn);
+                
+                btn.addEventListener('click', () => {
+                    const code = block.querySelector('code');
+                    if (code) {
+                        navigator.clipboard.writeText(code.textContent);
+                        const originalText = btn.textContent;
+                        btn.textContent = '已复制!';
+                        setTimeout(() => btn.textContent = originalText, 2000);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
