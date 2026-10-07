@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="np-5z 版本索引 - 校园日报风格">
+    <title>np-5z 版本索引 | 校园日报风格</title>
+    <style>
+        /* ============================================================
+           一、全局重置与设计变量
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* —— 色彩 —— */
+            --ink: #16130f;          /* 正文墨色 */
+            --ink-soft: #3c3730;     /* 次级文字 */
+            --paper: #faf7ef;        /* 纸张底色 */
+            --rule: #c9c2b0;         /* 细分隔线 */
+            --rule-dark: #16130f;    /* 报头粗线 */
+            --muted: #6d675a;        /* 署名/图注 */
+            --red: #a3211e;          /* 报头主色 */
+
+            /* —— 字体族 —— */
+            --font-body: Georgia, "Nimbus Roman", "SimSun", "宋体", "Songti SC", serif;   /* 正文：西文衬线 + 中文宋体 */
+            --font-title: "Times New Roman", "SimHei", "黑体", "Heiti SC", sans-serif;    /* 标题：西文 Times + 中文黑体 */
+            --font-sub: "KaiTi", "楷体", "STKaiti", serif;                                /* 副题/署名：楷体 */
+        }
+
+        /* ============================================================
+           二、外层容器：横向撑满视口，高度按 A4 比例（297 : 210）锁定
+                —— 无论窗口如何缩放，容器始终维持 1.414 : 1
+           ============================================================ */
+        .paper-outer {
+            width: 100vw;
+            height: calc(100vw * 210 / 297);  /* 由宽度反推高度，锁定 A4 比例 */
+            overflow: hidden;                 /* 裁掉缩放产生的多余区域 */
+            position: relative;
+            background: #d8d3c8;
+        }
+
+        /* ============================================================
+           三、纸张本体：固定物理尺寸 297mm × 210mm（标准 A4 横向）
+                —— 由 JS 动态设置 zoom，让浏览器原生重排，文字保持清晰
+           ============================================================ */
+        .sheet {
+            width: 297mm;
+        }
+
+        /* ============================================================
+           四、报头：整版宽度，固定高度
+           ============================================================ */
+        .header {
+            height: 12mm;
+            display: flex;
+            align-items: center;
+            padding: 0 4mm;
+            border-bottom: 1px solid var(--rule-dark);
+            position: relative;
+            z-index: 2;
+        }
+
+        .header::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-top: 3mm solid var(--red);
+        }
+
+        /* ============================================================
+           五、版心：报头与页脚之间的可滚动区域
+           ============================================================ */
+        .main {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            padding-right: 2mm; /* 为滚动条留空 */
+            position: relative;
+        }
+
+        /* ============================================================
+           六、内容样式（与报纸保持一致）
+           ============================================================ */
+        .index-container {
+            max-width: 180mm;
+            margin: 0 auto;
+            padding: 6mm;
+        }
+
+        .index-title {
+            font-size: 6mm;
+            font-weight: bold;
+            color: var(--red);
+            text-align: center;
+            margin-bottom: 4mm;
+            font-family: var(--font-title);
+            letter-spacing: -0.5px;
+        }
+
+        .index-subtitle {
+            font-size: 3mm;
+            color: var(--ink-soft);
+            text-align: center;
+            margin-bottom: 6mm;
+            font-family: var(--font-sub);
+        }
+
+        .version-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80mm, 1fr));
+            gap: 4mm;
+        }
+
+        .version-card {
+            background: var(--paper);
+            border: 1px solid var(--rule);
+            border-radius: 2px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .version-card:hover {
+            transform: translateY(-1mm);
+            box-shadow: 0 2mm 4mm rgba(0,0,0,0.1);
+            border-color: var(--rule-dark);
+</head>
+<body>
+    <div class="paper-outer">
+        <div class="sheet" id="paper-sheet">
+            <!-- ==================== 报头 ==================== -->
+            <header class="header">
+                <div class="header-content">
+                    <div class="header-logo">日报</div>
+                    <div class="header-title">np-5z 版本索引</div>
+                    <div class="header-date">2026年10月7日</div>
+                </div>
+            </header>
+
+            <!-- ==================== 版心 ==================== -->
+            <main class="main">
+                <div class="index-container">
+                    <h1 class="index-title">np-5z 版本索引</h1>
+                    <p class="index-subtitle">选择不同版本查看校园日报内容</p>
+                    
+                    <div class="version-grid">
+                        <div class="version-card">
+                            <div class="version-header">版本 1</div>
+                            <div class="version-body">
+                                <div class="version-name">np-5z-v1</div>
+                                <div class="version-date">2026-10-07</div>
+                                <a href="../np-5z/np-5z-v1/np-5z.html" class="version-link">查看版本</a>
+                            </div>
+                        </div>
+                        
+                        <div class="version-card">
+                            <div class="version-header">版本 2</div>
+                            <div class="version-body">
+                                <div class="version-name">np-5z-v2</div>
+                                <div class="version-date">2026-10-07</div>
+                                <a href="../np-5z/np-5z-v2/np-5z.html" class="version-link">查看版本</a>
+                            </div>
+                        </div>
+                        
+                        <div class="version-card">
+                            <div class="version-header">版本 3</div>
+    <!-- ============================================================
+       屏幕适配脚本
+       核心思路：
+         1. 纸张物理尺寸恒为 297mm × 210mm；
+         2. 通过 CSS zoom 让浏览器原生重排，文字/边框始终保持清晰；
+         3. 缩放比例 = 视口宽度 / 纸张自然宽度，实现「横向撑满」；
+         4. 外层容器高度已由 CSS calc() 锁定为 A4 比例，无需 JS 干预；
+         5. 使用 requestAnimationFrame 节流，避免拖拽窗口时频繁重排。
+       ============================================================ -->
+    <script>
+        (function () {
+            var sheet = document.getElementById('paper-sheet');
+            if (!sheet) return;
+
+            var lastWidth = 0;      /* 记录上次的视口宽度，避免无意义的重复计算 */
+            var rafId = null;       /* requestAnimationFrame 句柄 */
+
+            /**
+             * 根据当前视口宽度，重新计算并应用 zoom
+             */
+            function applyZoom() {
+                var naturalW = sheet.offsetWidth;   /* 纸张未被 zoom 时的自然宽度（≈1122.5px） */
+                if (!naturalW) return;
+
+                var vw = document.documentElement.clientWidth;
+                if (vw === lastWidth) return;        /* 宽度未变，跳过重排 */
+
+                lastWidth = vw;
+
+                /* zoom = 视口宽度 / 纸张自然宽度 —— 浏览器原生缩放，文字清晰不模糊 */
+                sheet.style.zoom = (vw / naturalW);
+            }
+
+            /**
+             * 用 requestAnimationFrame 做节流，避免拖拽时高频触发
+             */
+            function scheduleFit() {
+                if (rafId) return;
+                rafId = requestAnimationFrame(function () {
+                    rafId = null;
+                    applyZoom();
+                });
+            }
+
+            /* —— 监听窗口尺寸变化 —— */
+            window.addEventListener('resize', scheduleFit);
+            window.addEventListener('orientationchange', scheduleFit);
+
+            /* —— 首次执行 —— */
+            applyZoom();
+
+            /* —— 字体加载完成后校准一次（防止字体替换导致宽度变化） —— */
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(function () {
+                    lastWidth = 0;   /* 强制重算一次 */
+                    applyZoom();
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
+                            <div class="version-body">
+                                <div class="version-name">np-5z-v3</div>
+                                <div class="version-date">2026-10-07</div>
+                                <a href="../np-5z/np-5z-v3/np-5z.html" class="version-link">查看版本</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ==================== 页脚 ==================== -->
+            <footer class="footer">
+                <div class="footer-content">
+                    <div class="footer-spacer"></div>
+                    <span>np-5z 版本索引</span>
+                    <span>共 3 个版本</span>
+                </div>
+            </footer>
+        </div>
+    </div>
+        }
+
+        .version-header {
+            background: var(--red);
+            color: white;
+            padding: 2mm 3mm;
+            font-size: 3mm;
+            font-weight: bold;
+            text-align: center;
+            font-family: var(--font-title);
+        }
+
+        .version-body {
+            padding: 3mm;
+        }
+
+        .version-name {
+            font-size: 2.8mm;
+            font-weight: bold;
+            color: var(--ink);
+            margin-bottom: 1mm;
+            display: block;
+        }
+
+        .version-date {
+            font-size: 2.2mm;
+            color: var(--ink-soft);
+            margin-bottom: 2mm;
+        }
+
+        .version-link {
+            display: inline-block;
+            padding: 1.5mm 3mm;
+            background: var(--red);
+            color: white;
+            text-decoration: none;
+            font-size: 2.2mm;
+            border-radius: 1mm;
+            font-family: var(--font-body);
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .version-link:hover {
+            background: #8b1a18;
+        }
+
+        /* ============================================================
+           七、页脚：整版宽度，固定高度
+           ============================================================ */
+        .footer {
+            height: 8mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 1px solid var(--rule-dark);
+            position: relative;
+            z-index: 2;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: flex;
+            gap: 8mm;
+            font-size: 2.2mm;
+            color: var(--ink);
+            font-family: var(--font-body);
+        }
+
+        .footer-spacer {
+            flex-grow: 1;
+        }
+    </style>
+            z-index: -1;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .header-logo {
+            font-size: 5mm;
+            font-weight: bold;
+            color: var(--red);
+            letter-spacing: -0.5px;
+            margin-right: 8mm;
+            font-family: var(--font-title);
+        }
+
+        .header-title {
+            font-size: 4mm;
+            font-weight: bold;
+            color: var(--ink);
+            flex-grow: 1;
+            margin-right: 4mm;
+            font-family: var(--font-title);
+        }
+
+        .header-date {
+            font-size: 2.5mm;
+            color: var(--ink-soft);
+            white-space: nowrap;
+            font-family: var(--font-body);
+        }
+            height: 210mm;
+            padding: 3mm 4mm 2mm;             /* 页边距：上 3 / 左右 4 / 下 2 */
+            background: var(--paper);
+            position: relative;
+            overflow: hidden;                 /* 保证内容永不溢出纸张 */
+            display: flex;
+            flex-direction: column;           /* 纵向三段式：报头 / 版心 / 页脚 */
+            transform-origin: top left;       /* zoom 的缩放锚点固定在左上角 */
+        }
+
+        /* —— 纸张纸纹噪点（纯装饰，不影响布局） —— */
+        .sheet::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        }
+
+        html {
+            background: #d8d3c8;              /* 页面外围底色 */
+            overflow-x: hidden;               /* 防止缩放时出现横向滚动条 */
+            -webkit-text-size-adjust: 100%;   /* 阻止移动端自动放大字体 */
+            text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: #d8d3c8;
+            color: var(--ink);
+            margin: 0;
+            padding: 0;
+        }
+    <style>
+        /* 基础样式将在这里添加 */
+    </style>
+</head>
+<body>
+    <div class="paper-outer">
+        <div class="sheet" id="paper-sheet">
+            <!-- 内容将在这里添加 -->
+        </div>
+    </div>
+</body>
+</html>
