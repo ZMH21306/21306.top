@@ -3,78 +3,483 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>语文5组的神秘报纸 · 第三版</title>
+    <meta name="description" content="校园日报 · 体育健康特刊（总第001期）——横版A4">
+    <title>校园日报 · 体育健康特刊 | 2026年10月6日</title>
     <style>
-        :root {
-            --ink: #16130f; --ink-soft: #3c3730; --paper: #faf7ef; --rule: #c9c2b0;
-            --rule-dark: #16130f; --muted: #6d675a; --red: #a3211e;
-            --font-body: Georgia, "Nimbus Roman", "SimSun", "宋体", serif;
-            --font-title: "Times New Roman", "SimHei", "黑体", sans-serif;
-            --font-sub: "KaiTi", "楷体", serif;
+        /* ============================================================
+           一、全局重置与设计变量
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        html {background:#d8d3c8;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
-        body {font-family:var(--font-body);background:#d8d3c8;color:var(--ink);margin:0;padding:0}
-        .paper-outer {width:100vw;height:calc(100vw * 210 / 297);overflow:hidden;position:relative;background:#d8d3c8}
-        .sheet {width:297mm;height:210mm;padding:3mm 4mm 2mm;background:var(--paper);position:relative;overflow:hidden;display:flex;flex-direction:column;transform-origin:top left}
-        .header {height:12mm;display:flex;align-items:center;padding:0 4mm;border-bottom:1px solid var(--rule-dark);position:relative;z-index:2}
-        .header::before {content:"";position:absolute;inset:0;border-top:3mm solid var(--red);z-index:-1}
-        .header-content {display:flex;align-items:center;width:100%}
-        .header-logo {font-size:5mm;font-weight:bold;color:var(--red);letter-spacing:-0.5px;margin-right:8mm;font-family:var(--font-title)}
-        .header-title {font-size:4mm;font-weight:bold;color:var(--ink);flex-grow:1;margin-right:4mm;font-family:var(--font-title)}
-        .header-date {font-size:2.5mm;color:var(--ink-soft);white-space:nowrap;font-family:var(--font-body)}
-        .main {flex:1 1 auto;overflow-y:auto;padding-right:2mm;position:relative;display:flex;align-items:center;justify-content:center}
-        .version-info {text-align:center;max-width:120mm;padding:10mm;border:1px solid var(--rule);background:var(--paper);border-radius:2mm;margin:10mm}
-        .version-number {font-size:8mm;font-weight:bold;color:var(--red);margin-bottom:4mm;font-family:var(--font-title)}
-        .version-name {font-size:4mm;font-weight:bold;color:var(--ink);margin-bottom:2mm;font-family:var(--font-title)}
-        .version-description {font-size:2.8mm;color:var(--ink-soft);margin-bottom:4mm;font-family:var(--font-sub)}
-        .back-link {display:inline-block;padding:2mm 4mm;background:var(--red);color:white;text-decoration:none;font-size:2.8mm;border-radius:1mm;font-family:var(--font-body)}
-        .back-link:hover {background:#8b1a18}
-        .footer {height:8mm;display:flex;align-items:center;justify-content:center;border-top:1px solid var(--rule-dark);position:relative;z-index:2;margin-top:auto}
-        .footer-content {display:flex;gap:8mm;font-size:2.2mm;color:var(--ink);font-family:var(--font-body)}
+
+        :root {
+            /* —— 色彩 —— */
+            --ink: #16130f;          /* 正文墨色 */
+            --ink-soft: #3c3730;     /* 次级文字 */
+            --paper: #faf7ef;        /* 纸张底色 */
+            --rule: #c9c2b0;         /* 细分隔线 */
+            --rule-dark: #16130f;    /* 报头粗线 */
+            --muted: #6d675a;        /* 署名/图注 */
+            --red: #a3211e;          /* 报头主色 */
+
+            /* —— 字体族 —— */
+            --font-body: Georgia, "Nimbus Roman", "SimSun", "宋体", "Songti SC", serif;   /* 正文：西文衬线 + 中文宋体 */
+            --font-title: "Times New Roman", "SimHei", "黑体", "Heiti SC", sans-serif;    /* 标题：西文 Times + 中文黑体 */
+            --font-sub: "KaiTi", "楷体", "STKaiti", serif;                                /* 副题/署名：楷体 */
+        }
+
+        html {
+            background: #d8d3c8;              /* 页面外围底色 */
+            overflow-x: hidden;               /* 防止缩放时出现横向滚动条 */
+            -webkit-text-size-adjust: 100%;   /* 阻止移动端自动放大字体 */
+            text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: #d8d3c8;
+            color: var(--ink);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ============================================================
+           二、外层容器：横向撑满视口，高度按 A4 比例（297 : 210）锁定
+               —— 无论窗口如何缩放，容器始终维持 1.414 : 1
+           ============================================================ */
+        .paper-outer {
+            width: 100vw;
+            height: calc(100vw * 210 / 297);  /* 由宽度反推高度，锁定 A4 比例 */
+            overflow: hidden;                 /* 裁掉缩放产生的多余区域 */
+            position: relative;
+            background: #d8d3c8;
+        }
+
+        /* ============================================================
+           三、纸张本体：固定物理尺寸 297mm × 210mm（标准 A4 横向）
+               —— 由 JS 动态设置 zoom，让浏览器原生重排，文字保持清晰
+           ============================================================ */
+        .sheet {
+            width: 297mm;
+            height: 210mm;
+            padding: 3mm 4mm 2mm;             /* 页边距：上 3 / 左右 4 / 下 2 */
+            background: var(--paper);
+            position: relative;
+            overflow: hidden;                 /* 保证内容永不溢出纸张 */
+            display: flex;
+            flex-direction: column;           /* 纵向三段式：报头 / 版心 / 页脚 */
+            transform-origin: top left;       /* zoom 的缩放锚点固定在左上角 */
+        }
+
+        /* —— 纸张纸纹噪点（纯装饰，不影响布局） —— */
+        .sheet::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        /* 让纸张内的直接子元素位于噪点之上 */
+        .sheet > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============================================================
+           四、报头：左侧报刊名 + 英文副题，底部经典双线
+           ============================================================ */
+        .masthead {
+            flex-shrink: 0;                          /* 不参与纵向伸缩 */
+            padding-bottom: 1.2mm;
+            margin-bottom: 3mm;
+            border-bottom: 0.7mm solid var(--rule-dark);  /* 粗线 */
+            position: relative;
+        }
+
+        /* 报头下方的细线，与粗线共同构成「双线」效果 */
+        .masthead::after {
+            content: "";
+            display: block;
+            height: 0.22mm;
+            background: var(--rule-dark);
+            margin-top: 0.7mm;
+        }
+
+        /* 报头内部：中文标题与英文副题基线对齐 */
+        .mh-main {
+            display: flex;
+            align-items: baseline;
+            gap: 3mm;
+        }
+
+        .paper-name {
+            font-family: var(--font-title);
+            font-size: 24pt;
+            font-weight: 900;
+            color: var(--red);
+            letter-spacing: 2pt;
+            line-height: 1;
+            white-space: nowrap;                     /* 防止换行 */
+        }
+
+        .paper-en {
+            font-family: var(--font-title);
+            font-size: 5.8pt;
+            letter-spacing: 1.5pt;
+            color: var(--ink-soft);
+            text-transform: uppercase;
+            line-height: 1;
+            padding-bottom: 0.7mm;                   /* 与中文标题底部对齐 */
+        }
+
+        /* ============================================================
+           五、版心：左右两栏，各两篇作文（左：头条 + 要闻，右：访谈 + 专栏）
+           ============================================================ */
+        .page-grid {
+            flex: 1;                                 /* 占据剩余全部高度 */
+            min-height: 0;                           /* 允许内部滚动/裁切 */
+            display: grid;
+            grid-template-columns: 1fr 1fr;          /* 左右等宽 */
+            column-gap: 6mm;
+            align-items: stretch;                    /* 两栏等高 */
+        }
+
+        /* 左右两栏均用 flex 纵向排列，space-between 让文章均匀铺满 */
+        .col-left,
+        .col-right {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 2.5mm;
+            height: 100%;
+        }
+
+        /* 右栏左侧加一条细竖线，形成视觉分隔 */
+        .col-right {
+            border-left: 0.25mm solid var(--rule);
+            padding-left: 5mm;
+        }
+
+        /* —— 单篇作文容器 —— */
+        .article-block {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 同一栏内两篇文章之间的细横线 */
+        .article-block + .article-block {
+            border-top: 0.25mm solid var(--rule);
+            padding-top: 2.5mm;
+        }
+
+        /* —— 标题层级 —— */
+        /* 头条标题（最大） */
+        .t-lead {
+            font-family: var(--font-title);
+            font-size: 16pt;
+            font-weight: 900;
+            line-height: 1.2;
+            letter-spacing: 1pt;
+            text-align: center;
+            color: var(--ink);
+        }
+
+        /* 二级标题 */
+        .t-block {
+            font-family: var(--font-title);
+            font-size: 13pt;
+            font-weight: 900;
+            line-height: 1.25;
+            letter-spacing: 0.5pt;
+            text-align: center;
+            color: var(--ink);
+        }
+
+        /* 侧栏标题 */
+        .t-rail {
+            font-family: var(--font-title);
+            font-size: 12pt;
+            font-weight: 900;
+            line-height: 1.25;
+            text-align: center;
+            color: var(--ink);
+        }
+
+        /* —— 副标题（楷体） —— */
+        .sub-lead,
+        .sub-block,
+        .sub-rail {
+            font-family: var(--font-sub);
+            font-size: 8pt;
+            color: var(--ink-soft);
+            text-align: center;
+            line-height: 1.4;
+            margin-top: 0.8mm;
+        }
+
+        /* —— 署名行 —— */
+        .byline {
+            font-family: var(--font-sub);
+            font-size: 6.8pt;
+            color: var(--muted);
+            text-align: center;
+            letter-spacing: 1pt;
+            margin-top: 0.8mm;
+        }
+
+        /* —— 正文段落 —— */
+        .article-body {
+            font-size: 9pt;
+            line-height: 1.62;
+            text-align: justify;                     /* 两端对齐 */
+            text-justify: inter-ideograph;           /* 中文两端对齐优化 */
+            text-indent: 2em;                        /* 首行缩进两字 */
+            margin-top: 1.4mm;
+            margin-bottom: 0.8mm;
+        }
+
+        /* ============================================================
+           六、页脚：日期 / 期号 / 编辑信息，居中排布
+           ============================================================ */
+        .footer {
+            flex-shrink: 0;
+            margin-top: 3mm;
+            border-top: 0.6mm solid var(--rule-dark);
+            padding-top: 1.2mm;
+        }
+
+        .footer-info {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            font-family: var(--font-sub);
+            font-size: 7.2pt;
+            color: var(--ink-soft);
+            letter-spacing: 0.5pt;
+        }
+
+        /* 各项之间用竖线分隔 */
+        .footer-info span::after {
+            content: "│";
+            color: var(--rule);
+            margin: 0 3.5mm;
+        }
+
+        /* 最后一项不显示分隔线 */
+        .footer-info span:last-child::after {
+            content: "";
+        }
+
+        /* ============================================================
+           七、打印样式：还原真实 A4 横向，取消屏幕缩放
+           ============================================================ */
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+
+        @media print {
+            html,
+            body {
+                background: #fff;
+            }
+
+            .paper-outer {
+                width: 297mm;
+                height: 210mm;
+                overflow: visible;
+                background: #fff;
+            }
+
+            /* 打印时强制还原 1:1，避免 zoom 造成偏移或裁切 */
+            .sheet {
+                zoom: 1 !important;
+                width: 297mm;
+                height: 210mm;
+                margin: 0;
+                box-shadow: none;
+                overflow: hidden;
+            }
+
+            /* 保留报头红色与纸张噪点 */
+            .paper-name,
+            .sheet::before {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- ============================================================
+         纸张外层：负责「横向撑满 + 锁定 A4 比例」
+         ============================================================ -->
     <div class="paper-outer">
+        <!-- 纸张本体：固定 297mm × 210mm，由 JS 设置 zoom -->
         <div class="sheet" id="paper-sheet">
-            <header class="header">
-                <div class="header-content">
-                    <div class="header-logo">报</div>
-                    <div class="header-title">语文5组的神秘报纸</div>
-                    <div class="header-date">2026年10月7日</div>
+
+            <!-- ==================== 报头 ==================== -->
+            <header class="masthead">
+                <div class="mh-main">
+                    <h1 class="paper-name">校园日报</h1>
+                    <p class="paper-en">Campus Daily · 体育健康特刊</p>
                 </div>
             </header>
 
-            <main class="main">
-                <div class="version-info">
-                    <div class="version-number">第三版</div>
-                    <div class="version-name">语文5组的神秘报纸</div>
-                    <div class="version-description">这是神秘报纸的第三版内容</div>
-                    <a href="../index.html" class="back-link">返回索引</a>
+            <!-- ==================== 版心 ==================== -->
+            <main class="page-grid">
+
+                <!-- ====================================================
+                     左栏：头条 + 校园要闻
+                     ==================================================== -->
+                <div class="col-left">
+
+                    <!-- 第一篇：荆汉舟《追风少年，崭露锋芒》 -->
+                    <article class="article-block">
+                        <h2 class="t-lead">追风少年，崭露锋芒</h2>
+                        <p class="sub-lead">——体测中拼搏的张雨杨同学</p>
+                        <p class="byline">■ 荆汉舟</p>
+
+                        <p class="article-body">
+                            秋风呼啸吹拂操场，少年意气飞扬，我校在体测的模拟体测举行。在极具考验的 1000 米项目中，八年级张雨杨同学一马当先，稳定发挥，以汗水展现少年昂扬之姿。
+                        </p>
+                        <p class="article-body">
+                            优异的成绩源于日复一日的坚持。近半年，张雨杨始终保持自主运动的习惯。无论是假期还是周末，他都会风雨无阻地来到操场训练。在一次次的耐力跑练习中，他反复调整奔跑节奏，反复打磨步频与呼吸，每一次疲惫都是一次突破自身极限的机会，在挑战中体力与耐力稳步提高，毅力也逐渐变强。
+                        </p>
+                        <p class="article-body">
+                            体测开始，枪声炸响，张雨杨立刻如炮弹般弹射出去。赛程过半时不少同学体力透支，速度减慢。他仍旧以稳健的步伐向终点迈进，咬牙坚持不掉节奏。最后冲刺时刻他奋力提速，身姿矫健，如一匹野马在奔腾。全力冲过终点，不仅满分还拿到加分。
+                        </p>
+                        <p class="article-body">
+                            体测过后，张雨杨同学表示，没有凭空而来的优秀，只有日积月累的付出。表面上是 1000 米极优异的成绩，背后却是艰苦的训练。张雨杨不仅强健了体魄，更磨砺了意志。
+                        </p>
+                        <p class="article-body">
+                            赛道虽短，拼搏不止。张雨杨同学以日复一日的自律和不懈的努力为同学们树立了良好的榜样。他将继续以这样的拼搏姿态迎战正式体测。
+                        </p>
+                    </article>
+
+                    <!-- 第二篇：王梓懿《汗水筑底气，奔跑向目标》 -->
+                    <article class="article-block">
+                        <h2 class="t-block">汗水筑底气，奔跑向目标</h2>
+                        <p class="sub-block">——采访体测同学李昀朔</p>
+                        <p class="byline">■ 王梓懿</p>
+
+                        <p class="article-body">
+                            近期，我校组织体育健康测试。为了解同学们备战体测的心路历程，我采访了八年级李昀朔同学，听他分享训练背后的故事。
+                        </p>
+                        <p class="article-body">
+                            谈到体测，李昀朔给自己定下了80分的目标。为了达成目标，他坚持利用课余时间自主训练，经过一整年的不懈努力，他的引体向上有了不小的进步。在所有体测项目里，他最有信心的是1000米长跑。他认为跑1000米时，前3圈（一圈200米）尽量和水平相近的同学结伴，合理分配体力，不要一开始就透支力量，保持稳定的呼吸节奏才是关键。
+                        </p>
+                        <p class="article-body">
+                            日复一日的练习，打磨着他的耐力与意志。他说，体测测的不只是身体，更是坚持。他用一次次训练向着目标前进，也告诉我们，体育没有捷径，点滴汗水终会化作属于自己的收获。同时他特别感谢体育老师，在训练中耐心纠正他的动作，不断鼓励他坚持下去，正是老师的指导，让他少走了很多弯路。
+                        </p>
+                    </article>
+
                 </div>
+
+                <!-- ====================================================
+                     右栏：青春访谈 + 体育专栏
+                     ==================================================== -->
+                <div class="col-right">
+
+                    <!-- 第三篇：胡珈宁《一滴青春的汗水》 -->
+                    <article class="article-block">
+                        <h2 class="t-rail">一滴青春的汗水</h2>
+                        <p class="sub-rail">——采访李诗尧同学</p>
+                        <p class="byline">■ 胡珈宁</p>
+
+                        <p class="article-body">
+                            为了了解一分校八年级学子关于体考的备考情况，我特地采访了Y11的李诗尧同学。面对采访，他展露出青春的自信与从容，欣然接受了我的采访，并分享了他这一年来的坚持与拼搏。
+                        </p>
+                        <p class="article-body">
+                            当提问到体考目标时，李诗尧同学没有为了对比而提高目标，反而给出了非常朴实的答案——80分。他不追求自己达不到的，而是给自己下了一个适合自己的目标，以此作为前进的基石
+                        </p>
+                        <p class="article-body">
+                            谈及一年来训练的提升，李诗尧同学打开了话匣子。他告诉我，他的速度已经快使人颤抖，而且臂围长了一公分。在我看来，这一公分不仅是臂围，也是他成长的一小步。在技巧上，他知道如何稳定体力；在心态上，他知道如何调整心态，在一次次失败中重整旗鼓
+                        </p>
+                        <p class="article-body">
+                            这次采访让我留下了深刻的印象，希望诗尧同学能够在体育中绽放光彩，挥洒青春的汗水。
+                        </p>
+                    </article>
+
+                    <!-- 第四篇：周铭浩《科学备考稳心态，从容迎战体考》 -->
+                    <article class="article-block">
+                        <h2 class="t-rail">科学备考稳心态，从容迎战体考</h2>
+                        <p class="sub-rail">——采访体育组老师们</p>
+                        <p class="byline">■ 周铭浩</p>
+
+                        <p class="article-body">
+                            随着体育中考临近，为解答同学们的备考困惑，我校小记者近日对部分同学及体育老师进行了专访，共探科学备考之道。
+                        </p>
+                        <p class="article-body">
+                            采访中，同学们分享了各自的拼搏历程。有人目标80分，也有人向120分发起冲击。经过一年训练，大家不仅在引体向上、100米跑等项目上取得突破，周一、三、五的体能加练更让50米跑和立定跳远成绩显著提升。谈及实战技巧，同学们不约而同提到长跑需合理分配体力，跟跑水平相近的同伴，切忌起步猛冲，稳扎稳打方能笑到最后。
+                        </p>
+                        <p class="article-body">
+                            针对考前焦虑，体育老师给出了科学建议："考前1-2天不宜大负荷加练，应以慢跑、拉伸等小负荷保持状态，将体能留到考场。"对于跑步压力，老师建议打磨呼吸节奏，通过模拟测试熟悉流程，用深呼吸缓解紧张。老师还精准指出了男女生的薄弱环节：女生耐力与核心力量偏弱，男生则需加强上肢与爆发力。
+                        </p>
+                        <p class="article-body">
+                            面对"应付考试"的想法，老师强调体育不仅为分数，更是培养终身运动习惯的契机。考前最后，老师叮嘱大家："安全第一，重视规范，合理分配体力。祝愿同学们放平心态，稳定发挥，突破自我！"
+                        </p>
+                    </article>
+
+                </div>
+
             </main>
 
+            <!-- ==================== 页脚 ==================== -->
             <footer class="footer">
-                <div class="footer-content">
-                    <span>语文5组的神秘报纸</span>
-                    <span>第三版</span>
-                </div>
+                <p class="footer-info">
+                    <span>2026年10月6日 星期一</span>
+                    <span>总第001期</span>
+                    <span>本版编辑：语文6班5组</span>
+                    <span>美术编辑：热情的组员</span>
+                </p>
             </footer>
+
         </div>
     </div>
 
+    <!-- ============================================================
+         屏幕适配脚本
+         核心思路：
+           1. 纸张物理尺寸恒为 297mm × 210mm；
+           2. 通过 CSS zoom 让浏览器原生重排，文字/边框始终保持清晰；
+           3. 缩放比例 = 视口宽度 / 纸张自然宽度，实现「横向撑满」；
+           4. 外层容器高度已由 CSS calc() 锁定为 A4 比例，无需 JS 干预；
+           5. 使用 requestAnimationFrame 节流，避免拖拽窗口时频繁重排。
+         ============================================================ -->
     <script>
         (function () {
             var sheet = document.getElementById('paper-sheet');
             if (!sheet) return;
-            var lastWidth = 0, rafId = null;
+
+            var lastWidth = 0;      /* 记录上次的视口宽度，避免无意义的重复计算 */
+            var rafId = null;       /* requestAnimationFrame 句柄 */
+
+            /**
+             * 根据当前视口宽度，重新计算并应用 zoom
+             */
             function applyZoom() {
-                var naturalW = sheet.offsetWidth;
+                var naturalW = sheet.offsetWidth;   /* 纸张未被 zoom 时的自然宽度（≈1122.5px） */
                 if (!naturalW) return;
+
                 var vw = document.documentElement.clientWidth;
-                if (vw === lastWidth) return;
+                if (vw === lastWidth) return;        /* 宽度未变，跳过重排 */
+
                 lastWidth = vw;
+
+                /* zoom = 视口宽度 / 纸张自然宽度 —— 浏览器原生缩放，文字清晰不模糊 */
                 sheet.style.zoom = (vw / naturalW);
             }
+
+            /**
+             * 用 requestAnimationFrame 做节流，避免拖拽时高频触发
+             */
             function scheduleFit() {
                 if (rafId) return;
                 rafId = requestAnimationFrame(function () {
@@ -82,12 +487,18 @@
                     applyZoom();
                 });
             }
+
+            /* —— 监听窗口尺寸变化 —— */
             window.addEventListener('resize', scheduleFit);
             window.addEventListener('orientationchange', scheduleFit);
+
+            /* —— 首次执行 —— */
             applyZoom();
+
+            /* —— 字体加载完成后校准一次（防止字体替换导致宽度变化） —— */
             if (document.fonts && document.fonts.ready) {
                 document.fonts.ready.then(function () {
-                    lastWidth = 0;
+                    lastWidth = 0;   /* 强制重算一次 */
                     applyZoom();
                 });
             }
