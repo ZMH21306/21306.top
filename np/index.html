@@ -7,7 +7,7 @@
     <title>语文5组的神秘报纸</title>
     <style>
         /* ============================================================
-           一、全局重置与设计变量
+           一、全局重置与设计变�?
            ============================================================ */
         * {
             margin: 0;
@@ -16,7 +16,7 @@
         }
 
         :root {
-            /* —— 色彩 —— */
+            /* —�?色彩 —�?*/
             --ink: #16130f;          /* 正文墨色 */
             --ink-soft: #3c3730;     /* 次级文字 */
             --paper: #faf7ef;        /* 纸张底色 */
@@ -25,16 +25,16 @@
             --muted: #6d675a;        /* 署名/图注 */
             --red: #a3211e;          /* 报头主色 */
 
-            /* —— 字体族 —— */
-            --font-body: Georgia, "Nimbus Roman", "SimSun", "宋体", "Songti SC", serif;   /* 正文：西文衬线 + 中文宋体 */
-            --font-title: "Times New Roman", "SimHei", "黑体", "Heiti SC", sans-serif;    /* 标题：西文 Times + 中文黑体 */
-            --font-sub: "KaiTi", "楷体", "STKaiti", serif;                                /* 副题/署名：楷体 */
+            /* —�?字体�?—�?*/
+            --font-body: Georgia, "Nimbus Roman", "SimSun", "宋体", "Songti SC", serif;   /* 正文：西文衬�?+ 中文宋体 */
+            --font-title: "Times New Roman", "SimHei", "黑体", "Heiti SC", sans-serif;    /* 标题：西�?Times + 中文黑体 */
+            --font-sub: "KaiTi", "楷体", "STKaiti", serif;                                /* 副题/署名：楷�?*/
         }
 
         html {
             background: #d8d3c8;              /* 页面外围底色 */
             overflow-x: hidden;               /* 防止缩放时出现横向滚动条 */
-            -webkit-text-size-adjust: 100%;   /* 阻止移动端自动放大字体 */
+            -webkit-text-size-adjust: 100%;   /* 阻止移动端自动放大字�?*/
             text-size-adjust: 100%;
         }
 
@@ -46,7 +46,7 @@
         }
 
         /* ============================================================
-           五、版心：报头与页脚之间的可滚动区域
+           五、版心：报头与页脚之间的可滚动区�?
            ============================================================ */
         .main {
             flex: 1 1 auto;
@@ -106,9 +106,9 @@
             <!-- ==================== 报头 ==================== -->
             <header class="header">
                 <div class="header-content">
-                    <div class="header-logo">报</div>
+                    <div class="header-logo">�?/div>
                     <div class="header-title">语文5组的神秘报纸</div>
-                    <div class="header-date">2026年10月7日</div>
+                    <div class="header-date">2026�?0�?�?/div>
                 </div>
             </header>
 
@@ -120,29 +120,29 @@
                     
                     <div class="version-grid">
                         <div class="version-card">
-                            <div class="version-header">第一版</div>
+                            <div class="version-header">第一�?/div>
                             <div class="version-body">
                                 <div class="version-name">v1</div>
                                 <div class="version-date">2026-10-07</div>
-                                <a href="v1/index.html" class="version-link">查看版本</a>
+                                <a href="v1/" class="version-link">查看版本</a>
                             </div>
                         </div>
                         
                         <div class="version-card">
-                            <div class="version-header">第二版</div>
+                            <div class="version-header">第二�?/div>
                             <div class="version-body">
                                 <div class="version-name">v2</div>
                                 <div class="version-date">2026-10-07</div>
-                                <a href="v2/index.html" class="version-link">查看版本</a>
+                                <a href="v2/" class="version-link">查看版本</a>
                             </div>
     <!-- ============================================================
        屏幕适配脚本
-       核心思路：
-         1. 纸张物理尺寸恒为 297mm × 210mm；
-         2. 通过 CSS zoom 让浏览器原生重排，文字/边框始终保持清晰；
+       核心思路�?
+         1. 纸张物理尺寸恒为 297mm × 210mm�?
+         2. 通过 CSS zoom 让浏览器原生重排，文�?边框始终保持清晰�?
          3. 缩放比例 = 视口宽度 / 纸张自然宽度，实现「横向撑满」；
-         4. 外层容器高度已由 CSS calc() 锁定为 A4 比例，无需 JS 干预；
-         5. 使用 requestAnimationFrame 节流，避免拖拽窗口时频繁重排。
+         4. 外层容器高度已由 CSS calc() 锁定�?A4 比例，无需 JS 干预�?
+         5. 使用 requestAnimationFrame 节流，避免拖拽窗口时频繁重排�?
        ============================================================ -->
     <script>
         (function () {
@@ -156,20 +156,20 @@
              * 根据当前视口宽度，重新计算并应用 zoom
              */
             function applyZoom() {
-                var naturalW = sheet.offsetWidth;   /* 纸张未被 zoom 时的自然宽度（≈1122.5px） */
+                var naturalW = sheet.offsetWidth;   /* 纸张未被 zoom 时的自然宽度（≈1122.5px�?*/
                 if (!naturalW) return;
 
                 var vw = document.documentElement.clientWidth;
-                if (vw === lastWidth) return;        /* 宽度未变，跳过重排 */
+                if (vw === lastWidth) return;        /* 宽度未变，跳过重�?*/
 
                 lastWidth = vw;
 
-                /* zoom = 视口宽度 / 纸张自然宽度 —— 浏览器原生缩放，文字清晰不模糊 */
+                /* zoom = 视口宽度 / 纸张自然宽度 —�?浏览器原生缩放，文字清晰不模�?*/
                 sheet.style.zoom = (vw / naturalW);
             }
 
             /**
-             * 用 requestAnimationFrame 做节流，避免拖拽时高频触发
+             * �?requestAnimationFrame 做节流，避免拖拽时高频触�?
              */
             function scheduleFit() {
                 if (rafId) return;
@@ -179,17 +179,17 @@
                 });
             }
 
-            /* —— 监听窗口尺寸变化 —— */
+            /* —�?监听窗口尺寸变化 —�?*/
             window.addEventListener('resize', scheduleFit);
             window.addEventListener('orientationchange', scheduleFit);
 
-            /* —— 首次执行 —— */
+            /* —�?首次执行 —�?*/
             applyZoom();
 
-            /* —— 字体加载完成后校准一次（防止字体替换导致宽度变化） —— */
+            /* —�?字体加载完成后校准一次（防止字体替换导致宽度变化�?—�?*/
             if (document.fonts && document.fonts.ready) {
                 document.fonts.ready.then(function () {
-                    lastWidth = 0;   /* 强制重算一次 */
+                    lastWidth = 0;   /* 强制重算一�?*/
                     applyZoom();
                 });
             }
@@ -200,11 +200,11 @@
                         </div>
                         
                         <div class="version-card">
-                            <div class="version-header">第三版</div>
+                            <div class="version-header">第三�?/div>
                             <div class="version-body">
                                 <div class="version-name">v3</div>
                                 <div class="version-date">2026-10-07</div>
-                                <a href="v3/index.html" class="version-link">查看版本</a>
+                                <a href="v3/" class="version-link">查看版本</a>
                             </div>
                         </div>
                     </div>
@@ -216,7 +216,7 @@
                 <div class="footer-content">
                     <div class="footer-spacer"></div>
                     <span>语文5组的神秘报纸</span>
-                    <span>共 3 个版本</span>
+                    <span>�?3 个版�?/span>
                 </div>
             </footer>
         </div>
@@ -272,7 +272,7 @@
         }
 
         /* ============================================================
-           七、页脚：整版宽度，固定高度
+           七、页脚：整版宽度，固定高�?
            ============================================================ */
         .footer {
             height: 8mm;
@@ -301,34 +301,34 @@
         }
 
         /* ============================================================
-           二、外层容器：横向撑满视口，高度按 A4 比例（297 : 210）锁定
-                —— 无论窗口如何缩放，容器始终维持 1.414 : 1
+           二、外层容器：横向撑满视口，高度按 A4 比例�?97 : 210）锁�?
+                —�?无论窗口如何缩放，容器始终维�?1.414 : 1
            ============================================================ */
         .paper-outer {
             width: 100vw;
             height: calc(100vw * 210 / 297);  /* 由宽度反推高度，锁定 A4 比例 */
-            overflow: hidden;                 /* 裁掉缩放产生的多余区域 */
+            overflow: hidden;                 /* 裁掉缩放产生的多余区�?*/
             position: relative;
             background: #d8d3c8;
         }
 
         /* ============================================================
-           三、纸张本体：固定物理尺寸 297mm × 210mm（标准 A4 横向）
-                —— 由 JS 动态设置 zoom，让浏览器原生重排，文字保持清晰
+           三、纸张本体：固定物理尺寸 297mm × 210mm（标�?A4 横向�?
+                —�?�?JS 动态设�?zoom，让浏览器原生重排，文字保持清晰
            ============================================================ */
         .sheet {
             width: 297mm;
             height: 210mm;
-            padding: 3mm 4mm 2mm;             /* 页边距：上 3 / 左右 4 / 下 2 */
+            padding: 3mm 4mm 2mm;             /* 页边距：�?3 / 左右 4 / �?2 */
             background: var(--paper);
             position: relative;
             overflow: hidden;                 /* 保证内容永不溢出纸张 */
             display: flex;
             flex-direction: column;           /* 纵向三段式：报头 / 版心 / 页脚 */
-            transform-origin: top left;       /* zoom 的缩放锚点固定在左上角 */
+            transform-origin: top left;       /* zoom 的缩放锚点固定在左上�?*/
         }
 
-        /* —— 纸张纸纹噪点（纯装饰，不影响布局） —— */
+        /* —�?纸张纸纹噪点（纯装饰，不影响布局�?—�?*/
         .sheet::before {
             content: "";
             position: absolute;
@@ -338,7 +338,7 @@
         }
 
         /* ============================================================
-           四、报头：整版宽度，固定高度
+           四、报头：整版宽度，固定高�?
            ============================================================ */
         .header {
             height: 12mm;
