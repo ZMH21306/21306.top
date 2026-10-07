@@ -196,7 +196,6 @@
             color: inherit;
             text-decoration: none;
             transition:
-                transform 0.25s cubic-bezier(0.2, 0, 0, 1),
                 box-shadow 0.25s cubic-bezier(0.2, 0, 0, 1),
                 border-color 0.25s ease;
             position: relative;
@@ -322,18 +321,7 @@
                 transition-duration: 0.01ms !important;
                 animation-duration: 0.01ms !important;
             }
-            .version-card:hover {
-                transform: none;
-            }
-            .version-card:hover .card-arrow {
-                transform: none;
-            }
-            .version-card[disabled]:hover {
-                transform: none;
-            }
-            .version-card[disabled]:hover .card-arrow {
-                transform: none;
-            }
+
             .version-card[disabled] {
                 opacity: 0.6;
                 pointer-events: none;
