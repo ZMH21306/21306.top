@@ -135,6 +135,68 @@
                                 <div class="version-date">2026-10-07</div>
                                 <a href="v2/index.html" class="version-link">查看版本</a>
                             </div>
+    <!-- ============================================================
+       屏幕适配脚本
+       核心思路：
+         1. 纸张物理尺寸恒为 297mm × 210mm；
+         2. 通过 CSS zoom 让浏览器原生重排，文字/边框始终保持清晰；
+         3. 缩放比例 = 视口宽度 / 纸张自然宽度，实现「横向撑满」；
+         4. 外层容器高度已由 CSS calc() 锁定为 A4 比例，无需 JS 干预；
+         5. 使用 requestAnimationFrame 节流，避免拖拽窗口时频繁重排。
+       ============================================================ -->
+    <script>
+        (function () {
+            var sheet = document.getElementById('paper-sheet');
+            if (!sheet) return;
+
+            var lastWidth = 0;      /* 记录上次的视口宽度，避免无意义的重复计算 */
+            var rafId = null;       /* requestAnimationFrame 句柄 */
+
+            /**
+             * 根据当前视口宽度，重新计算并应用 zoom
+             */
+            function applyZoom() {
+                var naturalW = sheet.offsetWidth;   /* 纸张未被 zoom 时的自然宽度（≈1122.5px） */
+                if (!naturalW) return;
+
+                var vw = document.documentElement.clientWidth;
+                if (vw === lastWidth) return;        /* 宽度未变，跳过重排 */
+
+                lastWidth = vw;
+
+                /* zoom = 视口宽度 / 纸张自然宽度 —— 浏览器原生缩放，文字清晰不模糊 */
+                sheet.style.zoom = (vw / naturalW);
+            }
+
+            /**
+             * 用 requestAnimationFrame 做节流，避免拖拽时高频触发
+             */
+            function scheduleFit() {
+                if (rafId) return;
+                rafId = requestAnimationFrame(function () {
+                    rafId = null;
+                    applyZoom();
+                });
+            }
+
+            /* —— 监听窗口尺寸变化 —— */
+            window.addEventListener('resize', scheduleFit);
+            window.addEventListener('orientationchange', scheduleFit);
+
+            /* —— 首次执行 —— */
+            applyZoom();
+
+            /* —— 字体加载完成后校准一次（防止字体替换导致宽度变化） —— */
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(function () {
+                    lastWidth = 0;   /* 强制重算一次 */
+                    applyZoom();
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
                         </div>
                         
                         <div class="version-card">
