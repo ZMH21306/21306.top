@@ -6,10 +6,10 @@
     <meta name="description" content="语文5组体测采访（总第001期）——横版A4">
     <title>语文5组体测采访 | 2026年10月8日</title>
 
-    <!-- ★ 毛笔风格 Web 字体（手机/电脑都能加载） -->
+    <!-- ★ 智能加载：预连接 + 仅报头 1 个 Web 毛笔字体 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
 
     <style>
         /* ============================================================
@@ -31,25 +31,21 @@
             --muted: #6a6558;
             --red: #a3211e;
 
-            /* 正文：宋体/衬线 */
-            --font-body: Georgia, "Nimbus Roman", "Noto Serif SC", "Source Han Serif SC",
-                         "Songti SC", "SimSun", "宋体", serif;
+            /* 正文：系统宋体/衬线，0 加载 */
+            --font-body: Georgia, "Nimbus Roman", "Songti SC", "SimSun", "宋体", serif;
 
-            /* ★ 报头：Web 毛笔字体 → 桌面行楷 → 楷体 → 衬线 */
+            /* ★ 报头：Web 毛笔字体（仅 7 字，按需分片）→ 系统行楷/隶书/楷体回退 */
             --font-title: "Ma Shan Zheng",
                           "STXingkai", "华文行楷", "Xingkai SC",
-                          "LiSu", "隶书",
+                          "LiSu", "隶书", "STLiti",
                           "KaiTi", "楷体", "STKaiti",
                           "Songti SC", "SimSun", "宋体", serif;
 
-            /* ★ 文章标题：思源宋体（Web） → 系统宋体加粗 */
-            --font-headline: "Noto Serif SC",
-                             "Source Han Serif SC",
-                             "STSong", "Songti SC", "SimSun", "宋体",
-                             serif;
+            /* ★ 文章标题：系统宋体加粗，0 加载 */
+            --font-headline: "STSong", "Songti SC", "SimSun", "宋体", serif;
 
-            /* 副题/署名：楷体（手机普遍内置） */
-            --font-sub: "KaiTi", "楷体", "STKaiti", "Songti SC", "SimSun", serif;
+            /* 副题/署名：系统楷体，0 加载 */
+            --font-sub: "KaiTi", "楷体", "STKaiti", "Songti SC", serif;
         }
 
         html {
@@ -101,7 +97,7 @@
         }
 
         /* ============================================================
-           二、版心
+           二、版心：左 4.2 右 5.8
            ============================================================ */
         .page-grid {
             flex: 1;
@@ -128,7 +124,9 @@
             padding-left: 5mm;
         }
 
-        /* ---- 报头块 ---- */
+        /* ============================================================
+           三、报头（毛笔主标题 + 期号信息行）
+           ============================================================ */
         .masthead-inline {
             flex-shrink: 0;
             padding: 0 0 1.6mm;
@@ -139,7 +137,7 @@
         .masthead-inline .paper-name {
             font-family: var(--font-title);
             font-size: 34pt;
-            font-weight: 400;             /* Ma Shan Zheng 只有 400 */
+            font-weight: 400;                /* Ma Shan Zheng 仅 400 字重 */
             color: var(--red);
             letter-spacing: 2pt;
             line-height: 1.15;
@@ -168,7 +166,7 @@
         }
 
         /* ============================================================
-           三、文章块通用
+           四、文章块通用
            ============================================================ */
         .article-block {
             display: block;
@@ -184,7 +182,7 @@
         }
 
         /* ============================================================
-           四、标题层级（统一字号）
+           五、标题层级（系统宋体加粗，0 加载）
            ============================================================ */
         .t-lead,
         .t-block,
@@ -225,7 +223,7 @@
         }
 
         /* ============================================================
-           五、正文段落
+           六、正文段落
            ============================================================ */
         .article-body {
             font-family: var(--font-body);
@@ -244,7 +242,7 @@
         }
 
         /* ============================================================
-           六、配图：右浮动
+           七、配图：右浮动
            ============================================================ */
         .inline-figure {
             float: right;
@@ -277,7 +275,7 @@
         }
 
         /* ============================================================
-           七、页脚
+           八、页脚
            ============================================================ */
         .footer {
             flex-shrink: 0;
@@ -304,7 +302,7 @@
         }
 
         /* ============================================================
-           八、打印样式
+           九、打印样式
            ============================================================ */
         @page {
             size: A4 landscape;
@@ -347,9 +345,12 @@
 
             <main class="page-grid">
 
-                <!-- 左栏 -->
+                <!-- ====================================================
+                     左栏（4.2fr）
+                     ==================================================== -->
                 <div class="col-left">
 
+                    <!-- 报头：毛笔主标题 + 期号信息行 -->
                     <div class="masthead-inline">
                         <h1 class="paper-name">语文5组体测采访</h1>
                         <div class="masthead-meta">
@@ -358,6 +359,7 @@
                         </div>
                     </div>
 
+                    <!-- 第一篇 -->
                     <article class="article-block">
                         <h2 class="t-lead">追风少年，崭露锋芒</h2>
                         <p class="sub-lead">——体测中拼搏的张雨杨同学</p>
@@ -380,6 +382,7 @@
                         </p>
                     </article>
 
+                    <!-- 第二篇 -->
                     <article class="article-block">
                         <h2 class="t-block">专访体育教师——科学备战体育中考</h2>
                         <p class="sub-block">——聆听训练指导、备考建议与暖心祝福</p>
@@ -401,9 +404,12 @@
 
                 </div>
 
-                <!-- 右栏 -->
+                <!-- ====================================================
+                     右栏（5.8fr）
+                     ==================================================== -->
                 <div class="col-right">
 
+                    <!-- 第三篇 -->
                     <article class="article-block">
                         <h2 class="t-rail">汗水筑底气，奔跑向目标</h2>
                         <p class="sub-rail">——采访体测同学李昀朔</p>
@@ -420,6 +426,7 @@
                         </p>
                     </article>
 
+                    <!-- 第四篇（含配图） -->
                     <article class="article-block">
                         <h2 class="t-rail">一滴青春的汗水</h2>
                         <p class="sub-rail">——采访李诗尧同学</p>
@@ -443,6 +450,7 @@
                         </p>
                     </article>
 
+                    <!-- 第五篇 -->
                     <article class="article-block">
                         <h2 class="t-rail">科学备考稳心态，从容迎战体考</h2>
                         <p class="sub-rail">——采访体育组老师们</p>
@@ -466,6 +474,7 @@
 
             </main>
 
+            <!-- ==================== 页脚 ==================== -->
             <footer class="footer">
                 <div class="footer-info">
                     <span>2026 年 10 月 8 日 星期四</span>
@@ -477,6 +486,9 @@
         </div>
     </div>
 
+    <!-- ============================================================
+         屏幕适配脚本
+         ============================================================ -->
     <script>
         (function () {
             var sheet = document.getElementById('paper-sheet');
@@ -509,7 +521,7 @@
 
             applyZoom();
 
-            /* ★ 等 Web 字体加载完再重排，避免字体闪变 */
+            /* ★ 等 Web 毛笔字体加载完再重排一次，避免字宽变化 */
             if (document.fonts && document.fonts.ready) {
                 document.fonts.ready.then(function () {
                     lastWidth = 0;
