@@ -262,20 +262,10 @@
 
         .card-arrow {
             display: inline-block;
-            transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1);
         }
 
         /* 悬停效果：仅在有真实指针的设备上启用 */
-        @media (hover: hover) and (pointer: fine) {
-            .version-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 14px 28px -10px rgba(22, 19, 15, 0.18);
-                border-color: var(--rule-dark);
-            }
-            .version-card:hover .card-arrow {
-                transform: translateX(4px);
-            }
-        }
+
 
         .version-card:focus-visible {
             outline: 2px solid var(--red);
