@@ -16,21 +16,33 @@
         }
 
         :root {
-            --ink: #16130f;
-            --ink-soft: #3c3730;
-            --paper: #faf7ef;
-            --rule: #c9c2b0;
-            --rule-dark: #16130f;
-            --muted: #6d675a;
+            --ink: #1a1714;
+            --ink-soft: #3a342c;
+            --paper: #fbf8f1;
+            --rule: #d3ccbb;
+            --rule-strong: #1a1714;
+            --rule-fine: #b9b1a0;
+            --muted: #6a6558;
             --red: #a3211e;
+            --red-soft: #8c1c19;
 
             --font-body: Georgia, "Nimbus Roman", "SimSun", "宋体", "Songti SC", serif;
-            --font-title: "Times New Roman", "SimHei", "黑体", "Heiti SC", sans-serif;
-            --font-sub: "KaiTi", "楷体", "STKaiti", serif;
+
+            --font-title: "STXingkai", "华文行楷", "Xingkai SC",
+                          "LiSu", "隶书", "STLiti",
+                          "KaiTi", "楷体", "STKaiti",
+                          "Songti SC", serif;
+
+            --font-headline: "FZXiaoBiaoSong-B05S", "方正小标宋简体",
+                             "Source Han Serif SC", "Noto Serif SC",
+                             "STSong", "SimSun", "宋体", "Songti SC",
+                             serif;
+
+            --font-sub: "KaiTi", "楷体", "STKaiti", "Songti SC", serif;
         }
 
         html {
-            background: #d8d3c8;
+            background: #cfc9bd;
             overflow-x: hidden;
             -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
@@ -38,30 +50,24 @@
 
         body {
             font-family: var(--font-body);
-            background: #d8d3c8;
+            background: #cfc9bd;
             color: var(--ink);
             margin: 0;
             padding: 0;
         }
 
-        /* ============================================================
-           二、外层容器：横向撑满视口，高度按 A4 比例锁定
-           ============================================================ */
         .paper-outer {
             width: 100vw;
             height: calc(100vw * 210 / 297);
             overflow: hidden;
             position: relative;
-            background: #d8d3c8;
+            background: #cfc9bd;
         }
 
-        /* ============================================================
-           三、纸张本体：297mm × 210mm
-           ============================================================ */
         .sheet {
             width: 297mm;
             height: 210mm;
-            padding: 3.5mm 5mm 2.5mm;
+            padding: 4mm 5.5mm 3mm;
             background: var(--paper);
             position: relative;
             overflow: hidden;
@@ -74,7 +80,7 @@
             content: "";
             position: absolute;
             inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
             pointer-events: none;
         }
 
@@ -84,59 +90,15 @@
         }
 
         /* ============================================================
-           四、报头
-           ============================================================ */
-        .masthead {
-            flex-shrink: 0;
-            padding-bottom: 0.8mm;
-            margin-bottom: 2.4mm;
-            border-bottom: 0.6mm solid var(--rule-dark);
-            position: relative;
-        }
-
-        .masthead::after {
-            content: "";
-            display: block;
-            height: 0.2mm;
-            background: var(--rule-dark);
-            margin-top: 0.55mm;
-        }
-
-        .mh-main {
-            display: flex;
-            align-items: baseline;
-            gap: 2.5mm;
-        }
-
-        .paper-name {
-            font-family: var(--font-title);
-            font-size: 22pt;
-            font-weight: 900;
-            color: var(--red);
-            letter-spacing: 1.5pt;
-            line-height: 1;
-            white-space: nowrap;
-        }
-
-        .paper-en {
-            font-family: var(--font-title);
-            font-size: 5.4pt;
-            letter-spacing: 1.4pt;
-            color: var(--ink-soft);
-            text-transform: uppercase;
-            line-height: 1;
-            padding-bottom: 0.5mm;
-        }
-
-        /* ============================================================
-           五、版心：左右两栏，弹性填充
+           二、报头（左栏顶部：毛笔主标题 + 栏内单线 + 期号行）
            ============================================================ */
         .page-grid {
             flex: 1;
             min-height: 0;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            column-gap: 5.5mm;
+            grid-template-columns: 4.2fr 5.8fr;
+            grid-template-rows: 1fr;
+            column-gap: 6mm;
             align-items: stretch;
         }
 
@@ -151,102 +113,132 @@
         }
 
         .col-right {
-            border-left: 0.2mm solid var(--rule);
-            padding-left: 4.5mm;
+            border-left: 0.3mm solid var(--rule-fine);
+            padding-left: 5mm;
         }
 
+        /* ---- 报头块 ---- */
+        .masthead-inline {
+            flex-shrink: 0;
+            padding: 0 0 1.6mm;
+            margin-bottom: 1.6mm;
+            border-bottom: 0.7mm solid var(--rule-strong);
+        }
+
+        .masthead-inline .paper-name {
+            font-family: var(--font-title);
+            font-size: 34pt;
+            font-weight: 700;
+            color: var(--red);
+            letter-spacing: 2pt;
+            line-height: 1.1;
+            white-space: nowrap;
+            display: block;
+            text-align: center;
+            text-shadow: 0 0 0.5pt rgba(163, 33, 30, 0.3);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .masthead-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-top: 1mm;
+            font-family: var(--font-sub);
+            font-size: 6.8pt;
+            color: var(--muted);
+            letter-spacing: 0.5pt;
+            padding: 0 0.5mm;
+        }
+
+        .masthead-meta .left,
+        .masthead-meta .right {
+            white-space: nowrap;
+        }
+
+        /* ============================================================
+           三、文章块通用
+           ============================================================ */
         .article-block {
             display: block;
             flex: 1 1 auto;
             min-height: 0;
             min-width: 0;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .article-block + .article-block {
             border-top: 0.2mm solid var(--rule);
-            padding-top: 1.6mm;
+            padding-top: 1.8mm;
         }
 
         /* ============================================================
-           五之一、标题层级
+           四、标题层级（统一字号）
            ============================================================ */
-        .t-lead {
-            font-family: var(--font-title);
-            font-size: 15pt;
+        .t-lead,
+        .t-block,
+        .t-rail {
+            font-family: var(--font-headline);
+            font-size: 13.5pt;
             font-weight: 900;
-            line-height: 1.18;
+            line-height: 1.28;
             letter-spacing: 0.8pt;
             text-align: center;
             color: var(--ink);
         }
 
-        .t-block {
-            font-family: var(--font-title);
-            font-size: 12pt;
-            font-weight: 900;
-            line-height: 1.22;
-            letter-spacing: 0.4pt;
-            text-align: center;
-            color: var(--ink);
+        .t-lead {
+            font-size: 14.5pt;
+            letter-spacing: 1pt;
         }
 
-        .t-rail {
-            font-family: var(--font-title);
-            font-size: 11pt;
-            font-weight: 900;
-            line-height: 1.22;
-            text-align: center;
-            color: var(--ink);
-        }
-
-        /* ★ 小标题（副题）与上方标题之间间距加大 */
         .sub-lead,
         .sub-block,
         .sub-rail {
             font-family: var(--font-sub);
-            font-size: 7.4pt;
+            font-size: 7.8pt;
             color: var(--ink-soft);
             text-align: center;
             line-height: 1.35;
-            margin-top: 1.2mm;          /* 原 0.5mm → 1.2mm */
+            margin-top: 1mm;
         }
 
-        /* ★ 署名与上方副题、下方正文之间间距加大 */
         .byline {
             font-family: var(--font-sub);
-            font-size: 6.4pt;
+            font-size: 7pt;
             color: var(--muted);
             text-align: center;
-            letter-spacing: 0.8pt;
-            margin-top: 1.2mm;          /* 原 0.5mm → 1.2mm */
-            margin-bottom: 1.2mm;       /* 原 0.6mm → 1.2mm */
+            letter-spacing: 0.9pt;
+            margin-top: 0.9mm;
+            margin-bottom: 0.9mm;
         }
 
         /* ============================================================
-           五之二、正文段落
+           五、正文段落
            ============================================================ */
         .article-body {
-            font-size: 9pt;
-            line-height: 1.78;
+            font-family: var(--font-body);
+            font-size: 8.4pt;
+            line-height: 1.62;
             text-align: justify;
             text-justify: inter-ideograph;
             text-indent: 2em;
-            margin-top: 0.9mm;
+            margin-top: 0.85mm;
             margin-bottom: 0;
+            hyphens: none;
         }
 
         .article-body + .article-body {
-            margin-top: 0.5mm;
+            margin-top: 0.55mm;
         }
 
         /* ============================================================
-           五之三、配图：右浮动，与首段左右并排
+           六、配图：右浮动
            ============================================================ */
         .inline-figure {
             float: right;
-            width: 60mm;
-            margin: 0.4mm 0 0.8mm 2.6mm;
+            width: 55mm;
+            margin: 0.6mm 0 1mm 3mm;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -257,16 +249,16 @@
         .inline-figure img {
             display: block;
             width: 100%;
-            height: 38mm;
+            height: 34mm;
             object-fit: cover;
-            border: 0.18mm solid var(--rule);
-            background: #efe9dc;
+            border: 0.2mm solid var(--rule);
+            background: #ece5d5;
         }
 
         .inline-figure figcaption {
-            margin-top: 0.6mm;
+            margin-top: 0.8mm;
             font-family: var(--font-sub);
-            font-size: 5.8pt;
+            font-size: 6.1pt;
             font-style: italic;
             line-height: 1.25;
             color: var(--muted);
@@ -274,38 +266,34 @@
         }
 
         /* ============================================================
-           六、页脚
+           七、页脚
            ============================================================ */
         .footer {
             flex-shrink: 0;
-            margin-top: 2.2mm;
-            border-top: 0.55mm solid var(--rule-dark);
-            padding-top: 0.9mm;
+            margin-top: 2mm;
+            border-top: 0.5mm solid var(--rule-strong);
+            padding-top: 1.2mm;
         }
 
         .footer-info {
             display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap;
             font-family: var(--font-sub);
-            font-size: 6.8pt;
+            font-size: 7pt;
             color: var(--ink-soft);
             letter-spacing: 0.4pt;
-            line-height: 1.3;
+            line-height: 1.25;
+            padding: 0 1mm;
         }
 
-        .footer-info span::after {
-            content: "│";
-            color: var(--rule);
-            margin: 0 3mm;
-        }
-
-        .footer-info span:last-child::after {
-            content: "";
+        .footer-info span {
+            white-space: nowrap;
         }
 
         /* ============================================================
-           七、打印样式
+           八、打印样式
            ============================================================ */
         @page {
             size: A4 landscape;
@@ -346,22 +334,23 @@
     <div class="paper-outer">
         <div class="sheet" id="paper-sheet">
 
-            <!-- ==================== 报头 ==================== -->
-            <header class="masthead">
-                <div class="mh-main">
-                    <h1 class="paper-name">语文5组体测采访</h1>
-                </div>
-            </header>
-
-            <!-- ==================== 版心 ==================== -->
             <main class="page-grid">
 
                 <!-- ====================================================
-                     左栏：头条 + 校园要闻
+                     左栏（4.2fr）
                      ==================================================== -->
                 <div class="col-left">
 
-                    <!-- 第一篇 -->
+                    <!-- 报头：毛笔主标题 + 期号信息行 -->
+                    <div class="masthead-inline">
+                        <h1 class="paper-name">语文5组体测采访</h1>
+                        <div class="masthead-meta">
+                            <span class="left">总第 001 期</span>
+                            <span class="right">2026 年 10 月 8 日</span>
+                        </div>
+                    </div>
+
+                    <!-- 第一篇：追风少年 -->
                     <article class="article-block">
                         <h2 class="t-lead">追风少年，崭露锋芒</h2>
                         <p class="sub-lead">——体测中拼搏的张雨杨同学</p>
@@ -384,10 +373,37 @@
                         </p>
                     </article>
 
-                    <!-- 第二篇 -->
+                    <!-- 第二篇：专访体育教师（冯晨轩） -->
                     <article class="article-block">
-                        <h2 class="t-block">汗水筑底气，奔跑向目标</h2>
-                        <p class="sub-block">——采访体测同学李昀朔</p>
+                        <h2 class="t-block">专访体育教师——科学备战体育中考</h2>
+                        <p class="sub-block">——聆听训练指导、备考建议与暖心祝福</p>
+                        <p class="byline">■ 冯晨轩</p>
+
+                        <p class="article-body">
+                            9月18日下午，我校6班语文第五小组在校内采访两位体育老师，围绕八年级体育中考，聆听老师们的训练指导、备考建议与暖心祝福。
+                        </p>
+                        <p class="article-body">
+                            采访内容主要是关于体育中考的问题。首先，在面对考前应如何安排休息这一问题时，两位老师均提到：考前不适合大强度加练，只需保持状态，熟悉动作即可。在提到关于跑步的训练建议时，陈健老师建议，课上认真完成分段跑练习，应重点打磨呼吸节奏，不要一开始就冲刺，认真完成模拟测试，紧张时深呼吸，告诉自己要放松。而程智玉老师的回答十分简洁明了，就是平时多练，培养足够体能就不会担心了。
+                        </p>
+                        <p class="article-body">
+                            陈健老师表示：女生的立定跳远、800米偏弱，耐力有待提升；男生上肢力量欠缺，引体向上是常见短板，程老师还提到，男生的立定跳远仍需提升。此外，两位老师补充：体育训练不只是为了一场考试，体考只是能够帮大家养成运动习惯的契机，体育训练可以培养健康、克服困难的品质，坚持运动的价值远不止拿到分数。
+                        </p>
+                        <p class="article-body">
+                            最后两位老师祝福我们发挥出真实水平，突破自我，放平心态，取得理想成绩。让我们带着老师的建议与祝福，自信迎接体育中考！
+                        </p>
+                    </article>
+
+                </div>
+
+                <!-- ====================================================
+                     右栏（5.8fr）
+                     ==================================================== -->
+                <div class="col-right">
+
+                    <!-- 第三篇：汗水筑底气 -->
+                    <article class="article-block">
+                        <h2 class="t-rail">汗水筑底气，奔跑向目标</h2>
+                        <p class="sub-rail">——采访体测同学李昀朔</p>
                         <p class="byline">■ 王梓懿</p>
 
                         <p class="article-body">
@@ -401,21 +417,13 @@
                         </p>
                     </article>
 
-                </div>
-
-                <!-- ====================================================
-                     右栏：青春访谈 + 体育专栏
-                     ==================================================== -->
-                <div class="col-right">
-
-                    <!-- 第三篇 -->
+                    <!-- 第四篇：一滴青春的汗水 -->
                     <article class="article-block">
                         <h2 class="t-rail">一滴青春的汗水</h2>
                         <p class="sub-rail">——采访李诗尧同学</p>
                         <p class="byline">■ 胡珈宁</p>
-                        <!-- ★ 图片右浮动，紧随其后的首段自动绕排 -->
                         <figure class="inline-figure">
-                            <img src="https://21306.top/np/v2/这是一张图.jpg" alt="体育模拟现场">
+                            <img src="./这是一张图.jpg" alt="体育模拟现场">
                             <figcaption>体育模拟考试现场</figcaption>
                         </figure>
 
@@ -433,7 +441,7 @@
                         </p>
                     </article>
 
-                    <!-- 第四篇：图片与首段左右并排 -->
+                    <!-- 第五篇：科学备考（周铭浩） -->
                     <article class="article-block">
                         <h2 class="t-rail">科学备考稳心态，从容迎战体考</h2>
                         <p class="sub-rail">——采访体育组老师们</p>
@@ -459,20 +467,16 @@
 
             <!-- ==================== 页脚 ==================== -->
             <footer class="footer">
-                <p class="footer-info">
-                    <span>2026年10月8日 星期四</span>
-                    <span>总第001期</span>
-                    <span>本版编辑：语文6班5组</span>
+                <div class="footer-info">
+                    <span>2026 年 10 月 8 日 星期四</span>
+                    <span>本版编辑：语文 6 班 5 组</span>
                     <span>美术编辑：热情的组员</span>
-                </p>
+                </div>
             </footer>
 
         </div>
     </div>
 
-    <!-- ============================================================
-         屏幕适配脚本
-         ============================================================ -->
     <script>
         (function () {
             var sheet = document.getElementById('paper-sheet');
