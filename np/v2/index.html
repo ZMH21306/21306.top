@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="语文5组体测采访（总第001期）——横版A4">
     <title>语文5组体测采访 | 2026年10月8日</title>
+
+    <!-- ★ 毛笔风格 Web 字体（手机/电脑都能加载） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
+
     <style>
         /* ============================================================
            一、全局重置与设计变量
@@ -24,21 +30,26 @@
             --rule-fine: #b9b1a0;
             --muted: #6a6558;
             --red: #a3211e;
-            --red-soft: #8c1c19;
 
-            --font-body: Georgia, "Nimbus Roman", "SimSun", "宋体", "Songti SC", serif;
+            /* 正文：宋体/衬线 */
+            --font-body: Georgia, "Nimbus Roman", "Noto Serif SC", "Source Han Serif SC",
+                         "Songti SC", "SimSun", "宋体", serif;
 
-            --font-title: "STXingkai", "华文行楷", "Xingkai SC",
-                          "LiSu", "隶书", "STLiti",
+            /* ★ 报头：Web 毛笔字体 → 桌面行楷 → 楷体 → 衬线 */
+            --font-title: "Ma Shan Zheng",
+                          "STXingkai", "华文行楷", "Xingkai SC",
+                          "LiSu", "隶书",
                           "KaiTi", "楷体", "STKaiti",
-                          "Songti SC", serif;
+                          "Songti SC", "SimSun", "宋体", serif;
 
-            --font-headline: "FZXiaoBiaoSong-B05S", "方正小标宋简体",
-                             "Source Han Serif SC", "Noto Serif SC",
-                             "STSong", "SimSun", "宋体", "Songti SC",
+            /* ★ 文章标题：思源宋体（Web） → 系统宋体加粗 */
+            --font-headline: "Noto Serif SC",
+                             "Source Han Serif SC",
+                             "STSong", "Songti SC", "SimSun", "宋体",
                              serif;
 
-            --font-sub: "KaiTi", "楷体", "STKaiti", "Songti SC", serif;
+            /* 副题/署名：楷体（手机普遍内置） */
+            --font-sub: "KaiTi", "楷体", "STKaiti", "Songti SC", "SimSun", serif;
         }
 
         html {
@@ -90,7 +101,7 @@
         }
 
         /* ============================================================
-           二、报头（左栏顶部：毛笔主标题 + 栏内单线 + 期号行）
+           二、版心
            ============================================================ */
         .page-grid {
             flex: 1;
@@ -128,10 +139,10 @@
         .masthead-inline .paper-name {
             font-family: var(--font-title);
             font-size: 34pt;
-            font-weight: 700;
+            font-weight: 400;             /* Ma Shan Zheng 只有 400 */
             color: var(--red);
             letter-spacing: 2pt;
-            line-height: 1.1;
+            line-height: 1.15;
             white-space: nowrap;
             display: block;
             text-align: center;
@@ -336,12 +347,9 @@
 
             <main class="page-grid">
 
-                <!-- ====================================================
-                     左栏（4.2fr）
-                     ==================================================== -->
+                <!-- 左栏 -->
                 <div class="col-left">
 
-                    <!-- 报头：毛笔主标题 + 期号信息行 -->
                     <div class="masthead-inline">
                         <h1 class="paper-name">语文5组体测采访</h1>
                         <div class="masthead-meta">
@@ -350,7 +358,6 @@
                         </div>
                     </div>
 
-                    <!-- 第一篇：追风少年 -->
                     <article class="article-block">
                         <h2 class="t-lead">追风少年，崭露锋芒</h2>
                         <p class="sub-lead">——体测中拼搏的张雨杨同学</p>
@@ -373,7 +380,6 @@
                         </p>
                     </article>
 
-                    <!-- 第二篇：专访体育教师（冯晨轩） -->
                     <article class="article-block">
                         <h2 class="t-block">专访体育教师——科学备战体育中考</h2>
                         <p class="sub-block">——聆听训练指导、备考建议与暖心祝福</p>
@@ -395,12 +401,9 @@
 
                 </div>
 
-                <!-- ====================================================
-                     右栏（5.8fr）
-                     ==================================================== -->
+                <!-- 右栏 -->
                 <div class="col-right">
 
-                    <!-- 第三篇：汗水筑底气 -->
                     <article class="article-block">
                         <h2 class="t-rail">汗水筑底气，奔跑向目标</h2>
                         <p class="sub-rail">——采访体测同学李昀朔</p>
@@ -417,13 +420,12 @@
                         </p>
                     </article>
 
-                    <!-- 第四篇：一滴青春的汗水 -->
                     <article class="article-block">
                         <h2 class="t-rail">一滴青春的汗水</h2>
                         <p class="sub-rail">——采访李诗尧同学</p>
                         <p class="byline">■ 胡珈宁</p>
                         <figure class="inline-figure">
-                            <img src="./这是一张图.jpg" alt="体育模拟现场">
+                            <img src="https://21306.top/np/v2/这是一张图.jpg" alt="体育模拟现场">
                             <figcaption>体育模拟考试现场</figcaption>
                         </figure>
 
@@ -441,7 +443,6 @@
                         </p>
                     </article>
 
-                    <!-- 第五篇：科学备考（周铭浩） -->
                     <article class="article-block">
                         <h2 class="t-rail">科学备考稳心态，从容迎战体考</h2>
                         <p class="sub-rail">——采访体育组老师们</p>
@@ -465,7 +466,6 @@
 
             </main>
 
-            <!-- ==================== 页脚 ==================== -->
             <footer class="footer">
                 <div class="footer-info">
                     <span>2026 年 10 月 8 日 星期四</span>
@@ -509,6 +509,7 @@
 
             applyZoom();
 
+            /* ★ 等 Web 字体加载完再重排，避免字体闪变 */
             if (document.fonts && document.fonts.ready) {
                 document.fonts.ready.then(function () {
                     lastWidth = 0;
