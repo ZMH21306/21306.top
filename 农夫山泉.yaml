@@ -1,0 +1,72 @@
+# Clash配置文件模板
+# 请将从农夫山泉app获取的Base64解码后内容替换以下模板中的相应部分
+
+# 代理节点部分（替换为从Base64解码后获得的节点列表）
+proxies:
+  - name: "示例节点"
+    type: ss
+    server: 服务器IP或域名
+    port: 端口号
+    password: 密码
+    cipher: 加密方式
+    # 更多节点...
+
+# 代理组配置
+proxy-groups:
+  - name: "自动选择"
+    type: select
+    proxies:
+      - "自动测速"
+      - "手动选择"
+      - "所有节点"  # 这里列出所有代理节点名称
+  
+  - name: "自动测速"
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    proxies:
+      - "所有节点"  # 这里列出所有代理节点名称
+  
+  - name: "手动选择"
+    type: select
+    proxies:
+      - "所有节点"  # 这里列出所有代理节点名称
+
+# 规则部分
+rules:
+  - DOMAIN-SUFFIX,google.com,自动选择
+  - DOMAIN-SUFFIX,facebook.com,自动选择
+  - DOMAIN-SUFFIX,twitter.com,自动选择
+  - DOMAIN-SUFFIX,youtube.com,自动选择
+  - DOMAIN-SUFFIX,netflix.com,自动选择
+  - DOMAIN-SUFFIX,apple.com,自动选择
+  - DOMAIN-SUFFIX,microsoft.com,自动选择
+  - GEOIP,CN,DIRECT
+  - MATCH,自动选择
+
+# 其他配置（根据实际需求调整）
+mixed-port: 7890
+allow-lan: true
+mode: Rule
+log-level: info
+external-controller: 127.0.0.1:9090
+secret: ""
+
+# DNS配置
+dns:
+  enable: true
+  ipv6: false
+  listen: :1053
+  enhanced-mode: redir-host
+  nameserver:
+    - 114.114.114.114
+    - 8.8.8.8
+  fallback:
+    - 1.1.1.1
+    - 8.8.4.4
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
