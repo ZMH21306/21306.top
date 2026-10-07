@@ -1,192 +1,321 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>404 - 页面不存在</title>
-		<style>
-			:root {
-				--energy-color: #00f3ff;
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<meta name="theme-color" content="#000000">
+	<title>404 - 页面不存在</title>
+	<style>
+		:root {
+			--energy-color: #00f3ff;
+		}
+
+		*,
+		*::before,
+		*::after {
+			box-sizing: border-box;
+		}
+
+		html {
+			height: 100%;
+		}
+
+		body {
+			margin: 0;
+			background: #000;
+			min-height: 100vh;
+			min-height: 100dvh;
+			overflow: hidden;
+			font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+			-webkit-tap-highlight-color: transparent;
+			-webkit-text-size-adjust: 100%;
+		}
+
+		/* ---------- 舞台容器：整体自适应居中 ---------- */
+		.energy-field {
+			position: relative;
+			width: 100%;
+			height: 100vh;
+			height: 100dvh;
+			padding-top: calc(16px + env(safe-area-inset-top));
+			padding-right: calc(16px + env(safe-area-inset-right));
+			padding-bottom: calc(16px + env(safe-area-inset-bottom));
+			padding-left: calc(16px + env(safe-area-inset-left));
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: clamp(18px, 5vh, 60px);
+			overflow: hidden;
+		}
+
+		/* ---------- 传送门 + 文字层 ---------- */
+		.stage {
+			position: relative;
+			flex: 0 0 auto;
+			display: grid;
+			place-items: center;
+			width: min(300px, 62vmin);
+			max-width: 100%;
+			aspect-ratio: 1 / 1;
+		}
+
+		.portal {
+			width: 100%;
+			height: 100%;
+			border-radius: 70%;
+			border: clamp(3px, 0.7vmin, 5px) solid var(--energy-color);
+			box-shadow: 0 0 clamp(26px, 9vmin, 70px) var(--energy-color);
+			animation: pulse 3s ease-in-out infinite;
+			will-change: transform, opacity;
+		}
+
+		/* 按钮悬停时加速脉动（替代原来的内联样式修改） */
+		.portal.hyper {
+			animation-duration: 1s;
+		}
+
+		@keyframes pulse {
+			0% {
+				transform: scale(0.9);
+				opacity: 0.8;
 			}
 
-			body {
-				margin: 0;
-				background: #000;
-				height: 100vh;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				overflow: hidden;
-				font-family: 'Arial', sans-serif;
-			}
-
-			.energy-field {
-				position: relative;
-				width: 95%;
-				height: 95%;
-			}
-
-			.portal {
-				position: absolute;
-				width: 300px;
-				height: 300px;
-				border-radius: 70%;
-				border: 5px solid var(--energy-color);
-				box-shadow: 0 0 70px var(--energy-color);
-				animation: pulse 3s infinite;
-			}
-
-			@keyframes pulse {
-				0% {
-					transform: scale(0.9);
-					opacity: 0.8;
-				}
-
-				50% {
-					transform: scale(1.1);
-					opacity: 1;
-				}
-
-				100% {
-					transform: scale(0.9);
-					opacity: 0.8;
-				}
-			}
-
-			.energy-line {
-				position: absolute;
-				background: linear-gradient(to right,
-						transparent 20%,
-						var(--energy-color) 50%,
-						transparent 80%);
-				height: 3px;
-				animation: flow 6s linear infinite;
-			}
-
-			@keyframes flow {
-				from {
-					transform: translateX(-100%);
-				}
-
-				to {
-					transform: translateX(100%);
-				}
-			}
-
-			.error-code {
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				color: var(--energy-color);
-				font-size: 6em;
-				text-shadow: 0 0 30px var(--energy-color);
-				z-index: 2;
-			}
-
-			.jump-btn {
-				left: 70%;
-				position: fixed;
-				bottom: 20%;
-				padding: 15px 40px;
-				background: rgba(0, 243, 255, 0.2);
-				border: 2px solid var(--energy-color);
-				color: var(--energy-color);
-				font-size: 1.2em;
-				cursor: pointer;
-				transition: 0.3s;
-				border-radius: 30px;
-				backdrop-filter: blur(5px);
-			}
-
-			.jump-btn:hover {
-				background: var(--energy-color);
-				color: #000;
-				box-shadow: 0 0 30px var(--energy-color);
+			50% {
 				transform: scale(1.1);
-			}
-
-			.particle {
-				position: absolute;
-				background: var(--energy-color);
-				border-radius: 50%;
-				pointer-events: none;
-			}
-
-			/* 新增粒子渐隐动画 */
-			.particle {
-				position: absolute;
-				background: var(--energy-color);
-				border-radius: 50%;
-				pointer-events: none;
 				opacity: 1;
-				transition: all 0.3s ease-out;
 			}
 
-			.particle.fade {
-				opacity: 0;
-				transform: scale(0.5);
+			100% {
+				transform: scale(0.9);
+				opacity: 0.8;
+			}
+		}
+
+		/* ---------- 能量流光线 ---------- */
+		.energy-line {
+			position: absolute;
+			left: 0;
+			background: linear-gradient(to right,
+					transparent 20%,
+					var(--energy-color) 50%,
+					transparent 80%);
+			height: 3px;
+			pointer-events: none;
+			animation: flow 6s linear infinite;
+			will-change: transform;
+		}
+
+		@keyframes flow {
+			from {
+				transform: translateX(-100%);
 			}
 
-		</style>
-	</head>
+			to {
+				transform: translateX(100%);
+			}
+		}
 
-	<body>
-		<div class="energy-field">
+		/* ---------- 404 文字（叠在传送门中心） ---------- */
+		.error-code {
+			position: absolute;
+			inset: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 0.15em;
+			padding: 10%;
+			text-align: center;
+			color: var(--energy-color);
+			text-shadow: 0 0 30px var(--energy-color);
+			line-height: 1.1;
+			z-index: 2;
+			pointer-events: none;
+		}
+
+		.error-code .code {
+			font-size: clamp(2rem, 9vmin, 4rem);
+			font-weight: 700;
+			letter-spacing: 0.04em;
+		}
+
+		.error-code .desc {
+			font-size: clamp(0.85rem, 2.8vmin, 1.35rem);
+			letter-spacing: 0.08em;
+			opacity: 0.92;
+		}
+
+		/* ---------- 返回按钮 ---------- */
+		.jump-btn {
+			position: relative;
+			z-index: 3;
+			flex: 0 0 auto;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			padding: clamp(10px, 2vmin, 15px) clamp(24px, 6vmin, 40px);
+			background: rgba(0, 243, 255, 0.2);
+			border: 2px solid var(--energy-color);
+			border-radius: 30px;
+			color: var(--energy-color);
+			font-size: clamp(0.95rem, 2.4vmin, 1.2rem);
+			line-height: 1;
+			white-space: nowrap;
+			text-decoration: none;
+			cursor: pointer;
+			user-select: none;
+			backdrop-filter: blur(5px);
+			-webkit-backdrop-filter: blur(5px);
+			transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s;
+		}
+
+		.jump-btn:hover,
+		.jump-btn:focus-visible {
+			background: var(--energy-color);
+			color: #000;
+			box-shadow: 0 0 30px var(--energy-color);
+			transform: scale(1.1);
+			outline: none;
+		}
+
+		.jump-btn:active {
+			transform: scale(1.02);
+		}
+
+		/* ---------- 鼠标粒子 ---------- */
+		.particle {
+			position: absolute;
+			background: var(--energy-color);
+			border-radius: 50%;
+			pointer-events: none;
+			opacity: 1;
+			z-index: 1;
+			transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+		}
+
+		.particle.fade {
+			opacity: 0;
+			transform: scale(0.5);
+		}
+
+		/* ---------- 极矮屏（横屏手机）微调 ---------- */
+		@media (max-height: 480px) and (orientation: landscape) {
+			.energy-field {
+				flex-direction: row;
+				gap: clamp(16px, 6vw, 60px);
+			}
+
+			.stage {
+				width: min(240px, 60vh);
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="energy-field">
+		<div class="stage">
 			<div class="portal"></div>
-			<div class="error-code">404 - 页面不存在</div>
-			<a href="../21306.top/" class="jump-btn">返回主界面</a>
+			<div class="error-code">
+				<span class="code">404</span>
+				<span class="desc">页面不存在</span>
+			</div>
 		</div>
 
-		<script>
-			// 创建动态能量流
+		<!-- 修复：原为相对路径 ../21306.top/，会随当前目录层级解析出错；改用绝对地址 -->
+		<a href="https://21306.top/" class="jump-btn">返回主界面</a>
+	</div>
+
+	<script>
+		(function() {
+			'use strict';
+
+			var field = document.querySelector('.energy-field');
+			var portal = document.querySelector('.portal');
+			var btn = document.querySelector('.jump-btn');
+
+			/* ---------- 1. 生成动态能量流光线 ---------- */
 			function createEnergyLines() {
-			    const container = document.querySelector('.energy-field');
-			    for(let i = 0; i < 15; i++) {
-			        const line = document.createElement('div');
-			        line.className = 'energy-line';
-			        line.style.top = Math.random() * 100 + '%';
-			        line.style.width = Math.random() * 300 + 100 + 'px';
-			        line.style.animationDelay = Math.random() * 3 + 's';
-			        line.style.opacity = Math.random() * 0.5 + 0.3;
-			        container.appendChild(line);
-			    }
+				var count = window.innerWidth < 640 ? 8 : 15; // 小屏减少数量，省性能
+				var frag = document.createDocumentFragment();
+
+				for (var i = 0; i < count; i++) {
+					var line = document.createElement('div');
+					line.className = 'energy-line';
+					line.style.top = Math.random() * 100 + '%';
+					line.style.width = Math.random() * 300 + 100 + 'px';
+					line.style.animationDelay = Math.random() * 3 + 's';
+					line.style.opacity = Math.random() * 0.5 + 0.3;
+					frag.appendChild(line);
+				}
+				field.appendChild(frag);
 			}
 			createEnergyLines();
-			
-			// 按钮悬浮增强
-			const btn = document.querySelector('.jump-btn');
-			btn.addEventListener('mouseover', () => {
-			    document.querySelector('.portal').style.animationDuration = '1s';
+
+			/* ---------- 2. 按钮悬浮增强（用 class 控制，避免样式被写死） ---------- */
+			function speedUp() {
+				portal.classList.add('hyper');
+			}
+
+			function restore() {
+				portal.classList.remove('hyper');
+			}
+
+			btn.addEventListener('mouseenter', speedUp);
+			btn.addEventListener('mouseleave', restore);
+			btn.addEventListener('focus', speedUp);
+			btn.addEventListener('blur', restore);
+			// 移动端触摸反馈
+			btn.addEventListener('touchstart', speedUp, { passive: true });
+			btn.addEventListener('touchend', restore, { passive: true });
+			btn.addEventListener('touchcancel', restore, { passive: true });
+
+			/* ---------- 3. 鼠标粒子 ---------- */
+			var MAX_PARTICLES = 60;   // 上限，防止快速滑动时 DOM 暴涨
+			var alive = 0;
+
+			function spawnParticle(x, y) {
+				if (alive >= MAX_PARTICLES) return;
+				alive++;
+
+				var particle = document.createElement('div');
+				particle.className = 'particle';
+				particle.style.left = x + 'px';
+				particle.style.top = y + 'px';
+
+				var size = Math.random() * 5 + 2;
+				particle.style.width = size + 'px';
+				particle.style.height = size + 'px';
+
+				document.body.appendChild(particle);
+
+				// 下一帧触发渐隐动画
+				requestAnimationFrame(function() {
+					particle.classList.add('fade');
+				});
+
+				// 1 秒后移除元素
+				setTimeout(function() {
+					if (particle.parentNode) {
+						particle.parentNode.removeChild(particle);
+					}
+					alive--;
+				}, 1000);
+			}
+
+			document.addEventListener('mousemove', function(e) {
+				spawnParticle(e.clientX, e.clientY);
 			});
-			
-			btn.addEventListener('mouseout', () => {
-			    document.querySelector('.portal').style.animationDuration = '2s';
-			});
-			// 修改后的粒子生成逻辑
-			document.addEventListener('mousemove', (e) => {
-			    const particle = document.createElement('div');
-			    particle.className = 'particle';
-			    particle.style.left = e.clientX + 'px';
-			    particle.style.top = e.clientY + 'px';
-			    particle.style.width = particle.style.height = 
-			        Math.random() * 5 + 2 + 'px';
-			    
-			    document.body.appendChild(particle);
-			    
-			    // 触发渐隐动画
-			    requestAnimationFrame(() => {
-			        particle.classList.add('fade');
-			    });
-			
-			    // 1秒后移除元素
-			    setTimeout(() => {
-			        particle.remove();
-			    }, 1000);
-			});
-		</script>
-	</body>
+
+			// 触屏设备同样有粒子反馈
+			document.addEventListener('touchmove', function(e) {
+				var t = e.touches[0];
+				if (t) spawnParticle(t.clientX, t.clientY);
+			}, { passive: true });
+		})();
+	</script>
+</body>
 
 </html>
-
