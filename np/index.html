@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="np-5z 版本索引 - 校园日报风格">
+    <title>np-5z 版本索引 | 校园日报风格</title>
+    <style>
+        /* ============================================================
+           一、全局重置与设计变量
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        }
+
+        /* ============================================================
+           二、外层容器：横向撑满视口，高度按 A4 比例（297 : 210）锁定
+                —— 无论窗口如何缩放，容器始终维持 1.414 : 1
+           ============================================================ */
+        .paper-outer {
+            width: 100vw;
+            height: calc(100vw * 210 / 297);  /* 由宽度反推高度，锁定 A4 比例 */
+            overflow: hidden;                 /* 裁掉缩放产生的多余区域 */
+            position: relative;
+            background: #d8d3c8;
+        }
+
+        /* ============================================================
+           三、纸张本体：固定物理尺寸 297mm × 210mm（标准 A4 横向）
+                —— 由 JS 动态设置 zoom，让浏览器原生重排，文字保持清晰
+           ============================================================ */
+        .sheet {
+        /* ============================================================
+           四、报头：整版宽度，固定高度
+           ============================================================ */
+        .header {
+            height: 12mm;
+            display: flex;
+            align-items: center;
+            padding: 0 4mm;
+            border-bottom: 1px solid var(--rule-dark);
+            position: relative;
+            z-index: 2;
+        }
+
+        .header::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-top: 3mm solid var(--red);
+            z-index: -1;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .header-logo {
+            font-size: 5mm;
+            font-weight: bold;
+            color: var(--red);
+            letter-spacing: -0.5px;
+            margin-right: 8mm;
+            font-family: var(--font-title);
+        }
+
+        .header-title {
+            font-size: 4mm;
+            font-weight: bold;
+            color: var(--ink);
+            flex-grow: 1;
+            margin-right: 4mm;
+            font-family: var(--font-title);
+        }
+
+        .header-date {
+            font-size: 2.5mm;
+            color: var(--ink-soft);
+            white-space: nowrap;
+            font-family: var(--font-body);
+        }
+
+        /* ============================================================
+           五、版心：报头与页脚之间的可滚动区域
+           ============================================================ */
+        .main {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            padding-right: 2mm; /* 为滚动条留空 */
+            position: relative;
+        }
+
+        /* ============================================================
+           六、内容样式（与报纸保持一致）
+    </style>
+           ============================================================ */
+        .index-container {
+            max-width: 180mm;
+            margin: 0 auto;
+            padding: 6mm;
+        }
+
+        .index-title {
+            font-size: 6mm;
+            font-weight: bold;
+            color: var(--red);
+            text-align: center;
+            margin-bottom: 4mm;
+            font-family: var(--font-title);
+            letter-spacing: -0.5px;
+        }
+
+        .index-subtitle {
+            font-size: 3mm;
+            color: var(--ink-soft);
+            text-align: center;
+            margin-bottom: 6mm;
+            font-family: var(--font-sub);
+        }
+
+        .version-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80mm, 1fr));
+            gap: 4mm;
+        }
+
+        .version-card {
+            background: var(--paper);
+            border: 1px solid var(--rule);
+            border-radius: 2px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .version-card:hover {
+            transform: translateY(-1mm);
+            box-shadow: 0 2mm 4mm rgba(0,0,0,0.1);
+            border-color: var(--rule-dark);
+        }
+
+        .version-header {
+            background: var(--red);
+            color: white;
+            padding: 2mm 3mm;
+            font-size: 3mm;
+            font-weight: bold;
+            text-align: center;
+            font-family: var(--font-title);
+        }
+
+        .version-body {
+            padding: 3mm;
+        }
+
+        .version-name {
+            font-size: 2.8mm;
+            font-weight: bold;
+            color: var(--ink);
+            margin-bottom: 1mm;
+            display: block;
+        }
+
+        .version-date {
+            font-size: 2.2mm;
+            color: var(--ink-soft);
+            margin-bottom: 2mm;
+        }
+
+        .version-link {
+            display: inline-block;
+            padding: 1.5mm 3mm;
+            background: var(--red);
+            color: white;
+            text-decoration: none;
+            font-size: 2.2mm;
+            border-radius: 1mm;
+            font-family: var(--font-body);
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .version-link:hover {
+            background: #8b1a18;
+        }
+
+        /* ============================================================
+           七、页脚：整版宽度，固定高度
+           ============================================================ */
+        .footer {
+            height: 8mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 1px solid var(--rule-dark);
+            position: relative;
+            z-index: 2;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: flex;
+            gap: 8mm;
+            font-size: 2.2mm;
+            color: var(--ink);
+            font-family: var(--font-body);
+        }
+
+        .footer-spacer {
+            flex-grow: 1;
+        }
+            width: 297mm;
+            height: 210mm;
+            padding: 3mm 4mm 2mm;             /* 页边距：上 3 / 左右 4 / 下 2 */
+            background: var(--paper);
+            position: relative;
+            overflow: hidden;                 /* 保证内容永不溢出纸张 */
+            display: flex;
+            flex-direction: column;           /* 纵向三段式：报头 / 版心 / 页脚 */
+            transform-origin: top left;       /* zoom 的缩放锚点固定在左上角 */
+        }
+
+        /* —— 纸张纸纹噪点（纯装饰，不影响布局） —— */
+        .sheet::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        :root {
+            /* —— 色彩 —— */
+            --ink: #16130f;          /* 正文墨色 */
+            --ink-soft: #3c3730;     /* 次级文字 */
+            --paper: #faf7ef;        /* 纸张底色 */
+            --rule: #c9c2b0;         /* 细分隔线 */
+            --rule-dark: #16130f;    /* 报头粗线 */
+            --muted: #6d675a;        /* 署名/图注 */
+            --red: #a3211e;          /* 报头主色 */
+
+            /* —— 字体族 —— */
+            --font-body: Georgia, "Nimbus Roman", "SimSun", "宋体", "Songti SC", serif;   /* 正文：西文衬线 + 中文宋体 */
+            --font-title: "Times New Roman", "SimHei", "黑体", "Heiti SC", sans-serif;    /* 标题：西文 Times + 中文黑体 */
+            --font-sub: "KaiTi", "楷体", "STKaiti", serif;                                /* 副题/署名：楷体 */
+        }
+
+        html {
+            background: #d8d3c8;              /* 页面外围底色 */
+            overflow-x: hidden;               /* 防止缩放时出现横向滚动条 */
+            -webkit-text-size-adjust: 100%;   /* 阻止移动端自动放大字体 */
+            text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: #d8d3c8;
+            color: var(--ink);
+            margin: 0;
+            padding: 0;
+        }
