@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="语文5组的神秘报纸——版本索引（横版A4）">
     <title>语文5组的神秘报纸 · 索引 | 21306.top/np</title>
+    <style>
         /* ============================================================
            一、全局重置与设计变量
            ============================================================ */
@@ -42,19 +43,19 @@
             margin: 0;
             padding: 0;
         }
+
         /* ============================================================
-           二、外层容器（A4 横向比例）
+           二、外层容器（负责裁剪与占位）
            ============================================================ */
         .paper-outer {
-            width: 100vw;
-            height: calc(100vw * 210 / 297);
+            width: 100%;
             overflow: hidden;
             position: relative;
             background: #d8d3c8;
         }
 
         /* ============================================================
-           三、纸张本体（297mm × 210mm）
+           三、纸张本体（297mm × 210mm，由 JS 等比缩放）
            ============================================================ */
         .sheet {
             width: 297mm;
@@ -66,6 +67,7 @@
             display: flex;
             flex-direction: column;
             transform-origin: top left;
+            will-change: transform;
         }
 
         .sheet::before {
@@ -75,6 +77,7 @@
             background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
             pointer-events: none;
         }
+
         /* ============================================================
            四、报头
            ============================================================ */
@@ -127,6 +130,7 @@
             white-space: nowrap;
             font-family: var(--font-body);
         }
+
         /* ============================================================
            五、版心（可滚动区域）
            ============================================================ */
@@ -171,7 +175,8 @@
             font-size: 3mm;
             margin-bottom: 6mm;
         }
-/* ============================================================
+
+        /* ============================================================
            六、版本卡片
            ============================================================ */
         .version-grid {
@@ -192,9 +197,10 @@
 
         .version-card:hover {
             transform: translateY(-1mm);
-            box-shadow: 0 2mm 4mm rgba(0,0,0,0.12);
+            box-shadow: 0 2mm 4mm rgba(0, 0, 0, 0.12);
             border-color: var(--rule-dark);
         }
+
         .card-head {
             background: var(--red);
             color: #fff;
@@ -240,6 +246,7 @@
         .version-card:hover .card-head {
             background: #8b1a18;
         }
+
         /* ============================================================
            七、页脚
            ============================================================ */
@@ -260,9 +267,10 @@
         .footer span + span {
             margin-left: 6mm;
         }
+    </style>
 </head>
 <body>
-    <div class="paper-outer">
+    <div class="paper-outer" id="paper-outer">
         <div class="sheet" id="paper-sheet">
             <header class="masthead">
                 <div class="masthead-content">
@@ -314,17 +322,36 @@
     <script>
         (function () {
             var sheet = document.getElementById('paper-sheet');
-            if (!sheet) return;
-            var lastWidth = 0;
+            var outer = document.getElementById('paper-outer');
+            if (!sheet || !outer) return;
+
+            var naturalW = 0;      // 纸张未缩放时的实际像素宽
+            var naturalH = 0;
+            var lastWidth = -1;
             var rafId = null;
 
+            // 只在初始化时测量一次原始尺寸（此时先摘掉 transform，避免量到缩放后的值）
+            function measure() {
+                var prev = sheet.style.transform;
+                sheet.style.transform = 'none';
+                var rect = sheet.getBoundingClientRect();
+                sheet.style.transform = prev;
+
+                naturalW = rect.width || (297 * 96 / 25.4);
+                naturalH = rect.height || (210 * 96 / 25.4);
+            }
+
             function applyZoom() {
-                var naturalW = sheet.offsetWidth;
-                if (!naturalW) return;
-                var vw = document.documentElement.clientWidth;
+                var vw = document.documentElement.clientWidth || window.innerWidth;
+                if (!vw) return;
                 if (vw === lastWidth) return;
                 lastWidth = vw;
-                sheet.style.zoom = (vw / naturalW);
+
+                if (!naturalW || !naturalH) measure();
+
+                var scale = vw / naturalW;
+                sheet.style.transform = 'scale(' + scale + ')';
+                outer.style.height = (naturalH * scale) + 'px';
             }
 
             function scheduleFit() {
@@ -337,11 +364,13 @@
 
             window.addEventListener('resize', scheduleFit);
             window.addEventListener('orientationchange', scheduleFit);
+
             applyZoom();
 
+            // 字体加载完成后重算一次，避免尺寸偏差
             if (document.fonts && document.fonts.ready) {
                 document.fonts.ready.then(function () {
-                    lastWidth = 0;
+                    lastWidth = -1;
                     applyZoom();
                 });
             }
