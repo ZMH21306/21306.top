@@ -53,6 +53,42 @@
             border-top: 3mm solid var(--red);
             z-index: -1;
         }
+        /* ============================================================
+           五、版心：报头与页脚之间的可滚动区域
+           ============================================================ */
+        .main {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            padding-right: 2mm; /* 为滚动条留空 */
+            position: relative;
+        }
+
+        /* ============================================================
+           六、内容样式（与报纸保持一致）
+           ============================================================ */
+        .index-container {
+            max-width: 180mm;
+            margin: 0 auto;
+            padding: 6mm;
+        }
+
+        .index-title {
+            font-size: 6mm;
+            font-weight: bold;
+            color: var(--red);
+            text-align: center;
+            margin-bottom: 4mm;
+            font-family: var(--font-title);
+            letter-spacing: -0.5px;
+        }
+
+        .index-subtitle {
+            font-size: 3mm;
+            color: var(--ink-soft);
+            text-align: center;
+            margin-bottom: 6mm;
+            font-family: var(--font-sub);
+        }
 
         .header-content {
             display: flex;
