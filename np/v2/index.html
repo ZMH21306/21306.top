@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="语文5组体测采访（总第001期）——横版A4">
+    <meta name="description" content="语文5组体测采访（总第001期）——横版A4 两页">
     <title>语文5组体测采访 | 2026年10月8日</title>
 
-    <!-- ★ 仅报头使用 Web 毛笔字体，按需分片，加载极快 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
@@ -55,28 +54,39 @@
             color: var(--ink);
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
         }
 
+        /* ============================================================
+           二、纸张（每一页独立 A4 横版）
+           ============================================================ */
         .paper-outer {
             width: 100vw;
             height: calc(100vw * 210 / 297);
             overflow: hidden;
             position: relative;
             background: var(--stage);
+            flex-shrink: 0;
         }
 
-        /* ★ A4 横版 */
         .sheet {
             width: 297mm;
             height: 210mm;
-            padding: 2.5mm 4mm 2mm;
+            padding: 3mm 5mm 2.5mm;
             background: var(--paper);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 1.2mm;
+            gap: 1.6mm;
             transform-origin: top left;
+            box-shadow:
+                0 1px 2px rgba(22, 19, 15, 0.06),
+                0 14px 38px -12px rgba(22, 19, 15, 0.22);
         }
 
         .sheet::before {
@@ -93,15 +103,15 @@
         }
 
         /* ============================================================
-           二、版心：两栏等宽
+           三、版心：两栏等宽
            ============================================================ */
         .page-grid {
             flex: 1;
             min-height: 0;
             display: grid;
             grid-template-columns: 5.5fr 5.5fr;
-            column-gap: 5mm;
-            align-items: start;
+            column-gap: 6mm;
+            align-items: stretch;
         }
 
         .col-left,
@@ -110,7 +120,13 @@
             min-height: 0;
             display: flex;
             flex-direction: column;
-            gap: 1.6mm;
+            gap: 2mm;
+        }
+
+        /* 仅第一页需要列等高拉伸（有 grow 文章块），第二页右栏不需要 */
+        #paper-sheet-1 .col-left,
+        #paper-sheet-1 .col-right {
+            height: 100%;
         }
 
         .col-right {
@@ -125,66 +141,97 @@
 
         .article-block + .article-block {
             border-top: 0.2mm solid var(--rule);
-            padding-top: 1.8mm;
+            padding-top: 2mm;
+        }
+
+        .article-block.grow,
+        .col-left > .article-block:last-child,
+        .col-right > .article-block:last-child {
+            flex: 1 1 auto;
+            display: block;
+        }
+
+        .article-block.grow::after,
+        .col-left > .article-block:last-child::after,
+        .col-right > .article-block:last-child::after {
+            content: "";
+            display: block;
+            clear: both;
         }
 
         /* ============================================================
-           三、报头（左栏顶部）★ 标题居中
+           四、报头
            ============================================================ */
         .masthead-inline {
-            padding: 0 0 1.4mm;
-            margin-bottom: 1.4mm;
-            border-bottom: 0.6mm solid var(--rule-strong);
+            padding: 0 0 1.6mm;
+            margin-bottom: 1.6mm;
+            border-bottom: 0.7mm solid var(--rule-strong);
         }
 
         .masthead-inline .paper-name {
             font-family: var(--font-title);
-            font-size: 38pt;
+            font-size: 46pt;
             font-weight: 400;
             color: var(--red);
-            letter-spacing: 2.2pt;
+            letter-spacing: 3pt;
             line-height: 1.08;
             white-space: nowrap;
             display: block;
-            text-align: center;              /* ★ 标题居中 */
+            text-align: center;
             text-shadow: 0 0 0.5pt rgba(163, 33, 30, 0.28);
             -webkit-font-smoothing: antialiased;
         }
 
+        /* 第 2 页页眉（已删除右侧“第 2 版 · 综合”） */
+        .page-head-inline {
+            padding: 0 0 1.4mm;
+            margin-bottom: 1.6mm;
+            border-bottom: 0.55mm solid var(--rule-strong);
+            display: flex;
+            justify-content: flex-start;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .page-head-inline .head-title {
+            font-family: var(--font-title);
+            font-size: 18pt;
+            font-weight: 400;
+            color: var(--red);
+            letter-spacing: 1.4pt;
+            line-height: 1.15;
+            white-space: nowrap;
+        }
+
         /* ============================================================
-           四、标题层级
+           五、标题层级（两页同功能文字统一字号）
            ============================================================ */
         .t-lead,
         .t-block,
         .t-rail {
             font-family: var(--font-headline);
-            font-size: 14pt;
+            font-size: 15pt;
             font-weight: 900;
             line-height: 1.26;
-            letter-spacing: 0.8pt;
+            letter-spacing: 0.9pt;
             text-align: center;
             color: var(--ink);
-        }
-
-        .t-lead {
-            font-size: 15pt;
-            letter-spacing: 1pt;
         }
 
         .sub-lead,
         .sub-block,
         .sub-rail {
             font-family: var(--font-sub);
-            font-size: 8pt;
+            font-size: 8.6pt;
             color: var(--ink-soft);
             text-align: center;
-            line-height: 1.34;
-            margin-top: 1mm;
+            line-height: 1.36;
+            margin-top: 0.9mm;
         }
 
         .byline {
             font-family: var(--font-sub);
-            font-size: 7pt;
+            font-size: 7.6pt;
             color: var(--muted);
             text-align: center;
             letter-spacing: 0.9pt;
@@ -193,12 +240,12 @@
         }
 
         /* ============================================================
-           五、正文段落
+           六、正文段落
            ============================================================ */
         .article-body {
             font-family: var(--font-body);
-            font-size: 8.6pt;
-            line-height: 1.65;
+            font-size: 9.2pt;
+            line-height: 1.72;
             text-align: justify;
             text-justify: inter-ideograph;
             text-indent: 2em;
@@ -208,72 +255,77 @@
         }
 
         .article-body + .article-body {
-            margin-top: 0.6mm;
+            margin-top: 0.7mm;
         }
 
         /* ============================================================
-           六、配图
+           七、配图（第一张图：52mm × 38mm，右浮动环绕）
            ============================================================ */
         .inline-figure {
             float: right;
-            width: 56mm;
-            margin: 0.5mm 0 0.9mm 2.8mm;
+            width: 52mm;
+            margin: 0.2mm 0 0.8mm 2.5mm;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            break-inside: avoid;
             shape-outside: margin-box;
         }
 
         .inline-figure img {
             display: block;
             width: 100%;
-            height: 34mm;
+            height: 38mm;
             object-fit: cover;
             border: 0.2mm solid var(--rule);
             background: #ece5d5;
         }
 
         .inline-figure figcaption {
-            margin-top: 0.7mm;
+            margin-top: 0.6mm;
             font-family: var(--font-sub);
-            font-size: 6.2pt;
+            font-size: 6pt;
             font-style: italic;
-            line-height: 1.25;
+            line-height: 1.2;
             color: var(--muted);
             text-align: center;
+            width: 100%;
         }
 
         /* ============================================================
-           七、组员通讯（右栏底部）
+           八、组员通讯（第 2 页右栏）
            ============================================================ */
         .dispatch-section {
-            padding-top: 0;
-            margin-top: 0.6mm;
+            display: flex;
+            flex-direction: column;
         }
 
         .dispatch-title {
             font-family: var(--font-headline);
-            font-size: 10pt;
+            font-size: 13pt;
             font-weight: 900;
             color: var(--ink);
-            letter-spacing: 1.2pt;
+            letter-spacing: 1.4pt;
             text-align: center;
-            margin-bottom: 1.2mm;
-            padding-bottom: 0.8mm;
-            border-bottom: 0.15mm solid var(--rule);
+            margin-bottom: 1.6mm;
+            padding-bottom: 1mm;
+            border-bottom: 0.25mm solid var(--rule);
+            flex-shrink: 0;
         }
 
         .dispatch-list {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 1.1mm;
+            gap: 2mm;
+            flex: 0 0 auto;
         }
 
         .dispatch-item {
             font-family: var(--font-body);
-            font-size: 7.6pt;
-            line-height: 1.55;
+            font-size: 8.8pt;
+            line-height: 1.68;
             color: var(--ink);
             text-align: justify;
             text-justify: inter-ideograph;
@@ -282,7 +334,7 @@
 
         .dispatch-item .d-byline {
             font-family: var(--font-sub);
-            font-size: 6.4pt;
+            font-size: 7.2pt;
             color: var(--red);
             font-style: normal;
             margin-left: 0.4mm;
@@ -290,13 +342,73 @@
         }
 
         /* ============================================================
-           八、页脚
+           九、第 2 页右栏配图（★ 横向占满 + 竖向自适应）
+           ============================================================ */
+        .dispatch-photo {
+            margin-top: 3.5mm;
+            padding-top: 0;
+            border-top: none;
+            display: block;
+            width: 100%;
+            flex: 0 0 auto;
+        }
+
+        .dispatch-photo img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border: 0.2mm solid var(--rule);
+            background: #ece5d5;
+        }
+
+        .dispatch-photo figcaption {
+            margin-top: 0.8mm;
+            font-family: var(--font-sub);
+            font-size: 6.2pt;
+            font-style: italic;
+            line-height: 1.25;
+            color: var(--muted);
+            text-align: center;
+            width: 100%;
+        }
+
+        /* ============================================================
+           十、第 2 页右下角署名（采访记者 + 编者）
+           ============================================================ */
+        .credit-block {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.6mm;
+            padding: 0 0.5mm 1.4mm;
+            font-family: var(--font-sub);
+            font-size: 7.6pt;
+            color: var(--ink-soft);
+            letter-spacing: 0.4pt;
+            line-height: 1.45;
+            text-align: right;
+        }
+
+        .credit-block .credit-line {
+            white-space: nowrap;
+        }
+
+        .credit-block .credit-label {
+            color: var(--red);
+            font-style: normal;
+            letter-spacing: 0.8pt;
+            margin-right: 0.6mm;
+        }
+
+        /* ============================================================
+           十一、页脚
            ============================================================ */
         .footer {
             flex-shrink: 0;
             margin-top: auto;
-            border-top: 0.5mm solid var(--rule-strong);
-            padding-top: 0.9mm;
+            border-top: 0.55mm solid var(--rule-strong);
+            padding-top: 1.1mm;
         }
 
         .footer-info {
@@ -305,10 +417,10 @@
             align-items: center;
             flex-wrap: nowrap;
             font-family: var(--font-sub);
-            font-size: 7pt;
+            font-size: 7.6pt;
             color: var(--ink-soft);
             letter-spacing: 0.4pt;
-            line-height: 1.25;
+            line-height: 1.3;
             padding: 0 0.5mm;
         }
 
@@ -317,7 +429,7 @@
         }
 
         /* ============================================================
-           九、打印样式
+           十二、打印样式
            ============================================================ */
         @page {
             size: A4 landscape;
@@ -328,6 +440,8 @@
             html,
             body {
                 background: #fff;
+                padding: 0;
+                gap: 0;
             }
 
             .paper-outer {
@@ -335,6 +449,11 @@
                 height: 210mm;
                 overflow: visible;
                 background: #fff;
+                page-break-after: always;
+            }
+
+            .paper-outer:last-child {
+                page-break-after: auto;
             }
 
             .sheet {
@@ -347,6 +466,7 @@
             }
 
             .paper-name,
+            .head-title,
             .sheet::before {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
@@ -355,22 +475,21 @@
     </style>
 </head>
 <body>
+
+    <!-- ============================================================
+         第 1 页
+         ============================================================ -->
     <div class="paper-outer">
-        <div class="sheet" id="paper-sheet">
+        <div class="sheet" id="paper-sheet-1">
 
             <main class="page-grid">
 
-                <!-- ====================================================
-                     左栏：报头 + 特写 + 通讯
-                     ==================================================== -->
                 <div class="col-left">
 
-                    <!-- 报头：标题居中 -->
                     <div class="masthead-inline">
                         <h1 class="paper-name">语文5组体测采访</h1>
                     </div>
 
-                    <!-- 特写：追风少年 -->
                     <article class="article-block">
                         <h2 class="t-lead">追风少年，崭露锋芒</h2>
                         <p class="sub-lead">——日常训练中拼搏的张雨杨同学</p>
@@ -393,10 +512,29 @@
                         </p>
                     </article>
 
-                    <!-- 通讯：专访体育教师 -->
                     <article class="article-block">
-                        <h2 class="t-block">专访体育教师——科学备战体育中考</h2>
-                        <p class="sub-block">——聆听训练指导、备考建议与暖心祝福</p>
+                        <h2 class="t-block">汗水筑底气，奔跑向目标</h2>
+                        <p class="sub-block">——采访体测同学李昀朔</p>
+                        <p class="byline">■ 王梓懿</p>
+
+                        <p class="article-body">
+                            近期，我校组织体育健康测试。为了解同学们备战体测的心路历程，我采访了八年级李昀朔同学，听他分享训练背后的故事。
+                        </p>
+                        <p class="article-body">
+                            谈到体测，李昀朔给自己定下了 80 分的目标。为了达成目标，他坚持利用课余时间自主训练，经过一整年的不懈努力，他的引体向上有了不小的进步。在所有体测项目里，他最有信心的是 1000 米长跑。他认为跑 1000 米时，前 3 圈（一圈 200 米）尽量和水平相近的同学结伴，合理分配体力，不要一开始就透支力量，保持稳定的呼吸节奏才是关键。
+                        </p>
+                        <p class="article-body">
+                            日复一日的练习，打磨着他的耐力与意志。他说，体测测的不只是身体，更是坚持。他用一次次训练向着目标前进，也告诉我们，体育没有捷径，点滴汗水终会化作属于自己的收获。同时他特别感谢体育老师，在训练中耐心纠正他的动作，不断鼓励他坚持下去，正是老师的指导，让他少走了很多弯路。
+                        </p>
+                    </article>
+
+                </div>
+
+                <div class="col-right">
+
+                    <article class="article-block">
+                        <h2 class="t-rail">专访体育教师——科学备战体育中考</h2>
+                        <p class="sub-rail">——聆听训练指导、备考建议与暖心祝福</p>
                         <p class="byline">■ 冯晨轩</p>
 
                         <p class="article-body">
@@ -413,35 +551,11 @@
                         </p>
                     </article>
 
-                </div>
-
-                <!-- ====================================================
-                     右栏：两篇特写 + 组员通讯
-                     ==================================================== -->
-                <div class="col-right">
-
-                    <!-- 特写：汗水筑底气 -->
-                    <article class="article-block">
-                        <h2 class="t-rail">汗水筑底气，奔跑向目标</h2>
-                        <p class="sub-rail">——采访体测同学李昀朔</p>
-                        <p class="byline">■ 王梓懿</p>
-
-                        <p class="article-body">
-                            近期，我校组织体育健康测试。为了解同学们备战体测的心路历程，我采访了八年级李昀朔同学，听他分享训练背后的故事。
-                        </p>
-                        <p class="article-body">
-                            谈到体测，李昀朔给自己定下了 80 分的目标。为了达成目标，他坚持利用课余时间自主训练，经过一整年的不懈努力，他的引体向上有了不小的进步。在所有体测项目里，他最有信心的是 1000 米长跑。他认为跑 1000 米时，前 3 圈（一圈 200 米）尽量和水平相近的同学结伴，合理分配体力，不要一开始就透支力量，保持稳定的呼吸节奏才是关键。
-                        </p>
-                        <p class="article-body">
-                            日复一日的练习，打磨着他的耐力与意志。他说，体测测的不只是身体，更是坚持。他用一次次训练向着目标前进，也告诉我们，体育没有捷径，点滴汗水终会化作属于自己的收获。同时他特别感谢体育老师，在训练中耐心纠正他的动作，不断鼓励他坚持下去，正是老师的指导，让他少走了很多弯路。
-                        </p>
-                    </article>
-
-                    <!-- 特写：一滴青春的汗水（含配图） -->
-                    <article class="article-block">
+                    <article class="article-block grow">
                         <h2 class="t-rail">一滴青春的汗水</h2>
                         <p class="sub-rail">——采访李诗尧同学</p>
                         <p class="byline">■ 胡珈宁</p>
+
                         <figure class="inline-figure">
                             <img src="https://21306.top/np/v2/这是一张图.jpg" alt="体育模拟考试现场">
                             <figcaption>△ 体育模拟考试现场（摄影：胡珈宁）</figcaption>
@@ -457,11 +571,83 @@
                             谈及一年来训练的提升，李诗尧同学打开了话匣子。他告诉我，他的速度已经快得令人惊叹，而且臂围长了一公分。在我看来，这一公分不仅是臂围，也是他成长的一小步。在技巧上，他知道如何稳定体力；在心态上，他知道如何调整心态，在一次次失败中重整旗鼓。
                         </p>
                         <p class="article-body">
-                            这次采访让我留下了深刻的印象，希望诗尧同学能够在体育中绽放光彩，挥洒青春的汗水。
+                            这次采访让我留下了深刻的印象，希望诗尧同学能够在体育中展现光彩，挥洒青春的汗水。
                         </p>
                     </article>
 
-                    <!-- 组员通讯：5 篇各约 50 字 -->
+                </div>
+
+            </main>
+
+            <footer class="footer">
+                <div class="footer-info">
+                    <span>2026 年 10 月 8 日 星期四</span>
+                    <span>第 1 版</span>
+                    <span>本版编辑：语文 6 班 5 组</span>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+         第 2 页
+         ============================================================ -->
+    <div class="paper-outer">
+        <div class="sheet" id="paper-sheet-2">
+
+            <main class="page-grid">
+
+                <div class="col-left">
+
+                    <!-- ★ 页眉：已删除右侧“第 2 版 · 综合” -->
+                    <div class="page-head-inline">
+                        <span class="head-title">语文5组体测采访</span>
+                    </div>
+
+                    <article class="article-block">
+                        <h2 class="t-rail">备战体考，听听陈建老师怎么说</h2>
+                        <p class="byline">■ 李伯雄 牛民讯</p>
+
+                        <p class="article-body">
+                            随着体考的到来，同学们既充满期待又有些紧张。近日，初二（6）班学生记者团带着大家的疑问，专门采访了体育老师陈建，为同学们的备考答疑解惑。
+                        </p>
+                        <p class="article-body">
+                            考前一周该加练还是休息？陈老师明确表示，考前一两天不要突击大强度加练，避免受伤。建议以慢跑、拉伸等轻量活动为主，保证睡眠。针对跑步，他提醒大家要打磨呼吸节奏，合理分配每圈配速，切忌一起跑就全力冲刺。心态上，认真对待模拟测试，紧张时深呼吸，告诉自己“我们做足了准备”。
+                        </p>
+                        <p class="article-body">
+                            谈到普遍薄弱项目，陈老师分析道：女生多在耐力跑和力量类项目上欠缺；男生则普遍缺乏爆发力和上肢力量。
+                        </p>
+                        <p class="article-body">
+                            面对“训练只为应付考试”的想法，陈老师语重心长地说：“体育训练远不止一场考试。”他希望大家都把运动当成生活里的“好朋友”，科学减重、调节心情，坚持运动的价值远不止拿分数。
+                        </p>
+                        <p class="article-body">
+                            最后，陈老师叮嘱大家：考前保护好自己，做好热身，合理分配体力，放平心态，稳定发挥。祝愿每位同学都能取得理想成绩。
+                        </p>
+                    </article>
+
+                    <article class="article-block grow">
+                        <h2 class="t-rail">科学备考稳心态，从容迎战体考</h2>
+                        <p class="byline">■ 周铭浩</p>
+
+                        <p class="article-body">
+                            随着体育中考临近，为解答同学们的备考困惑，我校小记者近日对部分同学及体育老师进行了专访，共探科学备考之道。
+                        </p>
+                        <p class="article-body">
+                            采访中，同学们分享了各自的拼搏历程。有人目标 80 分，也有人向 120 分发起冲击。经过一年训练，大家不仅在引体向上、1000 米跑等项目上取得突破，周一、三、五的体能加练更让 50 米跑和立定跳远成绩显著提升。谈及实战技巧，同学们不约而同提到长跑需合理分配体力，跟跑水平相近的同伴，切忌起步猛冲，稳扎稳打方能笑到最后。
+                        </p>
+                        <p class="article-body">
+                            针对考前焦虑，体育老师给出了科学建议：“考前 1—2 天不宜大负荷加练，应以慢跑、拉伸等小负荷保持状态，将体能留到考场。”对于跑步压力，老师建议打磨呼吸节奏，通过模拟测试熟悉流程，用深呼吸缓解紧张。老师还精准指出了男女生的薄弱环节：女生耐力与核心力量偏弱，男生则需加强上肢与爆发力。
+                        </p>
+                        <p class="article-body">
+                            面对“应付考试”的想法，老师强调体育不仅为分数，更是培养终身运动习惯的契机。考前最后，老师叮嘱大家：“安全第一，重视规范，合理分配体力。祝愿同学们放平心态，稳定发挥，突破自我！”
+                        </p>
+                    </article>
+
+                </div>
+
+                <div class="col-right">
+
                     <section class="dispatch-section">
                         <h3 class="dispatch-title">组员通讯</h3>
                         <ul class="dispatch-list">
@@ -470,11 +656,7 @@
                                 <span class="d-byline">——荆汉舟</span>
                             </li>
                             <li class="dispatch-item">
-                                李昀朔将体测目标定为 80 分，经一年自主训练引体向上进步明显；他认为周一、三、五的体能加练对 50 米跑和立定跳远提升显著。
-                                <span class="d-byline">——王梓懿</span>
-                            </li>
-                            <li class="dispatch-item">
-                                李诗尧目标 80 分，最有信心的是 100 米跑。他分享技巧：与速度相近的同学结伴，合理分配体力，保持稳定呼吸节奏。
+                                李诗尧目标 80 分，最有信心的是 1000 米跑。他分享技巧：与速度相近的同学结伴，合理分配体力，保持稳定呼吸节奏。
                                 <span class="d-byline">——胡珈宁</span>
                             </li>
                             <li class="dispatch-item">
@@ -486,17 +668,31 @@
                                 <span class="d-byline">——周铭浩</span>
                             </li>
                         </ul>
+
+                        <figure class="dispatch-photo">
+                            <img src="https://21306.top/np/v2/这又是一张图.jpg" alt="体测备战现场">
+                            <figcaption>△ 体测备战现场（摄影：语文 6 班 5 组）</figcaption>
+                        </figure>
                     </section>
 
                 </div>
 
             </main>
 
-            <!-- ==================== 页脚 ==================== -->
+            <!-- ★ 右下角署名：采访记者 + 编者 -->
+            <div class="credit-block">
+                <div class="credit-line">
+                    <span class="credit-label">采访记者：</span>荆汉舟　王梓懿　冯晨轩　胡珈宁　李伯雄　牛民讯　周铭浩
+                </div>
+                <div class="credit-line">
+                    <span class="credit-label">编者：</span>周铭浩
+                </div>
+            </div>
+
             <footer class="footer">
                 <div class="footer-info">
                     <span>2026 年 10 月 8 日 星期四</span>
-                    <span>总第 001 期</span>
+                    <span>第 2 版</span>
                     <span>本版编辑：语文 6 班 5 组</span>
                 </div>
             </footer>
@@ -504,26 +700,28 @@
         </div>
     </div>
 
-    <!-- ============================================================
-         屏幕适配脚本
-         ============================================================ -->
     <script>
         (function () {
-            var sheet = document.getElementById('paper-sheet');
-            if (!sheet) return;
+            var sheets = document.querySelectorAll('.sheet');
+            if (!sheets.length) return;
 
             var lastWidth = 0;
             var rafId = null;
 
             function applyZoom() {
-                var naturalW = sheet.offsetWidth;
-                if (!naturalW) return;
-
                 var vw = document.documentElement.clientWidth;
-                if (vw === lastWidth) return;
 
+                var baseW = sheets[0].offsetWidth;
+                if (!baseW) return;
+
+                if (vw === lastWidth) return;
                 lastWidth = vw;
-                sheet.style.zoom = (vw / naturalW);
+
+                var zoom = vw / baseW;
+
+                for (var i = 0; i < sheets.length; i++) {
+                    sheets[i].style.zoom = zoom;
+                }
             }
 
             function scheduleFit() {
