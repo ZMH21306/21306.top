@@ -105,7 +105,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 1.6mm;
+            gap: 1.4mm;
             transform-origin: top left;
             box-shadow:
                 0 1px 2px rgba(22, 19, 15, 0.06),
@@ -133,7 +133,7 @@
             min-height: 0;
             display: grid;
             grid-template-columns: 5.5fr 5.5fr;
-            column-gap: 6mm;
+            column-gap: 5.5mm;
             align-items: stretch;
         }
 
@@ -143,7 +143,7 @@
             min-height: 0;
             display: flex;
             flex-direction: column;
-            gap: 2mm;
+            gap: 1.6mm;
         }
 
         #paper-sheet-1 .col-left,
@@ -153,7 +153,7 @@
 
         .col-right {
             border-left: 0.25mm solid var(--rule-fine);
-            padding-left: 5mm;
+            padding-left: 4.5mm;
         }
 
         .article-block {
@@ -163,7 +163,7 @@
 
         .article-block + .article-block {
             border-top: 0.2mm solid var(--rule);
-            padding-top: 2mm;
+            padding-top: 1.6mm;
         }
 
         .article-block.grow,
@@ -185,18 +185,18 @@
            四、报头
            ============================================================ */
         .masthead-inline {
-            padding: 0 0 1.6mm;
-            margin-bottom: 1.6mm;
-            border-bottom: 0.7mm solid var(--rule-strong);
+            padding: 0 0 1.4mm;
+            margin-bottom: 1.4mm;
+            border-bottom: 0.65mm solid var(--rule-strong);
         }
 
         .masthead-inline .paper-name {
             font-family: var(--font-title);
-            font-size: 46pt;
+            font-size: 40pt;
             font-weight: 400;
             color: var(--red);
-            letter-spacing: 8pt;
-            line-height: 1.08;
+            letter-spacing: 7pt;
+            line-height: 1.06;
             white-space: nowrap;
             display: block;
             text-align: center;
@@ -206,9 +206,9 @@
 
         /* 第 2 页页眉 */
         .page-head-inline {
-            padding: 0 0 1.4mm;
-            margin-bottom: 1.6mm;
-            border-bottom: 0.55mm solid var(--rule-strong);
+            padding: 0 0 1.1mm;
+            margin-bottom: 1.4mm;
+            border-bottom: 0.5mm solid var(--rule-strong);
             display: flex;
             justify-content: flex-start;
             align-items: baseline;
@@ -217,11 +217,11 @@
 
         .page-head-inline .head-title {
             font-family: var(--font-title);
-            font-size: 18pt;
+            font-size: 16.5pt;
             font-weight: 400;
             color: var(--red);
-            letter-spacing: 2.4pt;
-            line-height: 1.15;
+            letter-spacing: 2.2pt;
+            line-height: 1.14;
             white-space: nowrap;
         }
 
@@ -232,10 +232,10 @@
         .t-block,
         .t-rail {
             font-family: var(--font-headline);
-            font-size: 15pt;
+            font-size: 13.6pt;
             font-weight: 900;
-            line-height: 1.26;
-            letter-spacing: 0.9pt;
+            line-height: 1.22;
+            letter-spacing: 0.8pt;
             text-align: center;
             color: var(--ink);
         }
@@ -244,21 +244,21 @@
         .sub-block,
         .sub-rail {
             font-family: var(--font-sub);
-            font-size: 8.6pt;
+            font-size: 8pt;
             color: var(--ink-soft);
             text-align: center;
-            line-height: 1.36;
-            margin-top: 0.9mm;
+            line-height: 1.3;
+            margin-top: 0.7mm;
         }
 
         .byline {
             font-family: var(--font-sub);
-            font-size: 7.6pt;
+            font-size: 7.2pt;
             color: var(--muted);
             text-align: center;
-            letter-spacing: 0.9pt;
-            margin-top: 0.9mm;
-            margin-bottom: 1mm;
+            letter-spacing: 0.8pt;
+            margin-top: 0.7mm;
+            margin-bottom: 0.8mm;
         }
 
         /* ============================================================
@@ -266,27 +266,27 @@
            ============================================================ */
         .article-body {
             font-family: var(--font-body);
-            font-size: 9.2pt;
-            line-height: 1.72;
+            font-size: 8.7pt;
+            line-height: 1.58;
             text-align: justify;
             text-justify: inter-ideograph;
             text-indent: 2em;
-            margin-top: 0.8mm;
+            margin-top: 0.55mm;
             margin-bottom: 0;
             hyphens: none;
         }
 
         .article-body + .article-body {
-            margin-top: 0.7mm;
+            margin-top: 0.5mm;
         }
 
         /* ============================================================
-           七、配图（第一张图：52mm × 38mm，右浮动环绕）
+           七、配图（第一张图：66mm × 48mm，右浮动环绕）
            ============================================================ */
         .inline-figure {
             float: right;
-            width: 52mm;
-            margin: 0.2mm 0 0.8mm 2.5mm;
+            width: 66mm;
+            margin: 0.2mm 0 0.7mm 2.8mm;
             padding: 0;
             display: flex;
             flex-direction: column;
@@ -298,16 +298,16 @@
         .inline-figure img {
             display: block;
             width: 100%;
-            height: 38mm;
+            height: 48mm;
             object-fit: cover;
             border: 0.2mm solid var(--rule);
             background: #ece5d5;
         }
 
         .inline-figure figcaption {
-            margin-top: 0.6mm;
+            margin-top: 0.5mm;
             font-family: var(--font-sub);
-            font-size: 6pt;
+            font-size: 5.8pt;
             font-style: italic;
             line-height: 1.2;
             color: var(--muted);
@@ -325,13 +325,13 @@
 
         .dispatch-title {
             font-family: var(--font-headline);
-            font-size: 13pt;
+            font-size: 12.4pt;
             font-weight: 900;
             color: var(--ink);
-            letter-spacing: 1.4pt;
+            letter-spacing: 1.3pt;
             text-align: center;
-            margin-bottom: 1.6mm;
-            padding-bottom: 1mm;
+            margin-bottom: 1.4mm;
+            padding-bottom: 0.9mm;
             border-bottom: 0.25mm solid var(--rule);
             flex-shrink: 0;
         }
@@ -340,14 +340,14 @@
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 2mm;
+            gap: 1.7mm;
             flex: 0 0 auto;
         }
 
         .dispatch-item {
             font-family: var(--font-body);
-            font-size: 8.8pt;
-            line-height: 1.68;
+            font-size: 8.1pt;
+            line-height: 1.58;
             color: var(--ink);
             text-align: justify;
             text-justify: inter-ideograph;
@@ -356,22 +356,24 @@
 
         .dispatch-item .d-byline {
             font-family: var(--font-sub);
-            font-size: 7.2pt;
+            font-size: 6.8pt;
             color: var(--red);
             font-style: normal;
             margin-left: 0.4mm;
-            letter-spacing: 0.5pt;
+            letter-spacing: 0.45pt;
         }
 
         /* ============================================================
-           九、第 2 页右栏配图（横向占满 + 竖向自适应）
+           九、第 2 页右栏配图（居中缩小）
            ============================================================ */
         .dispatch-photo {
-            margin-top: 3.5mm;
+            margin-top: 2.8mm;
             padding-top: 0;
             border-top: none;
             display: block;
-            width: 100%;
+            width: 78%;
+            margin-left: auto;
+            margin-right: auto;
             flex: 0 0 auto;
         }
 
@@ -384,11 +386,11 @@
         }
 
         .dispatch-photo figcaption {
-            margin-top: 0.8mm;
+            margin-top: 0.7mm;
             font-family: var(--font-sub);
-            font-size: 6.2pt;
+            font-size: 5.8pt;
             font-style: italic;
-            line-height: 1.25;
+            line-height: 1.22;
             color: var(--muted);
             text-align: center;
             width: 100%;
@@ -402,13 +404,13 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 0.6mm;
-            padding: 0 0.5mm 1.4mm;
+            gap: 0.5mm;
+            padding: 0 0.5mm 1.1mm;
             font-family: var(--font-sub);
-            font-size: 7.6pt;
+            font-size: 7.2pt;
             color: var(--ink-soft);
             letter-spacing: 0.4pt;
-            line-height: 1.45;
+            line-height: 1.42;
             text-align: right;
         }
 
@@ -419,7 +421,7 @@
         .credit-block .credit-label {
             color: var(--red);
             font-style: normal;
-            letter-spacing: 0.8pt;
+            letter-spacing: 0.7pt;
             margin-right: 0.6mm;
         }
 
@@ -429,8 +431,8 @@
         .footer {
             flex-shrink: 0;
             margin-top: auto;
-            border-top: 0.55mm solid var(--rule-strong);
-            padding-top: 1.1mm;
+            border-top: 0.52mm solid var(--rule-strong);
+            padding-top: 1mm;
         }
 
         .footer-info {
@@ -439,10 +441,10 @@
             align-items: center;
             flex-wrap: nowrap;
             font-family: var(--font-sub);
-            font-size: 7.6pt;
+            font-size: 7.2pt;
             color: var(--ink-soft);
             letter-spacing: 0.4pt;
-            line-height: 1.3;
+            line-height: 1.28;
             padding: 0 0.5mm;
         }
 
@@ -503,7 +505,7 @@
 <body>
 
     <!-- 版本号标识 -->
-    <div class="version-badge">版本 v0002</div>
+    <div class="version-badge">版本 v0006</div>
 
     <!-- ============================================================
          第 1 页
@@ -554,6 +556,21 @@
                         </p>
                         <p class="article-body">
                             日复一日的练习，打磨着他的耐力与意志。他说，体测测的不只是身体，更是坚持。他用一次次训练向着目标前进，也告诉我们，体育没有捷径，点滴汗水终会化作属于自己的收获。同时他特别感谢体育老师，在训练中耐心纠正他的动作，不断鼓励他坚持下去，正是老师的指导，让他少走了很多弯路。
+                        </p>
+                    </article>
+
+                    <article class="article-block">
+                        <h2 class="t-block">中秋月圆，京城共庆</h2>
+                        <p class="byline">■ 王梓懿</p>
+
+                        <p class="article-body">
+                            青衿心语北京 9 月 26 日讯 中秋佳节到来，首都北京处处洋溢着浓厚的节日氛围。傍晚时分，天安门广场与长安街上，市民与游客齐聚此处，共赏中秋月色。
+                        </p>
+                        <p class="article-body">
+                            广场上，节日花坛绚丽夺目，灯火璀璨。月光与灯光交相辉映，络绎不绝的游客驻足观赏、拍照留念。大家欢聚于此，感受中秋佳节独有的祥和热闹。
+                        </p>
+                        <p class="article-body">
+                            中秋之夜，万家团圆。京城街头，小家团圆的温情与大众欢庆的盛景相融，尽显中秋祥和的氛围。
                         </p>
                     </article>
 
@@ -654,7 +671,7 @@
                         </p>
                     </article>
 
-                    <article class="article-block grow">
+                    <article class="article-block">
                         <h2 class="t-rail">科学备考稳心态，从容迎战体考</h2>
                         <p class="byline">■ 周铭浩</p>
 
@@ -669,6 +686,18 @@
                         </p>
                         <p class="article-body">
                             面对“应付考试”的想法，老师强调体育不仅为分数，更是培养终身运动习惯的契机。考前最后，老师叮嘱大家：“安全第一，重视规范，合理分配体力。祝愿同学们放平心态，稳定发挥，突破自我！”
+                        </p>
+                    </article>
+
+                    <article class="article-block grow">
+                        <h2 class="t-rail">中秋假期即将到来</h2>
+                        <p class="byline">■ 胡珈宁</p>
+
+                        <p class="article-body">
+                            花宁社九月二十四日十九时电。2026 年 9 月 25 日到 27 日我们将共同迎来中秋节及中秋假期的到来。同学们虽然对中秋调休抱有巨大不满，但在放假前夕还是异常兴奋。
+                        </p>
+                        <p class="article-body">
+                            中秋节象征着团圆幸福。据了解，大部分同学在各个平台与商场购买了月饼，祝各位同学与老师们中秋节快乐。另外，即使是中秋假期也不能懈怠，放学之前所有教学班的同学都会收到各学科老师的假期作业礼包，希望三天后会看到每个同学的惊喜答卷。
                         </p>
                     </article>
 
