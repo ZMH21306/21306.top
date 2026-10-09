@@ -6,9 +6,10 @@
     <meta name="description" content="竞逐凌云志（总第001期）——横版A4 两页">
     <title>竞逐凌云志 | 2026年10月8日</title>
 
+    <!-- ===== 字体：全部使用 Web 字体，保证所有设备渲染一致 ===== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 
     <style>
         /* ============================================================
@@ -32,27 +33,36 @@
             --stage: #cfc9bd;
             --muted: #6a6558;
 
-            /* ---- 字体栈（高级版） ---- */
-            --font-body: Georgia, "Nimbus Roman", "Songti SC", "SimSun", "宋体", serif;
+            /* ---- 字体栈（统一 Web 字体，跨设备一致） ---- */
+            --font-body: "Noto Serif SC",
+                         "Source Han Serif SC",
+                         "Songti SC", "SimSun", "宋体",
+                         Georgia, "Times New Roman", serif;
 
             --font-title: "Ma Shan Zheng",
+                          "Noto Serif SC",
                           "STXingkai", "华文行楷", "Xingkai SC",
                           "LiSu", "隶书",
                           "KaiTi", "楷体", "STKaiti",
                           "Songti SC", "SimSun", "宋体", serif;
 
-            --font-headline: "STSong", "Songti SC", "SimSun", "宋体",
+            --font-headline: "Noto Serif SC",
+                             "Source Han Serif SC",
+                             "STSong", "Songti SC", "SimSun", "宋体",
                              Georgia, "Times New Roman", serif;
 
-            --font-sub: "KaiTi", "楷体", "STKaiti", "Songti SC", serif;
+            --font-sub: "Noto Serif SC",
+                        "Source Han Serif SC",
+                        "KaiTi", "楷体", "STKaiti",
+                        "Songti SC", "SimSun", serif;
 
-            /* ---- 统一间距变量 ---- */
+            /* ---- 统一间距变量（已整体增大，填充留白） ---- */
             --gap-col: 5mm;
-            --gap-block: 2.8mm;
-            --gap-para: 0.4mm;
-            --gap-head: 0.5mm;
-            --gap-byline-top: 0.45mm;
-            --gap-byline-bottom: 0.55mm;
+            --gap-block: 3.4mm;
+            --gap-para: 1.4mm;
+            --gap-head: 1.0mm;
+            --gap-byline-top: 1.0mm;
+            --gap-byline-bottom: 1.2mm;
 
             /* ---- 分割线几何 ---- */
             --rule-h: 0.22mm;
@@ -76,6 +86,9 @@
             align-items: center;
             gap: 16px;
             padding: 16px 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
 
         /* ============================================================
@@ -236,8 +249,8 @@
            ============================================================ */
         .masthead-inline,
         .page-head-inline {
-            padding: 0 0 1.6mm;
-            margin-bottom: 2.4mm;
+            padding: 0 0 2mm;
+            margin-bottom: 3mm;
             border-bottom: 0.25mm solid var(--rule-fine);
             position: relative;
             display: flex;
@@ -278,7 +291,7 @@
         }
 
         /* ============================================================
-           五、标题层级
+           五、标题层级（已移除标题前的黑色短竖线）
            ============================================================ */
         .t-lead,
         .t-block,
@@ -293,24 +306,12 @@
             margin: 0;
         }
 
-        .t-lead::before,
-        .t-block::before,
-        .t-rail::before {
-            content: "";
-            display: inline-block;
-            width: 3px;
-            height: 0.8em;
-            background: var(--rule-strong);
-            margin-right: 5px;
-            vertical-align: -0.04em;
-            border-radius: 0.5px;
-        }
-
         .sub-lead,
         .sub-block,
         .sub-rail {
             font-family: var(--font-sub);
             font-size: 8.2pt;
+            font-weight: 400;
             color: var(--ink-soft);
             text-align: center;
             line-height: 1.26;
@@ -320,6 +321,7 @@
         .byline {
             font-family: var(--font-sub);
             font-size: 7.4pt;
+            font-weight: 400;
             color: var(--muted);
             text-align: center;
             letter-spacing: 0.8pt;
@@ -328,12 +330,13 @@
         }
 
         /* ============================================================
-           六、正文段落
+           六、正文段落（行高与字号增大，填充留白）
            ============================================================ */
         .article-body {
             font-family: var(--font-body);
-            font-size: 9pt;
-            line-height: 1.44;
+            font-size: 9.4pt;
+            font-weight: 400;
+            line-height: 1.62;
             text-align: justify;
             text-justify: inter-ideograph;
             text-indent: 2em;
@@ -351,8 +354,8 @@
            ============================================================ */
         .inline-figure {
             float: right;
-            width: 52mm;
-            margin: 0.2mm 0 0.8mm 3mm;
+            width: 54mm;
+            margin: 0.2mm 0 1.2mm 3.5mm;
             padding: 0;
             display: block;
             break-inside: avoid;
@@ -362,7 +365,7 @@
         .inline-figure img {
             display: block;
             width: 100%;
-            height: 38mm;
+            height: 42mm;
             object-fit: cover;
             border: 0.3mm solid var(--rule-strong);
             background: #ece5d5;
@@ -370,10 +373,10 @@
 
         .inline-figure figcaption {
             display: block;
-            margin-top: 0.6mm;
+            margin-top: 0.8mm;
             font-family: var(--font-sub);
             font-size: 6pt;
-            font-style: italic;
+            font-style: normal;
             line-height: 1.2;
             color: var(--muted);
             text-align: center;
@@ -397,25 +400,25 @@
             background: transparent;
             letter-spacing: 3.4pt;
             text-align: center;
-            padding: 0 0 1.6mm;
-            margin-bottom: 2.4mm;
+            padding: 0 0 2mm;
+            margin-bottom: 3.2mm;
             border-bottom: 0.25mm solid var(--rule-fine);
             flex-shrink: 0;
         }
 
-        /* 列表按内容高度排布，图片紧贴其后 */
         .dispatch-list {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 2.6mm;
+            gap: 3.8mm;
             flex: 0 0 auto;
         }
 
         .dispatch-item {
             font-family: var(--font-body);
-            font-size: 8.6pt;
-            line-height: 1.52;
+            font-size: 9pt;
+            font-weight: 400;
+            line-height: 1.68;
             color: var(--ink);
             text-align: justify;
             text-justify: inter-ideograph;
@@ -423,15 +426,15 @@
 
         .dispatch-item .d-num {
             display: inline-block;
-            width: 4.4mm;
-            height: 4.4mm;
-            line-height: 4.2mm;
+            width: 4.6mm;
+            height: 4.6mm;
+            line-height: 4.4mm;
             text-align: center;
             border: 0.22mm solid var(--rule-strong);
             border-radius: 50%;
             color: var(--ink);
             font-family: var(--font-headline);
-            font-size: 6.2pt;
+            font-size: 6.4pt;
             font-weight: 900;
             margin-right: 4px;
             vertical-align: 0.25mm;
@@ -441,6 +444,7 @@
         .dispatch-item .d-byline {
             font-family: var(--font-sub);
             font-size: 7pt;
+            font-weight: 400;
             color: var(--muted);
             font-style: normal;
             margin-left: 0.4mm;
@@ -451,11 +455,11 @@
            九、第 2 页右栏配图（贴近上方列表，无阴影）
            ============================================================ */
         .dispatch-photo {
-            margin-top: 1.4mm;
+            margin-top: 2.4mm;
             padding-top: 0;
             border-top: none;
             display: block;
-            width: 52%;
+            width: 58%;
             margin-left: auto;
             margin-right: auto;
             flex: 0 0 auto;
@@ -471,10 +475,10 @@
 
         .dispatch-photo figcaption {
             display: block;
-            margin-top: 0.6mm;
+            margin-top: 0.8mm;
             font-family: var(--font-sub);
             font-size: 6pt;
-            font-style: italic;
+            font-style: normal;
             line-height: 1.2;
             color: var(--muted);
             text-align: center;
@@ -489,10 +493,11 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 0.35mm;
-            padding: 0 0.5mm 0.9mm;
+            gap: 0.5mm;
+            padding: 0 0.5mm 1.2mm;
             font-family: var(--font-sub);
-            font-size: 7.4pt;
+            font-size: 7.6pt;
+            font-weight: 400;
             color: var(--ink-soft);
             letter-spacing: 0.4pt;
             line-height: 1.36;
@@ -518,7 +523,7 @@
             flex-shrink: 0;
             margin-top: auto;
             border-top: 0.25mm solid var(--rule-fine);
-            padding-top: 1.6mm;
+            padding-top: 2mm;
             position: relative;
         }
 
@@ -529,6 +534,7 @@
             flex-wrap: nowrap;
             font-family: var(--font-sub);
             font-size: 7.4pt;
+            font-weight: 400;
             color: var(--ink-soft);
             letter-spacing: 0.45pt;
             line-height: 1.25;
@@ -544,6 +550,69 @@
             color: var(--rule-fine);
             font-size: 4.5pt;
             line-height: 1;
+        }
+
+        /* ============================================================
+           十一·附、第 2 页专属微调（防止溢出）
+           ============================================================ */
+        #paper-sheet-2 .article-body {
+            font-size: 8.4pt;           /* 从 9.4pt 缩小 */
+            line-height: 1.46;          /* 从 1.62 缩小 */
+            margin-top: 0.7mm;          /* 段落上方间距略减 */
+        }
+
+        #paper-sheet-2 .article-body + .article-body {
+            margin-top: 1.0mm;          /* 段间距略减 */
+        }
+
+        #paper-sheet-2 .t-rail {
+            font-size: 13pt;            /* 从 14.5pt 缩小 */
+        }
+
+        #paper-sheet-2 .byline {
+            font-size: 7pt;
+            margin-top: 0.7mm;
+            margin-bottom: 0.9mm;
+        }
+
+        #paper-sheet-2 .article-block + .article-block {
+            padding-top: 2.6mm;         /* 从 3.4mm 缩小 */
+        }
+
+        #paper-sheet-2 .dispatch-title {
+            font-size: 12pt;
+            padding-bottom: 1.4mm;
+            margin-bottom: 2.4mm;
+        }
+
+        #paper-sheet-2 .dispatch-list {
+            gap: 2.6mm;                 /* 从 3.8mm 缩小 */
+        }
+
+        #paper-sheet-2 .dispatch-item {
+            font-size: 8.2pt;           /* 从 9pt 缩小 */
+            line-height: 1.50;          /* 从 1.68 缩小 */
+        }
+
+        #paper-sheet-2 .dispatch-item .d-num {
+            width: 4.2mm;
+            height: 4.2mm;
+            line-height: 4.0mm;
+            font-size: 6pt;
+        }
+
+        #paper-sheet-2 .dispatch-photo {
+            margin-top: 1.8mm;
+            width: 52%;
+        }
+
+        #paper-sheet-2 .page-head-inline {
+            padding-bottom: 1.4mm;
+            margin-bottom: 2.4mm;
+        }
+
+        #paper-sheet-2 .page-head-inline .head-title {
+            font-size: 16pt;
         }
 
         /* ============================================================
@@ -599,7 +668,7 @@
 <body>
 
     <!-- 版本号标识 -->
-    <div class="version-badge">版本 v0025</div>
+    <div class="version-badge">版本 v0028</div>
 
     <!-- ============================================================
          第 1 页
@@ -684,7 +753,7 @@
                         <div class="article-content">
                             <figure class="inline-figure">
                                 <img src="https://21306.top/np/v2/这又是一张图.jpg" alt="体测备战现场">
-                                <figcaption>△ 体测备战现场（摄影：语文 6 班 5 组）</figcaption>
+                                <figcaption>△ 体测备战现场（摄影：语文 6 班同学）</figcaption>
                             </figure>
 
                             <p class="article-body">
