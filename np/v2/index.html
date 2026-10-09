@@ -6,10 +6,6 @@
     <meta name="description" content="青春体测志（总第001期）——横版A4 两页">
     <title>青春体测志 | 2026年10月8日</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-
     <style>
         /* ============================================================
            一、全局重置与设计变量
@@ -32,14 +28,22 @@
             --stage: #cfc9bd;
             --muted: #6a6558;
 
-            --font-body: Georgia, "Songti SC", "SimSun", "宋体", serif;
-            --font-title: "Ma Shan Zheng",
-                          "STXingkai", "华文行楷", "Xingkai SC",
-                          "LiSu", "隶书",
-                          "KaiTi", "楷体", "STKaiti",
-                          "Songti SC", "SimSun", "宋体", serif;
-            --font-headline: "STSong", "Songti SC", Georgia, "SimSun", "宋体", serif;
-            --font-sub: "KaiTi", "楷体", "STKaiti", "Songti SC", serif;
+            /* ---- 字体栈（全篇统一） ---- */
+            --font-body: Georgia, "Nimbus Roman", "SimSun", "宋体", "Songti SC", serif;
+            --font-title: "Times New Roman", "SimHei", "黑体", "Heiti SC", sans-serif;
+            --font-headline: "Times New Roman", "SimHei", "黑体", "Heiti SC", sans-serif;
+            --font-sub: "KaiTi", "楷体", "STKaiti", serif;
+
+            /* ---- 统一间距变量 ---- */
+            --gap-col: 5mm;
+            --gap-block: 2.8mm;
+            --gap-para: 0.4mm;
+            --gap-head: 0.5mm;
+            --gap-byline-top: 0.45mm;
+            --gap-byline-bottom: 0.55mm;
+
+            /* ---- 分割线几何 ---- */
+            --rule-h: 0.22mm;
         }
 
         html {
@@ -134,7 +138,7 @@
             min-height: 0;
             display: grid;
             grid-template-columns: 5.5fr 5.5fr;
-            column-gap: 5mm;
+            column-gap: var(--gap-col);
             align-items: stretch;
         }
 
@@ -144,7 +148,7 @@
             min-height: 0;
             display: flex;
             flex-direction: column;
-            gap: 1.2mm;
+            gap: 0;
         }
 
         #paper-sheet-1 .col-left,
@@ -157,6 +161,7 @@
             padding-left: 4mm;
         }
 
+        /* ---- 文章块 ---- */
         .article-block {
             display: block;
             min-width: 0;
@@ -165,27 +170,27 @@
         .article-block + .article-block {
             border-top: none;
             position: relative;
-            padding-top: 1.7mm;
-            margin-top: 0.4mm;
+            padding-top: var(--gap-block);
+            margin-top: 0;
         }
 
         .article-block + .article-block::before {
             content: "";
             position: absolute;
-            top: 0;
+            top: calc(var(--gap-block) / 2);
             left: 0;
             right: 0;
-            height: 0.22mm;
+            height: var(--rule-h);
             background: var(--rule);
+            transform: translateY(-50%);
         }
 
-        /* 分割线中央小菱形装饰 */
         .article-block + .article-block::after {
             content: "◆";
             position: absolute;
-            top: -1mm;
+            top: calc(var(--gap-block) / 2);
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             font-size: 4.2pt;
             color: var(--rule-fine);
             background: var(--paper);
@@ -209,19 +214,31 @@
         }
 
         /* ============================================================
-           四、报头（单细线，无粗线）
+           四、报头与页眉
            ============================================================ */
-        .masthead-inline {
+        .masthead-inline,
+        .page-head-inline {
             padding: 0 0 1.6mm;
             margin-bottom: 2.4mm;
             border-bottom: 0.25mm solid var(--rule-fine);
             position: relative;
+            display: flex;
+            align-items: baseline;
+        }
+
+        .masthead-inline {
+            justify-content: center;
+        }
+
+        .page-head-inline {
+            justify-content: flex-start;
+            gap: 8px;
         }
 
         .masthead-inline .paper-name {
             font-family: var(--font-title);
             font-size: 41pt;
-            font-weight: 400;
+            font-weight: 900;
             color: var(--red);
             letter-spacing: 7pt;
             line-height: 1.05;
@@ -232,22 +249,10 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 第 2 页页眉 */
-        .page-head-inline {
-            padding: 0 0 1.2mm;
-            margin-bottom: 1.4mm;
-            border-bottom: 0.25mm solid var(--rule-fine);
-            display: flex;
-            justify-content: flex-start;
-            align-items: baseline;
-            gap: 8px;
-            position: relative;
-        }
-
         .page-head-inline .head-title {
             font-family: var(--font-title);
             font-size: 16.5pt;
-            font-weight: 400;
+            font-weight: 900;
             color: var(--red);
             letter-spacing: 2.1pt;
             line-height: 1.14;
@@ -255,7 +260,7 @@
         }
 
         /* ============================================================
-           五、标题层级（墨色竖条装饰）
+           五、标题层级
            ============================================================ */
         .t-lead,
         .t-block,
@@ -267,6 +272,7 @@
             letter-spacing: 0.9pt;
             text-align: center;
             color: var(--ink);
+            margin: 0;
         }
 
         .t-lead::before,
@@ -282,13 +288,6 @@
             border-radius: 0.5px;
         }
 
-        .t-lead::before {
-            width: 4px;
-            height: 0.88em;
-            margin-right: 6px;
-            vertical-align: -0.08em;
-        }
-
         .sub-lead,
         .sub-block,
         .sub-rail {
@@ -297,7 +296,7 @@
             color: var(--ink-soft);
             text-align: center;
             line-height: 1.26;
-            margin-top: 0.5mm;
+            margin-top: var(--gap-head);
         }
 
         .byline {
@@ -306,8 +305,8 @@
             color: var(--muted);
             text-align: center;
             letter-spacing: 0.8pt;
-            margin-top: 0.45mm;
-            margin-bottom: 0.55mm;
+            margin-top: var(--gap-byline-top);
+            margin-bottom: var(--gap-byline-bottom);
         }
 
         /* ============================================================
@@ -320,13 +319,13 @@
             text-align: justify;
             text-justify: inter-ideograph;
             text-indent: 2em;
-            margin-top: 0.4mm;
+            margin-top: var(--gap-head);
             margin-bottom: 0;
             hyphens: none;
         }
 
         .article-body + .article-body {
-            margin-top: 0.35mm;
+            margin-top: var(--gap-para);
         }
 
         /* ============================================================
@@ -354,19 +353,20 @@
             background: #ece5d5;
         }
 
-        .inline-figure figcaption {
-            margin-top: 0.6mm;
+        .inline-figure figcaption,
+        .dispatch-photo figcaption {
             font-family: var(--font-sub);
             font-size: 6pt;
             font-style: italic;
-            line-height: 1.18;
+            line-height: 1.2;
             color: var(--muted);
             text-align: center;
             width: 100%;
+            margin-top: 0.6mm;
         }
 
         /* ============================================================
-           八、组员通讯（仅细底线，无粗短标记）
+           八、组员通讯
            ============================================================ */
         .dispatch-section {
             display: flex;
@@ -381,8 +381,8 @@
             background: transparent;
             letter-spacing: 3.4pt;
             text-align: center;
-            padding: 0 0 1mm;
-            margin-bottom: 1.6mm;
+            padding: 0 0 1.6mm;
+            margin-bottom: 2.4mm;
             border-bottom: 0.25mm solid var(--rule-fine);
             flex-shrink: 0;
         }
@@ -434,7 +434,7 @@
            九、第 2 页右栏配图
            ============================================================ */
         .dispatch-photo {
-            margin-top: 2.2mm;
+            margin-top: 2.8mm;
             padding-top: 0;
             border-top: none;
             display: block;
@@ -451,17 +451,6 @@
             border: 0.3mm solid var(--rule-strong);
             box-shadow: 1.5mm 1.5mm 0 0 rgba(26, 23, 20, 0.18);
             background: #ece5d5;
-        }
-
-        .dispatch-photo figcaption {
-            margin-top: 0.7mm;
-            font-family: var(--font-sub);
-            font-size: 6pt;
-            font-style: italic;
-            line-height: 1.2;
-            color: var(--muted);
-            text-align: center;
-            width: 100%;
         }
 
         /* ============================================================
@@ -495,13 +484,13 @@
         }
 
         /* ============================================================
-           十一、页脚（单细线，无粗线）
+           十一、页脚
            ============================================================ */
         .footer {
             flex-shrink: 0;
             margin-top: auto;
             border-top: 0.25mm solid var(--rule-fine);
-            padding-top: 1.2mm;
+            padding-top: 1.6mm;
             position: relative;
         }
 
@@ -582,7 +571,7 @@
 <body>
 
     <!-- 版本号标识 -->
-    <div class="version-badge">版本 v0014</div>
+    <div class="version-badge">版本 v0017</div>
 
     <!-- ============================================================
          第 1 页
