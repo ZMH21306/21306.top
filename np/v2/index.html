@@ -23,21 +23,22 @@
         :root {
             --ink: #1a1714;
             --ink-soft: #3a342c;
-            --paper: #fbf8f1;
-            --rule: #d3ccbb;
+            --paper: #faf7f0;
+            --rule: #d8d2c4;
             --rule-strong: #1a1714;
-            --rule-fine: #b9b1a0;
-            --red: #a3211e;
+            --rule-fine: #c4bcac;
+            --red: #9e2b22;
+            --red-deep: #6e1a14;
             --stage: #cfc9bd;
             --muted: #6a6558;
 
-            --font-body: Georgia, "Nimbus Roman", "Songti SC", "SimSun", "宋体", serif;
+            --font-body: Georgia, "Songti SC", "SimSun", "宋体", serif;
             --font-title: "Ma Shan Zheng",
                           "STXingkai", "华文行楷", "Xingkai SC",
                           "LiSu", "隶书",
                           "KaiTi", "楷体", "STKaiti",
                           "Songti SC", "SimSun", "宋体", serif;
-            --font-headline: "STSong", "Songti SC", "SimSun", "宋体", serif;
+            --font-headline: "STSong", "Songti SC", Georgia, "SimSun", "宋体", serif;
             --font-sub: "KaiTi", "楷体", "STKaiti", "Songti SC", serif;
         }
 
@@ -62,7 +63,7 @@
         }
 
         /* ============================================================
-           一·附、版本号标识（固定于网页左上角）
+           一·附、版本号标识
            ============================================================ */
         .version-badge {
             position: fixed;
@@ -74,7 +75,7 @@
             line-height: 1.35;
             letter-spacing: 0.6pt;
             color: var(--red);
-            background: rgba(251, 248, 241, 0.94);
+            background: rgba(250, 247, 240, 0.94);
             border: 0.2mm solid var(--rule-fine);
             border-radius: 2px;
             padding: 2px 8px;
@@ -85,7 +86,7 @@
         }
 
         /* ============================================================
-           二、纸张（每一页独立 A4 横版）
+           二、纸张
            ============================================================ */
         .paper-outer {
             width: 100vw;
@@ -126,7 +127,7 @@
         }
 
         /* ============================================================
-           三、版心：两栏等宽
+           三、版心
            ============================================================ */
         .page-grid {
             flex: 1;
@@ -162,8 +163,34 @@
         }
 
         .article-block + .article-block {
-            border-top: 0.2mm solid var(--rule);
-            padding-top: 1.2mm;
+            border-top: none;
+            position: relative;
+            padding-top: 1.7mm;
+            margin-top: 0.4mm;
+        }
+
+        .article-block + .article-block::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0.22mm;
+            background: var(--rule);
+        }
+
+        /* 分割线中央小菱形装饰 */
+        .article-block + .article-block::after {
+            content: "◆";
+            position: absolute;
+            top: -1mm;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 4.2pt;
+            color: var(--rule-fine);
+            background: var(--paper);
+            padding: 0 1.2mm;
+            line-height: 1;
         }
 
         .article-block.grow,
@@ -182,12 +209,13 @@
         }
 
         /* ============================================================
-           四、报头
+           四、报头（单细线，无粗线）
            ============================================================ */
         .masthead-inline {
-            padding: 0 0 1.1mm;
-            margin-bottom: 1.1mm;
-            border-bottom: 0.6mm solid var(--rule-strong);
+            padding: 0 0 1.6mm;
+            margin-bottom: 2.4mm;
+            border-bottom: 0.25mm solid var(--rule-fine);
+            position: relative;
         }
 
         .masthead-inline .paper-name {
@@ -200,19 +228,20 @@
             white-space: nowrap;
             display: block;
             text-align: center;
-            text-shadow: 0 0 0.5pt rgba(163, 33, 30, 0.28);
+            text-shadow: 0 0 0.5pt rgba(158, 43, 34, 0.28);
             -webkit-font-smoothing: antialiased;
         }
 
         /* 第 2 页页眉 */
         .page-head-inline {
-            padding: 0 0 0.9mm;
-            margin-bottom: 1.1mm;
-            border-bottom: 0.5mm solid var(--rule-strong);
+            padding: 0 0 1.2mm;
+            margin-bottom: 1.4mm;
+            border-bottom: 0.25mm solid var(--rule-fine);
             display: flex;
             justify-content: flex-start;
             align-items: baseline;
             gap: 8px;
+            position: relative;
         }
 
         .page-head-inline .head-title {
@@ -226,7 +255,7 @@
         }
 
         /* ============================================================
-           五、标题层级（两页同功能文字统一字号）
+           五、标题层级（墨色竖条装饰）
            ============================================================ */
         .t-lead,
         .t-block,
@@ -235,9 +264,29 @@
             font-size: 14pt;
             font-weight: 900;
             line-height: 1.18;
-            letter-spacing: 0.8pt;
+            letter-spacing: 0.9pt;
             text-align: center;
             color: var(--ink);
+        }
+
+        .t-lead::before,
+        .t-block::before,
+        .t-rail::before {
+            content: "";
+            display: inline-block;
+            width: 3px;
+            height: 0.8em;
+            background: var(--rule-strong);
+            margin-right: 5px;
+            vertical-align: -0.04em;
+            border-radius: 0.5px;
+        }
+
+        .t-lead::before {
+            width: 4px;
+            height: 0.88em;
+            margin-right: 6px;
+            vertical-align: -0.08em;
         }
 
         .sub-lead,
@@ -257,8 +306,8 @@
             color: var(--muted);
             text-align: center;
             letter-spacing: 0.8pt;
-            margin-top: 0.5mm;
-            margin-bottom: 0.6mm;
+            margin-top: 0.45mm;
+            margin-bottom: 0.55mm;
         }
 
         /* ============================================================
@@ -267,7 +316,7 @@
         .article-body {
             font-family: var(--font-body);
             font-size: 9pt;
-            line-height: 1.46;
+            line-height: 1.44;
             text-align: justify;
             text-justify: inter-ideograph;
             text-indent: 2em;
@@ -281,7 +330,7 @@
         }
 
         /* ============================================================
-           七、配图（第一张图：66mm × 48mm，右浮动环绕）
+           七、配图
            ============================================================ */
         .inline-figure {
             float: right;
@@ -300,12 +349,13 @@
             width: 100%;
             height: 48mm;
             object-fit: cover;
-            border: 0.2mm solid var(--rule);
+            border: 0.3mm solid var(--rule-strong);
+            box-shadow: 2mm 2mm 0 0 var(--rule-strong);
             background: #ece5d5;
         }
 
         .inline-figure figcaption {
-            margin-top: 0.45mm;
+            margin-top: 0.6mm;
             font-family: var(--font-sub);
             font-size: 6pt;
             font-style: italic;
@@ -316,7 +366,7 @@
         }
 
         /* ============================================================
-           八、组员通讯（第 2 页右栏）
+           八、组员通讯（仅细底线，无粗短标记）
            ============================================================ */
         .dispatch-section {
             display: flex;
@@ -325,14 +375,15 @@
 
         .dispatch-title {
             font-family: var(--font-headline);
-            font-size: 12.6pt;
+            font-size: 12.2pt;
             font-weight: 900;
             color: var(--ink);
-            letter-spacing: 1.3pt;
+            background: transparent;
+            letter-spacing: 3.4pt;
             text-align: center;
-            margin-bottom: 1.1mm;
-            padding-bottom: 0.7mm;
-            border-bottom: 0.25mm solid var(--rule);
+            padding: 0 0 1mm;
+            margin-bottom: 1.6mm;
+            border-bottom: 0.25mm solid var(--rule-fine);
             flex-shrink: 0;
         }
 
@@ -347,24 +398,40 @@
         .dispatch-item {
             font-family: var(--font-body);
             font-size: 8.3pt;
-            line-height: 1.46;
+            line-height: 1.44;
             color: var(--ink);
             text-align: justify;
             text-justify: inter-ideograph;
-            text-indent: 2em;
+        }
+
+        .dispatch-item .d-num {
+            display: inline-block;
+            width: 4.4mm;
+            height: 4.4mm;
+            line-height: 4.2mm;
+            text-align: center;
+            border: 0.22mm solid var(--rule-strong);
+            border-radius: 50%;
+            color: var(--ink);
+            font-family: var(--font-headline);
+            font-size: 6.2pt;
+            font-weight: 900;
+            margin-right: 4px;
+            vertical-align: 0.25mm;
+            letter-spacing: -0.1pt;
         }
 
         .dispatch-item .d-byline {
             font-family: var(--font-sub);
             font-size: 7pt;
-            color: var(--red);
+            color: var(--muted);
             font-style: normal;
             margin-left: 0.4mm;
             letter-spacing: 0.45pt;
         }
 
         /* ============================================================
-           九、第 2 页右栏配图（居中缩小）
+           九、第 2 页右栏配图
            ============================================================ */
         .dispatch-photo {
             margin-top: 2.2mm;
@@ -381,12 +448,13 @@
             display: block;
             width: 100%;
             height: auto;
-            border: 0.2mm solid var(--rule);
+            border: 0.3mm solid var(--rule-strong);
+            box-shadow: 1.5mm 1.5mm 0 0 rgba(26, 23, 20, 0.18);
             background: #ece5d5;
         }
 
         .dispatch-photo figcaption {
-            margin-top: 0.55mm;
+            margin-top: 0.7mm;
             font-family: var(--font-sub);
             font-size: 6pt;
             font-style: italic;
@@ -397,7 +465,7 @@
         }
 
         /* ============================================================
-           十、第 2 页右下角署名（采访记者 + 编者）
+           十、右下角署名
            ============================================================ */
         .credit-block {
             flex-shrink: 0;
@@ -419,37 +487,46 @@
         }
 
         .credit-block .credit-label {
-            color: var(--red);
+            color: var(--ink);
             font-style: normal;
             letter-spacing: 0.7pt;
             margin-right: 0.55mm;
+            font-weight: 700;
         }
 
         /* ============================================================
-           十一、页脚
+           十一、页脚（单细线，无粗线）
            ============================================================ */
         .footer {
             flex-shrink: 0;
             margin-top: auto;
-            border-top: 0.5mm solid var(--rule-strong);
-            padding-top: 0.85mm;
+            border-top: 0.25mm solid var(--rule-fine);
+            padding-top: 1.2mm;
+            position: relative;
         }
 
         .footer-info {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             flex-wrap: nowrap;
             font-family: var(--font-sub);
             font-size: 7.4pt;
             color: var(--ink-soft);
-            letter-spacing: 0.4pt;
+            letter-spacing: 0.45pt;
             line-height: 1.25;
             padding: 0 0.5mm;
+            gap: 3.2mm;
         }
 
         .footer-info span {
             white-space: nowrap;
+        }
+
+        .footer-info .f-sep {
+            color: var(--rule-fine);
+            font-size: 4.5pt;
+            line-height: 1;
         }
 
         /* ============================================================
@@ -505,7 +582,7 @@
 <body>
 
     <!-- 版本号标识 -->
-    <div class="version-badge">版本 v0008</div>
+    <div class="version-badge">版本 v0014</div>
 
     <!-- ============================================================
          第 1 页
@@ -628,7 +705,9 @@
             <footer class="footer">
                 <div class="footer-info">
                     <span>2026 年 10 月 8 日 星期四</span>
+                    <span class="f-sep">◆</span>
                     <span>第 1 版</span>
+                    <span class="f-sep">◆</span>
                     <span>本版编辑：语文 6 班 5 组</span>
                 </div>
             </footer>
@@ -709,19 +788,19 @@
                         <h3 class="dispatch-title">组员通讯</h3>
                         <ul class="dispatch-list">
                             <li class="dispatch-item">
-                                张雨杨同学分享跑步训练方法：日常以 5 至 7.5 公里有氧跑打底，配合速度练习，注重节奏与呼吸调控。他给自己定下 120 分的目标，一年来坚持周一、三、五体能加练，50 米跑与立定跳远成绩显著提升，靠长期积累收获优异成绩。
+                                <span class="d-num">01</span>张雨杨同学分享跑步训练方法：日常以 5 至 7.5 公里有氧跑打底，配合速度练习，注重节奏与呼吸调控。他给自己定下 120 分的目标，一年来坚持周一、三、五体能加练，50 米跑与立定跳远成绩显著提升，靠长期积累收获优异成绩。
                                 <span class="d-byline">——荆汉舟</span>
                             </li>
                             <li class="dispatch-item">
-                                李昀朔、李诗尧同学体考目标均为 80 分，最有信心的是 1000 米跑。他们分享技巧：与速度相近的同学结伴，合理分配体力，切忌起步猛冲，保持稳定呼吸节奏。李昀朔还表示，周一、三、五的体能加练让他的 50 米与跳远明显进步。
+                                <span class="d-num">02</span>李昀朔、李诗尧同学体考目标均为 80 分，最有信心的是 1000 米跑。他们分享技巧：与速度相近的同学结伴，合理分配体力，切忌起步猛冲，保持稳定呼吸节奏。李昀朔还表示，周一、三、五的体能加练让他的 50 米与跳远明显进步。
                                 <span class="d-byline">——胡珈宁</span>
                             </li>
                             <li class="dispatch-item">
-                                陈健老师建议：跑步应重点打磨呼吸节奏，合理分配每圈配速，切忌起步猛冲；考前 1—2 天以慢跑、拉伸等小负荷保持状态，大负荷训练应提前 1—2 周进行。他还提醒同学们认真完成模拟测试，紧张时深呼吸，告诉自己已做足准备。
+                                <span class="d-num">03</span>陈健老师建议：跑步应重点打磨呼吸节奏，合理分配每圈配速，切忌起步猛冲；考前 1—2 天以慢跑、拉伸等小负荷保持状态，大负荷训练应提前 1—2 周进行。他还提醒同学们认真完成模拟测试，紧张时深呼吸，告诉自己已做足准备。
                                 <span class="d-byline">——冯晨轩</span>
                             </li>
                             <li class="dispatch-item">
-                                程智玉老师指出：女生耐力与核心力量偏弱，800 米和立定跳远需补强；男生上肢与爆发力不足，引体向上是常见短板。他强调体育训练远不止一场考试，更是养成运动习惯、调节心情的契机，坚持运动的价值远不止拿到分数。
+                                <span class="d-num">04</span>程智玉老师指出：女生耐力与核心力量偏弱，800 米和立定跳远需补强；男生上肢与爆发力不足，引体向上是常见短板。他强调体育训练远不止一场考试，更是养成运动习惯、调节心情的契机，坚持运动的价值远不止拿到分数。
                                 <span class="d-byline">——周铭浩</span>
                             </li>
                         </ul>
@@ -748,7 +827,9 @@
             <footer class="footer">
                 <div class="footer-info">
                     <span>2026 年 10 月 8 日 星期四</span>
+                    <span class="f-sep">◆</span>
                     <span>第 2 版</span>
+                    <span class="f-sep">◆</span>
                     <span>本版编辑：语文 6 班 5 组</span>
                 </div>
             </footer>
