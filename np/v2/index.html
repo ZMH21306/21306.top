@@ -496,7 +496,7 @@
             gap: 0.8mm;
             padding: 0 0.5mm 1.4mm;
             font-family: var(--font-sub);
-            font-size: 9pt;                 /* 从 7.6pt 增大至 9pt */
+            font-size: 9pt;
             font-weight: 400;
             color: var(--ink-soft);
             letter-spacing: 0.4pt;
@@ -514,7 +514,7 @@
             letter-spacing: 0.7pt;
             margin-right: 0.6mm;
             font-weight: 700;
-            font-size: 9.2pt;               /* 标签略大于内容 */
+            font-size: 9.2pt;
         }
 
         /* ============================================================
@@ -657,46 +657,67 @@
         }
 
         /* ============================================================
-           十二、打印样式
+           十二、打印样式（修复：确保正好两页，无空白页）
            ============================================================ */
-        @page {
-            size: A4 landscape;
-            margin: 0;
-        }
-
         @media print {
+            @page {
+                size: A4 landscape;
+                margin: 0;
+            }
+
             html,
             body {
-                background: #fff;
-                padding: 0;
-                gap: 0;
+                width: 100%;
+                height: auto;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+                display: block !important;      /* flex 改 block，分页更稳 */
+                gap: 0 !important;
+                overflow: visible;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .version-badge {
                 display: none !important;
             }
 
+            /* 每一张纸 = 一个 A4 横向页面 */
             .paper-outer {
-                width: 297mm;
-                height: 210mm;
-                overflow: visible;
-                background: #fff;
+                width: 297mm !important;
+                height: 210mm !important;
+                max-height: 210mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+                overflow: hidden !important;
+                box-shadow: none !important;
                 page-break-after: always;
+                break-after: page;
+                page-break-inside: avoid;
+                break-inside: avoid;
             }
 
-            .paper-outer:last-child {
-                page-break-after: auto;
+            /* 关键：用 last-of-type 而不是 last-child（script 是 last-child） */
+            .paper-outer:last-of-type {
+                page-break-after: avoid;
+                break-after: avoid;
             }
 
+            /* 每张纸内部强制 1:1 尺寸，覆盖屏幕端 JS 内联 zoom */
             .sheet {
                 zoom: 1 !important;
-                width: 297mm;
-                height: 210mm;
-                margin: 0;
-                box-shadow: none;
+                transform: none !important;
+                width: 297mm !important;
+                height: 210mm !important;
+                max-height: 210mm !important;
+                margin: 0 !important;
+                box-shadow: none !important;
                 overflow: hidden;
             }
 
+            /* 保证报头红色、纹理、标题颜色都被打印 */
             .paper-name,
             .head-title,
             .sheet::before {
@@ -709,7 +730,7 @@
 <body>
 
     <!-- 版本号标识 -->
-    <div class="version-badge">版本 v0031</div>
+    <div class="version-badge">版本 v0032</div>
 
     <!-- ============================================================
          第 1 页
