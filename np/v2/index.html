@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="语文5组体测采访（总第001期）——横版A4 两页">
-    <title>语文5组体测采访 | 2026年10月8日</title>
+    <meta name="description" content="青春体测志（总第001期）——横版A4 两页">
+    <title>青春体测志 | 2026年10月8日</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,6 +59,29 @@
             align-items: center;
             gap: 16px;
             padding: 16px 0;
+        }
+
+        /* ============================================================
+           一·附、版本号标识（固定于网页左上角）
+           ============================================================ */
+        .version-badge {
+            position: fixed;
+            top: 8px;
+            left: 8px;
+            z-index: 9999;
+            font-family: var(--font-sub);
+            font-size: 9pt;
+            line-height: 1.35;
+            letter-spacing: 0.6pt;
+            color: var(--red);
+            background: rgba(251, 248, 241, 0.94);
+            border: 0.2mm solid var(--rule-fine);
+            border-radius: 2px;
+            padding: 2px 8px;
+            box-shadow: 0 1px 3px rgba(22, 19, 15, 0.14);
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         /* ============================================================
@@ -123,7 +146,6 @@
             gap: 2mm;
         }
 
-        /* 仅第一页需要列等高拉伸（有 grow 文章块），第二页右栏不需要 */
         #paper-sheet-1 .col-left,
         #paper-sheet-1 .col-right {
             height: 100%;
@@ -173,7 +195,7 @@
             font-size: 46pt;
             font-weight: 400;
             color: var(--red);
-            letter-spacing: 3pt;
+            letter-spacing: 8pt;
             line-height: 1.08;
             white-space: nowrap;
             display: block;
@@ -182,7 +204,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 第 2 页页眉（已删除右侧“第 2 版 · 综合”） */
+        /* 第 2 页页眉 */
         .page-head-inline {
             padding: 0 0 1.4mm;
             margin-bottom: 1.6mm;
@@ -198,7 +220,7 @@
             font-size: 18pt;
             font-weight: 400;
             color: var(--red);
-            letter-spacing: 1.4pt;
+            letter-spacing: 2.4pt;
             line-height: 1.15;
             white-space: nowrap;
         }
@@ -342,7 +364,7 @@
         }
 
         /* ============================================================
-           九、第 2 页右栏配图（★ 横向占满 + 竖向自适应）
+           九、第 2 页右栏配图（横向占满 + 竖向自适应）
            ============================================================ */
         .dispatch-photo {
             margin-top: 3.5mm;
@@ -444,6 +466,10 @@
                 gap: 0;
             }
 
+            .version-badge {
+                display: none !important;
+            }
+
             .paper-outer {
                 width: 297mm;
                 height: 210mm;
@@ -476,6 +502,9 @@
 </head>
 <body>
 
+    <!-- 版本号标识 -->
+    <div class="version-badge">版本 v0001</div>
+
     <!-- ============================================================
          第 1 页
          ============================================================ -->
@@ -487,7 +516,7 @@
                 <div class="col-left">
 
                     <div class="masthead-inline">
-                        <h1 class="paper-name">语文5组体测采访</h1>
+                        <h1 class="paper-name">青春体测志</h1>
                     </div>
 
                     <article class="article-block">
@@ -600,14 +629,13 @@
 
                 <div class="col-left">
 
-                    <!-- ★ 页眉：已删除右侧“第 2 版 · 综合” -->
                     <div class="page-head-inline">
-                        <span class="head-title">语文5组体测采访</span>
+                        <span class="head-title">青春体测志</span>
                     </div>
 
                     <article class="article-block">
                         <h2 class="t-rail">备战体考，听听陈建老师怎么说</h2>
-                        <p class="byline">■ 李伯雄 牛民讯</p>
+                        <p class="byline">■ 李伯雄</p>
 
                         <p class="article-body">
                             随着体考的到来，同学们既充满期待又有些紧张。近日，初二（6）班学生记者团带着大家的疑问，专门采访了体育老师陈建，为同学们的备考答疑解惑。
@@ -670,8 +698,8 @@
                         </ul>
 
                         <figure class="dispatch-photo">
-                            <img src="https://21306.top/np/v2/这又是一张图.jpg" alt="陈祖熙获奖现场">
-                            <figcaption>△ 获奖现场（摄影：语文 6 班 5 组）</figcaption>
+                            <img src="https://21306.top/np/v2/这又是一张图.jpg" alt="体测备战现场">
+                            <figcaption>△ 体测备战现场（摄影：语文 6 班 5 组）</figcaption>
                         </figure>
                     </section>
 
@@ -679,10 +707,9 @@
 
             </main>
 
-            <!-- ★ 右下角署名：采访记者 + 编者 -->
             <div class="credit-block">
                 <div class="credit-line">
-                    <span class="credit-label">采访记者：</span>荆汉舟　王梓懿　冯晨轩　胡珈宁　李伯雄　牛民讯　周铭浩
+                    <span class="credit-label">采访记者：</span>荆汉舟　王梓懿　冯晨轩　胡珈宁　李伯雄　周铭浩
                 </div>
                 <div class="credit-line">
                     <span class="credit-label">编者：</span>周铭浩
