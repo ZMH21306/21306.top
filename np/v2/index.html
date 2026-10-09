@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="青春体测志（总第001期）——横版A4 两页">
-    <title>青春体测志 | 2026年10月8日</title>
+    <meta name="description" content="竞逐凌云志（总第001期）——横版A4 两页">
+    <title>竞逐凌云志 | 2026年10月8日</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
 
     <style>
         /* ============================================================
@@ -28,11 +32,19 @@
             --stage: #cfc9bd;
             --muted: #6a6558;
 
-            /* ---- 字体栈（全篇统一） ---- */
-            --font-body: Georgia, "Nimbus Roman", "SimSun", "宋体", "Songti SC", serif;
-            --font-title: "Times New Roman", "SimHei", "黑体", "Heiti SC", sans-serif;
-            --font-headline: "Times New Roman", "SimHei", "黑体", "Heiti SC", sans-serif;
-            --font-sub: "KaiTi", "楷体", "STKaiti", serif;
+            /* ---- 字体栈（高级版） ---- */
+            --font-body: Georgia, "Nimbus Roman", "Songti SC", "SimSun", "宋体", serif;
+
+            --font-title: "Ma Shan Zheng",
+                          "STXingkai", "华文行楷", "Xingkai SC",
+                          "LiSu", "隶书",
+                          "KaiTi", "楷体", "STKaiti",
+                          "Songti SC", "SimSun", "宋体", serif;
+
+            --font-headline: "STSong", "Songti SC", "SimSun", "宋体",
+                             Georgia, "Times New Roman", serif;
+
+            --font-sub: "KaiTi", "楷体", "STKaiti", "Songti SC", serif;
 
             /* ---- 统一间距变量 ---- */
             --gap-col: 5mm;
@@ -161,10 +173,12 @@
             padding-left: 4mm;
         }
 
-        /* ---- 文章块 ---- */
+        /* ---- 文章块：等分剩余空间 ---- */
         .article-block {
-            display: block;
+            display: flex;
+            flex-direction: column;
             min-width: 0;
+            flex: 1 1 auto;
         }
 
         .article-block + .article-block {
@@ -202,12 +216,16 @@
         .col-left > .article-block:last-child,
         .col-right > .article-block:last-child {
             flex: 1 1 auto;
-            display: block;
         }
 
-        .article-block.grow::after,
-        .col-left > .article-block:last-child::after,
-        .col-right > .article-block:last-child::after {
+        /* 内容区：块级布局，让 float 生效 */
+        .article-content {
+            display: block;
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+
+        .article-content::after {
             content: "";
             display: block;
             clear: both;
@@ -237,10 +255,10 @@
 
         .masthead-inline .paper-name {
             font-family: var(--font-title);
-            font-size: 41pt;
-            font-weight: 900;
+            font-size: 44pt;
+            font-weight: 400;
             color: var(--red);
-            letter-spacing: 7pt;
+            letter-spacing: 8pt;
             line-height: 1.05;
             white-space: nowrap;
             display: block;
@@ -251,10 +269,10 @@
 
         .page-head-inline .head-title {
             font-family: var(--font-title);
-            font-size: 16.5pt;
-            font-weight: 900;
+            font-size: 17pt;
+            font-weight: 400;
             color: var(--red);
-            letter-spacing: 2.1pt;
+            letter-spacing: 2.4pt;
             line-height: 1.14;
             white-space: nowrap;
         }
@@ -266,10 +284,10 @@
         .t-block,
         .t-rail {
             font-family: var(--font-headline);
-            font-size: 14pt;
+            font-size: 14.5pt;
             font-weight: 900;
             line-height: 1.18;
-            letter-spacing: 0.9pt;
+            letter-spacing: 1pt;
             text-align: center;
             color: var(--ink);
             margin: 0;
@@ -329,16 +347,14 @@
         }
 
         /* ============================================================
-           七、配图
+           七、配图（右浮动，无阴影）
            ============================================================ */
         .inline-figure {
             float: right;
-            width: 66mm;
-            margin: 0.2mm 0 0.6mm 2.6mm;
+            width: 52mm;
+            margin: 0.2mm 0 0.8mm 3mm;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: block;
             break-inside: avoid;
             shape-outside: margin-box;
         }
@@ -346,15 +362,15 @@
         .inline-figure img {
             display: block;
             width: 100%;
-            height: 48mm;
+            height: 38mm;
             object-fit: cover;
             border: 0.3mm solid var(--rule-strong);
-            box-shadow: 2mm 2mm 0 0 var(--rule-strong);
             background: #ece5d5;
         }
 
-        .inline-figure figcaption,
-        .dispatch-photo figcaption {
+        .inline-figure figcaption {
+            display: block;
+            margin-top: 0.6mm;
             font-family: var(--font-sub);
             font-size: 6pt;
             font-style: italic;
@@ -362,7 +378,6 @@
             color: var(--muted);
             text-align: center;
             width: 100%;
-            margin-top: 0.6mm;
         }
 
         /* ============================================================
@@ -371,11 +386,12 @@
         .dispatch-section {
             display: flex;
             flex-direction: column;
+            flex: 1 1 auto;
         }
 
         .dispatch-title {
             font-family: var(--font-headline);
-            font-size: 12.2pt;
+            font-size: 12.6pt;
             font-weight: 900;
             color: var(--ink);
             background: transparent;
@@ -387,18 +403,19 @@
             flex-shrink: 0;
         }
 
+        /* 列表按内容高度排布，图片紧贴其后 */
         .dispatch-list {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 1.3mm;
+            gap: 2.6mm;
             flex: 0 0 auto;
         }
 
         .dispatch-item {
             font-family: var(--font-body);
-            font-size: 8.3pt;
-            line-height: 1.44;
+            font-size: 8.6pt;
+            line-height: 1.52;
             color: var(--ink);
             text-align: justify;
             text-justify: inter-ideograph;
@@ -431,14 +448,14 @@
         }
 
         /* ============================================================
-           九、第 2 页右栏配图
+           九、第 2 页右栏配图（贴近上方列表，无阴影）
            ============================================================ */
         .dispatch-photo {
-            margin-top: 2.8mm;
+            margin-top: 1.4mm;
             padding-top: 0;
             border-top: none;
             display: block;
-            width: 66%;
+            width: 52%;
             margin-left: auto;
             margin-right: auto;
             flex: 0 0 auto;
@@ -449,8 +466,19 @@
             width: 100%;
             height: auto;
             border: 0.3mm solid var(--rule-strong);
-            box-shadow: 1.5mm 1.5mm 0 0 rgba(26, 23, 20, 0.18);
             background: #ece5d5;
+        }
+
+        .dispatch-photo figcaption {
+            display: block;
+            margin-top: 0.6mm;
+            font-family: var(--font-sub);
+            font-size: 6pt;
+            font-style: italic;
+            line-height: 1.2;
+            color: var(--muted);
+            text-align: center;
+            width: 100%;
         }
 
         /* ============================================================
@@ -571,7 +599,7 @@
 <body>
 
     <!-- 版本号标识 -->
-    <div class="version-badge">版本 v0017</div>
+    <div class="version-badge">版本 v0025</div>
 
     <!-- ============================================================
          第 1 页
@@ -584,7 +612,7 @@
                 <div class="col-left">
 
                     <div class="masthead-inline">
-                        <h1 class="paper-name">青春体测志</h1>
+                        <h1 class="paper-name">竞逐凌云志</h1>
                     </div>
 
                     <article class="article-block">
@@ -625,21 +653,6 @@
                         </p>
                     </article>
 
-                    <article class="article-block">
-                        <h2 class="t-block">中秋月圆，京城共庆</h2>
-                        <p class="byline">■ 王梓懿</p>
-
-                        <p class="article-body">
-                            青衿心语北京 9 月 26 日讯 中秋佳节到来，首都北京处处洋溢着浓厚的节日氛围。傍晚时分，天安门广场与长安街上，市民与游客齐聚此处，共赏中秋月色。
-                        </p>
-                        <p class="article-body">
-                            广场上，节日花坛绚丽夺目，灯火璀璨。月光与灯光交相辉映，络绎不绝的游客驻足观赏、拍照留念。大家欢聚于此，感受中秋佳节独有的祥和热闹。
-                        </p>
-                        <p class="article-body">
-                            中秋之夜，万家团圆。京城街头，小家团圆的温情与大众欢庆的盛景相融，尽显中秋祥和的氛围。
-                        </p>
-                    </article>
-
                 </div>
 
                 <div class="col-right">
@@ -668,23 +681,25 @@
                         <p class="sub-rail">——采访李诗尧同学</p>
                         <p class="byline">■ 胡珈宁</p>
 
-                        <figure class="inline-figure">
-                            <img src="https://21306.top/np/v2/这是一张图.jpg" alt="体育模拟考试现场">
-                            <figcaption>△ 体育模拟考试现场（摄影：胡珈宁）</figcaption>
-                        </figure>
+                        <div class="article-content">
+                            <figure class="inline-figure">
+                                <img src="https://21306.top/np/v2/这又是一张图.jpg" alt="体测备战现场">
+                                <figcaption>△ 体测备战现场（摄影：语文 6 班 5 组）</figcaption>
+                            </figure>
 
-                        <p class="article-body">
-                            为了了解一分校八年级学子关于体考的备考情况，我特地采访了八年级的李诗尧同学。面对采访，他展露出青春的自信与从容，欣然接受了我的采访，并分享了他这一年来的坚持与拼搏。
-                        </p>
-                        <p class="article-body">
-                            当提问到体考目标时，李诗尧同学没有为了对比而提高目标，反而给出了非常朴实的答案——80 分。他不追求自己达不到的，而是给自己下了一个适合自己的目标，以此作为前进的基石。
-                        </p>
-                        <p class="article-body">
-                            谈及一年来训练的提升，李诗尧同学打开了话匣子。他告诉我，他的速度已经快得令人惊叹，而且臂围长了一公分。在我看来，这一公分不仅是臂围，也是他成长的一小步。在技巧上，他知道如何稳定体力；在心态上，他知道如何调整心态，在一次次失败中重整旗鼓。
-                        </p>
-                        <p class="article-body">
-                            这次采访让我留下了深刻的印象，希望诗尧同学能够在体育中展现光彩，挥洒青春的汗水。
-                        </p>
+                            <p class="article-body">
+                                为了了解一分校八年级学子关于体考的备考情况，我特地采访了八年级的李诗尧同学。面对采访，他展露出青春的自信与从容，欣然接受了我的采访，并分享了他这一年来的坚持与拼搏。
+                            </p>
+                            <p class="article-body">
+                                当提问到体考目标时，李诗尧同学没有为了对比而提高目标，反而给出了非常朴实的答案——80 分。他不追求自己达不到的，而是给自己下了一个适合自己的目标，以此作为前进的基石。
+                            </p>
+                            <p class="article-body">
+                                谈及一年来训练的提升，李诗尧同学打开了话匣子。他告诉我，他的速度已经快得令人惊叹，而且臂围长了一公分。在我看来，这一公分不仅是臂围，也是他成长的一小步。在技巧上，他知道如何稳定体力；在心态上，他知道如何调整心态，在一次次失败中重整旗鼓。
+                            </p>
+                            <p class="article-body">
+                                这次采访让我留下了深刻的印象，希望诗尧同学能够在体育中展现光彩，挥洒青春的汗水。
+                            </p>
+                        </div>
                     </article>
 
                 </div>
@@ -715,7 +730,7 @@
                 <div class="col-left">
 
                     <div class="page-head-inline">
-                        <span class="head-title">青春体测志</span>
+                        <span class="head-title">竞逐凌云志</span>
                     </div>
 
                     <article class="article-block">
@@ -773,7 +788,22 @@
 
                 <div class="col-right">
 
-                    <section class="dispatch-section">
+                    <article class="article-block">
+                        <h2 class="t-rail">中秋月圆，京城共庆</h2>
+                        <p class="byline">■ 王梓懿</p>
+
+                        <p class="article-body">
+                            青衿心语北京 9 月 26 日讯 中秋佳节到来，首都北京处处洋溢着浓厚的节日氛围。傍晚时分，天安门广场与长安街上，市民与游客齐聚此处，共赏中秋月色。
+                        </p>
+                        <p class="article-body">
+                            广场上，节日花坛绚丽夺目，灯火璀璨。月光与灯光交相辉映，络绎不绝的游客驻足观赏、拍照留念。大家欢聚于此，感受中秋佳节独有的祥和热闹。
+                        </p>
+                        <p class="article-body">
+                            中秋之夜，万家团圆。京城街头，小家团圆的温情与大众欢庆的盛景相融，尽显中秋祥和的氛围。
+                        </p>
+                    </article>
+
+                    <section class="dispatch-section article-block grow">
                         <h3 class="dispatch-title">组员通讯</h3>
                         <ul class="dispatch-list">
                             <li class="dispatch-item">
@@ -795,8 +825,8 @@
                         </ul>
 
                         <figure class="dispatch-photo">
-                            <img src="https://21306.top/np/v2/这又是一张图.jpg" alt="体测备战现场">
-                            <figcaption>△ 体测备战现场（摄影：语文 6 班 5 组）</figcaption>
+                            <img src="https://21306.top/np/v2/这是一张图.jpg" alt="体育模拟考试现场">
+                            <figcaption>△ 体育模拟考试现场（摄影：胡珈宁）</figcaption>
                         </figure>
                     </section>
 
