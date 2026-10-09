@@ -56,13 +56,13 @@
                         "KaiTi", "楷体", "STKaiti",
                         "Songti SC", "SimSun", serif;
 
-            /* ---- 统一间距变量（已整体增大，填充留白） ---- */
+            /* ---- 基础间距（两页共用，后续按页微调） ---- */
             --gap-col: 5mm;
-            --gap-block: 3.4mm;
-            --gap-para: 1.4mm;
-            --gap-head: 1.0mm;
-            --gap-byline-top: 1.0mm;
-            --gap-byline-bottom: 1.2mm;
+            --gap-block: 3.0mm;
+            --gap-para: 1.0mm;
+            --gap-head: 0.8mm;
+            --gap-byline-top: 0.8mm;
+            --gap-byline-bottom: 1.0mm;
 
             /* ---- 分割线几何 ---- */
             --rule-h: 0.22mm;
@@ -330,13 +330,13 @@
         }
 
         /* ============================================================
-           六、正文段落（行高与字号增大，填充留白）
+           六、正文段落（基础字号统一为 9pt）
            ============================================================ */
         .article-body {
             font-family: var(--font-body);
-            font-size: 9.4pt;
+            font-size: 9pt;
             font-weight: 400;
-            line-height: 1.62;
+            line-height: 1.50;
             text-align: justify;
             text-justify: inter-ideograph;
             text-indent: 2em;
@@ -384,7 +384,7 @@
         }
 
         /* ============================================================
-           八、组员通讯
+           八、组员通讯（基础字号统一为 9pt）
            ============================================================ */
         .dispatch-section {
             display: flex;
@@ -410,7 +410,7 @@
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 3.8mm;
+            gap: 3.2mm;
             flex: 0 0 auto;
         }
 
@@ -418,7 +418,7 @@
             font-family: var(--font-body);
             font-size: 9pt;
             font-weight: 400;
-            line-height: 1.68;
+            line-height: 1.55;
             color: var(--ink);
             text-align: justify;
             text-justify: inter-ideograph;
@@ -486,21 +486,21 @@
         }
 
         /* ============================================================
-           十、右下角署名
+           十、右下角署名（已放大字号）
            ============================================================ */
         .credit-block {
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 0.5mm;
-            padding: 0 0.5mm 1.2mm;
+            gap: 0.8mm;
+            padding: 0 0.5mm 1.4mm;
             font-family: var(--font-sub);
-            font-size: 7.6pt;
+            font-size: 9pt;                 /* 从 7.6pt 增大至 9pt */
             font-weight: 400;
             color: var(--ink-soft);
             letter-spacing: 0.4pt;
-            line-height: 1.36;
+            line-height: 1.4;
             text-align: right;
         }
 
@@ -512,8 +512,9 @@
             color: var(--ink);
             font-style: normal;
             letter-spacing: 0.7pt;
-            margin-right: 0.55mm;
+            margin-right: 0.6mm;
             font-weight: 700;
+            font-size: 9.2pt;               /* 标签略大于内容 */
         }
 
         /* ============================================================
@@ -553,45 +554,76 @@
         }
 
         /* ============================================================
-           十一·附、第 2 页专属微调（防止溢出）
+           十一·附、第 1 页专属：增大行距与间距，填充留白
+           ============================================================ */
+        #paper-sheet-1 .article-body {
+            font-size: 9pt;
+            line-height: 1.58;
+            margin-top: 1.2mm;
+        }
+
+        #paper-sheet-1 .article-body + .article-body {
+            margin-top: 1.8mm;
+        }
+
+        #paper-sheet-1 .article-block + .article-block {
+            padding-top: 3.8mm;
+        }
+
+        #paper-sheet-1 .byline {
+            margin-top: 1.2mm;
+            margin-bottom: 1.4mm;
+        }
+
+        #paper-sheet-1 .sub-lead,
+        #paper-sheet-1 .sub-block,
+        #paper-sheet-1 .sub-rail {
+            margin-top: 1.2mm;
+        }
+
+        /* ============================================================
+           十一·附二、第 2 页专属：微增行距（约多 2 行空间）
            ============================================================ */
         #paper-sheet-2 .article-body {
-            font-size: 8.4pt;           /* 从 9.4pt 缩小 */
-            line-height: 1.46;          /* 从 1.62 缩小 */
-            margin-top: 0.7mm;          /* 段落上方间距略减 */
+            font-size: 9pt;
+            line-height: 1.47;
+            margin-top: 0.65mm;
         }
 
         #paper-sheet-2 .article-body + .article-body {
-            margin-top: 1.0mm;          /* 段间距略减 */
-        }
-
-        #paper-sheet-2 .t-rail {
-            font-size: 13pt;            /* 从 14.5pt 缩小 */
-        }
-
-        #paper-sheet-2 .byline {
-            font-size: 7pt;
-            margin-top: 0.7mm;
-            margin-bottom: 0.9mm;
+            margin-top: 0.8mm;
         }
 
         #paper-sheet-2 .article-block + .article-block {
-            padding-top: 2.6mm;         /* 从 3.4mm 缩小 */
+            padding-top: 2.4mm;
+        }
+
+        #paper-sheet-2 .t-rail {
+            font-size: 13pt;
+        }
+
+        #paper-sheet-2 .byline {
+            margin-top: 0.65mm;
+            margin-bottom: 0.85mm;
+        }
+
+        #paper-sheet-2 .sub-rail {
+            margin-top: 0.65mm;
         }
 
         #paper-sheet-2 .dispatch-title {
             font-size: 12pt;
-            padding-bottom: 1.4mm;
-            margin-bottom: 2.4mm;
+            padding-bottom: 1.3mm;
+            margin-bottom: 2.2mm;
         }
 
         #paper-sheet-2 .dispatch-list {
-            gap: 2.6mm;                 /* 从 3.8mm 缩小 */
+            gap: 2.4mm;
         }
 
         #paper-sheet-2 .dispatch-item {
-            font-size: 8.2pt;           /* 从 9pt 缩小 */
-            line-height: 1.50;          /* 从 1.68 缩小 */
+            font-size: 9pt;
+            line-height: 1.46;
         }
 
         #paper-sheet-2 .dispatch-item .d-num {
@@ -603,12 +635,21 @@
 
         #paper-sheet-2 .dispatch-photo {
             margin-top: 1.8mm;
-            width: 52%;
+            width: 50%;
+        }
+
+        #paper-sheet-2 .inline-figure {
+            width: 52mm;
+            margin: 0.2mm 0 1.1mm 3.2mm;
+        }
+
+        #paper-sheet-2 .inline-figure img {
+            height: 40mm;
         }
 
         #paper-sheet-2 .page-head-inline {
             padding-bottom: 1.4mm;
-            margin-bottom: 2.4mm;
+            margin-bottom: 2.3mm;
         }
 
         #paper-sheet-2 .page-head-inline .head-title {
@@ -668,7 +709,7 @@
 <body>
 
     <!-- 版本号标识 -->
-    <div class="version-badge">版本 v0028</div>
+    <div class="version-badge">版本 v0031</div>
 
     <!-- ============================================================
          第 1 页
