@@ -60,6 +60,9 @@ const playBtn = document.getElementById('playBtn');
 const viewerHint = document.getElementById('viewerHint');
 const preloadInfo = document.getElementById('preloadInfo');
 const preloadText = document.getElementById('preloadText');
+const tlTime = document.getElementById('curTime');
+const tlCount = document.getElementById('curCount');
+const tlHint = document.querySelector('.tl-hint');
 
 const markers = [];
 
@@ -114,6 +117,55 @@ function updatePreloadProgress() {
     }
 }
 
+// ========== 响应式布局：根据轨道宽度计算 marker 尺寸和轨道高度 ==========
+function updateTrackLayout() {
+    const w = track.offsetWidth;
+    if (w <= 0) return;
+
+    // 可用宽度 = 轨道宽 - 左右各9px边距
+    const usable = w - 18;
+
+    // 最小可点击 marker 尺寸：12px（触屏最小触控区域）
+    // 计算 marker 间距 = usable / (N-1)，取较大值保证可点击性
+    const minMarkerPx = Math.max(12, usable / (N - 1) * 0.8);
+
+    // marker 宽高（正方形）
+    const ms = Math.min(18, minMarkerPx);
+    // 轨道高度 = marker 宽度的 3~4 倍（保证足够视觉空间）
+    const mh = Math.max(36, ms * 3.5);
+
+    // 应用轨道高度
+    track.style.height = mh + 'px';
+
+    // 更新所有 marker（内联样式覆盖 CSS）
+    const halfM = ms / 2;
+    markers.forEach(m => {
+        m.style.width = ms + 'px';
+        m.style.height = ms + 'px';
+        m.style.marginLeft = -halfM + 'px';
+    });
+
+    // CSS 变量控制 ::after 伪元素尺寸
+    track.style.setProperty('--ms', ms + 'px');
+
+    // 渐进隐藏次要元素
+    if (w < 340) {
+        tlTime.style.opacity = '0';
+        tlCount.style.opacity = '0';
+        if (tlHint) tlHint.style.opacity = '0';
+    } else if (w < 480) {
+        tlTime.style.opacity = '0';
+        tlCount.style.opacity = '0';
+        if (tlHint) tlHint.style.opacity = '1';
+    } else {
+        tlTime.style.opacity = '1';
+        tlCount.style.opacity = '1';
+        if (tlHint) tlHint.style.opacity = '1';
+    }
+}
+
+// 在 CSS 中用 var() 控制 ::after 尺寸，JS 通过 style.setProperty 动态设置
+
 // ========== 时间轴构建 ==========
 const R = i => i / (N - 1);
 function leftOf(i) { return 'calc(9px + (100% - 18px) * ' + R(i).toFixed(6) + ')'; }
@@ -139,6 +191,7 @@ function buildTrack() {
         const lb = document.createElement('span');
         lb.className = 'tl-band-label' + (gi === groups.length - 1 ? ' right' : '');
         lb.textContent = g.key + ' · ' + (g.end - g.start + 1) + '版';
+        tlBandLabels.push(lb);
         band.appendChild(lb);
         track.appendChild(band);
     });
@@ -181,7 +234,6 @@ function updateMeta(i) {
 // ========== 播放控制 ==========
 function goTo(i) {
     if (i < 0 || i >= N) return;
-    // 保存旧索引（在updateMeta更新currentIndex之前）
     const prevIdx = currentIndex;
     updateMeta(i);
 
@@ -189,12 +241,10 @@ function goTo(i) {
         createBufferedIframe(i);
     }
 
-    // 新帧淡入
     iframePool[i].style.opacity = '1';
     iframePool[i].style.zIndex = '6';
     iframePool[i].style.pointerEvents = 'auto';
 
-    // 旧帧延迟隐藏，避免闪烁
     if (prevIdx !== i && iframePool[prevIdx]) {
         const oldFrame = iframePool[prevIdx];
         setTimeout(() => {
@@ -266,19 +316,15 @@ function warmImages() {
 
 // ========== 初始化 ==========
 function init() {
-    // 1. 立即创建首帧iframe（src赋值后浏览器立即开始加载，页面继续渲染）
-    //    首帧onload后立即淡入显示并隐藏hint，确保内容渲染完成才可见
     createBufferedIframe(0).then(() => {
         iframePool[0].style.opacity = '1';
         iframePool[0].style.zIndex = '6';
         iframePool[0].style.pointerEvents = 'auto';
         viewerHint.classList.add('hidden');
     });
-
-    // 2. 立即更新元数据（标题/时间/进度条），用户马上看到文字信息
     updateMeta(0);
+    updateTrackLayout(); // 首次计算布局
 
-    // 3. 并发预加载其余版本（后台进行，不影响首帧显示）
     for (let k = 1; k < CONCURRENCY && k < N; k++) {
         createBufferedIframe(k);
     }
@@ -300,7 +346,10 @@ let rzT;
 window.addEventListener('resize', () => {
     track.classList.add('resizing');
     clearTimeout(rzT);
-    rzT = setTimeout(() => track.classList.remove('resizing'), 150);
+    rzT = setTimeout(() => {
+        track.classList.remove('resizing');
+        updateTrackLayout();
+    }, 150);
 });
 
 // ========== 事件与初始化 ==========
@@ -326,6 +375,6 @@ document.addEventListener('touchend', e => {
 }, { passive: false });
 
 buildTrack();
-viewerHint.classList.remove('hidden'); // 先显示hint（加载中状态）
+viewerHint.classList.remove('hidden');
 warmImages();
 init();
