@@ -546,8 +546,8 @@
         }
 
         /* ============================================================
-           十二、打印样式
-           ============================================================ */
+   十二、打印样式
+   ============================================================ */
         @media print {
             @page {
                 size: A4 landscape;
@@ -609,6 +609,32 @@
             .head-title {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+            }
+        }
+
+        /* ============================================================
+           十三、低性能设备适配
+           ============================================================ */
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto !important;
+            }
+
+            .sheet {
+                transition: none !important;
+                transform: none !important;
+            }
+
+            .sheet::before {
+                background-image: none !important;
+            }
+
+            .inline-figure img {
+                transition: none !important;
+            }
+
+            .dispatch-photo img {
+                transition: none !important;
             }
         }
     </style>
@@ -885,6 +911,7 @@
             var BASE_W = 0;
             var lastW = -1;
             var rafId = null;
+            var ticking = false;
 
             function applyScale() {
                 var vw = root.clientWidth;
