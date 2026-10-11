@@ -147,21 +147,6 @@ function updateTrackLayout() {
 
     // CSS 变量控制 ::after 伪元素尺寸
     track.style.setProperty('--ms', ms + 'px');
-
-    // 渐进隐藏次要元素
-    if (w < 340) {
-        tlTime.style.opacity = '0';
-        tlCount.style.opacity = '0';
-        if (tlHint) tlHint.style.opacity = '0';
-    } else if (w < 480) {
-        tlTime.style.opacity = '0';
-        tlCount.style.opacity = '0';
-        if (tlHint) tlHint.style.opacity = '1';
-    } else {
-        tlTime.style.opacity = '1';
-        tlCount.style.opacity = '1';
-        if (tlHint) tlHint.style.opacity = '1';
-    }
 }
 
 // 在 CSS 中用 var() 控制 ::after 尺寸，JS 通过 style.setProperty 动态设置
