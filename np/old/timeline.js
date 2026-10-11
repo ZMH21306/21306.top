@@ -57,10 +57,16 @@ const versions = [
 
 let currentIndex=0,isPlaying=false,playInterval=null,playSpeed=800;
 const speeds=[2000,1200,800,400],labels=['慢','较少','快','极快'];let speedIdx=2;
-const frame=document.getElementById('frame'),track=document.getElementById('track'),progress=document.getElementById('progress');
+const viewer=document.getElementById('viewer'),track=document.getElementById('track'),progress=document.getElementById('progress');
 const curVer=document.getElementById('curVer'),curTime=document.getElementById('curTime');
 const playBtn=document.getElementById('playBtn'),prevBtn=document.getElementById('prevBtn');
 const nextBtn=document.getElementById('nextBtn'),speedCtrl=document.getElementById('speedCtrl');
+const loadingMask=document.getElementById('loadingMask'),maskBar=document.getElementById('maskBar'),maskText=document.getElementById('maskText');
+
+const frames=[];                 // 每个版本一个常驻 iframe（堆叠）
+const ready=new Array(versions.length).fill(false);
+let readyCount=0,preloadDone=false;
+const LOAD_TIMEOUT=8000;         // 单个 iframe 加载兜底超时，避免外部资源阻塞
 
 function initTimeline(){
     const mw=12,sp=(track.offsetWidth-mw)/(versions.length-1);
@@ -80,9 +86,39 @@ function initTimeline(){
     });
 }
 
+// 全量预加载：为每个版本创建常驻 iframe，全部加载完成后才解锁
+function buildFrames(){
+    versions.forEach((v,i)=>{
+        const f=document.createElement('iframe');
+        f.className='frame';f.setAttribute('allowfullscreen','');f.dataset.index=i;
+        let timer=setTimeout(()=>markReady(i),LOAD_TIMEOUT);
+        f.addEventListener('load',()=>{clearTimeout(timer);markReady(i);});
+        f.src=v.file;
+        viewer.appendChild(f);
+        frames.push(f);
+    });
+}
+
+function markReady(i){
+    if(ready[i])return;
+    ready[i]=true;readyCount++;
+    maskBar.style.width=(readyCount/versions.length*100)+'%';
+    maskText.textContent=readyCount+' / '+versions.length;
+    if(readyCount===versions.length)finishPreload();
+}
+
+function finishPreload(){
+    if(preloadDone)return;
+    preloadDone=true;
+    loadingMask.classList.add('hidden');
+    setTimeout(()=>{loadingMask.style.display='none'},400);
+    goTo(0);
+}
+
 function updateViewer(index){
     currentIndex=index;const v=versions[index];
-    frame.src=v.file;curVer.textContent=v.id;
+    frames.forEach((f,i)=>f.classList.toggle('active',i===index));
+    curVer.textContent=v.id;
     const t=v.time.replace(/(\d{4})(\d{2})(\d{2})/,'$1-$2-$3').replace(/(\d{2})(\d{2})(\d{2})/,'$1:$2:$3');
     const d=new Date(t.replace(/(\d{2}):(\d{2}):(\d{2})/,'$1:$2'));
     curTime.textContent=(d.getMonth()+1)+'月'+d.getDate()+'日 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
@@ -90,10 +126,11 @@ function updateViewer(index){
     document.querySelectorAll('.timeline-marker').forEach((m,i)=>{m.classList.toggle('active',i===index)});
 }
 
-function goTo(i){if(i<0||i>=versions.length)return;updateViewer(i)}
+function goTo(i){if(!preloadDone)return;if(i<0||i>=versions.length)return;updateViewer(i)}
 function prev(){goTo(currentIndex-1)}
 function next(){goTo(currentIndex+1)}
 function togglePlay(){
+    if(!preloadDone)return;
     isPlaying=!isPlaying;playBtn.textContent=isPlaying?'⏸':'▶';
     if(isPlaying){playInterval=setInterval(()=>{currentIndex<versions.length-1?next():goTo(0)},playSpeed)}
     else{clearInterval(playInterval)}
@@ -109,4 +146,4 @@ document.addEventListener('keydown',e=>{
     if(e.key==='ArrowLeft')prev();else if(e.key==='ArrowRight')next();
     else if(e.key===' '){e.preventDefault();togglePlay()}
 });
-initTimeline();updateViewer(0);
+initTimeline();buildFrames();
