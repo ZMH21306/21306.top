@@ -201,27 +201,34 @@ function warmImages(){
 }
 let warmed=1;
 function startWarmer(){
-    const w=document.createElement('iframe');
-    w.className='warmer';w.setAttribute('tabindex','-1');w.setAttribute('aria-hidden','true');
-    document.body.appendChild(w);
-    let i=1;
-    const step=()=>{
-        if(i>=N){preloadText.textContent='后台预加载完成';preloadInfo.classList.add('done');return}
-        if(isPlaying){setTimeout(step,600);return}   // 播放时不抢占资源
-        const idx=i++;
-        let done=false;
-        const advance=()=>{
-            if(done)return;done=true;clearTimeout(t);
-            warmed=Math.max(warmed,idx+1);
-            preloadText.textContent='后台预加载 '+warmed+' / '+N;
-            setTimeout(step,90);
+    /* 并发池：多个 iframe 同时拉取（匹配浏览器单域名 6 连接上限），避免串行时带宽闲置 */
+    const POOL=6;
+    let next=1,remaining=N-1,finished=false;
+    const makeWorker=()=>{
+        const w=document.createElement('iframe');
+        w.className='warmer';w.setAttribute('tabindex','-1');w.setAttribute('aria-hidden','true');
+        document.body.appendChild(w);
+        const run=()=>{
+            if(finished||next>=N)return;
+            const idx=next++;
+            let answered=false;
+            const finish=()=>{
+                if(answered)return;answered=true;clearTimeout(t);
+                w.onload=w.onerror=null;
+                warmed=Math.max(warmed,idx+1);remaining--;
+                preloadText.textContent='后台预加载 '+warmed+' / '+N;
+                if(remaining<=0){finished=true;preloadText.textContent='后台预加载完成';preloadInfo.classList.add('done');return}
+                setTimeout(run,isPlaying?600:0);   // 播放中让路，否则立刻抢占下一个任务
+            };
+            const t=setTimeout(finish,3000);   // 兜底：外部资源阻塞时也继续推进
+            w.onload=finish;
+            w.onerror=finish;
+            w.src=versions[idx].file;
         };
-        const t=setTimeout(advance,2500);   // 兜底：外部资源阻塞时也继续推进
-        w.onload=advance;
-        w.onerror=advance;
-        w.src=versions[idx].file;
+        return run;
     };
-    step();
+    const workers=Math.min(POOL,N-1);
+    for(let k=0;k<workers;k++)makeWorker()();
 }
 
 /* ---------- 窗口缩放：临时关闭进度条过渡，避免拖影 ---------- */
