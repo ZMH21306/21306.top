@@ -57,7 +57,7 @@ body{font-family:"Noto Serif SC","SimSun","宋体",serif;background:var(--bg);co
 .viewer .frame.active{opacity:1;pointer-events:auto;z-index:2}
 .viewer-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);background:#d8d3c8;z-index:3;transition:opacity .3s ease}
 .viewer-hint.hidden{opacity:0;pointer-events:none}
-.warmer{position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;border:0;pointer-events:none;z-index:-1}
+
 </style>
 </head>
 <body>
@@ -82,7 +82,6 @@ body{font-family:"Noto Serif SC","SimSun","宋体",serif;background:var(--bg);co
 <div class="tl-foot">
 <div class="tl-controls">
 <button class="btn btn-play btn-primary" id="playBtn" title="播放 / 暂停（空格）">▶</button>
-<button class="btn btn-speed" id="speedCtrl" title="切换播放速度">速度: 极快</button>
 </div>
 <div class="tl-hint">拖动轨道快速定位 · ←/→ 切换 · 空格播放 · Home/End 首尾</div>
 </div>
