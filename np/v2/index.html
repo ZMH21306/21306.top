@@ -7,7 +7,6 @@
     <meta name="color-scheme" content="light">
     <title>凌云逐风 | 2026年10月9日</title>
 
-    <!-- ===== 字体：全部使用 Web 字体，保证所有设备渲染一致 ===== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -34,10 +33,8 @@
             --stage: #cfc9bd;
             --muted: #6a6558;
 
-            /* ---- 页面缩放（由 JS 写入，用于响应式适配视口宽度） ---- */
             --sheet-scale: 1;
 
-            /* ---- 字体栈（统一 Web 字体，跨设备一致） ---- */
             --font-body: "Noto Serif SC",
                          "Source Han Serif SC",
                          "Songti SC", "SimSun", "宋体",
@@ -60,15 +57,25 @@
                         "KaiTi", "楷体", "STKaiti",
                         "Songti SC", "SimSun", serif;
 
-            /* ---- 基础间距（两页共用，后续按页微调） ---- */
+            /* ============================================================
+               统一间距 / 字号体系（两页基础值）
+               ============================================================ */
             --gap-col: 5mm;
-            --gap-block: 3.0mm;
-            --gap-para: 1.0mm;
-            --gap-head: 0.8mm;
-            --gap-byline-top: 0.8mm;
-            --gap-byline-bottom: 1.0mm;
+            --gap-block: 2.5mm;
+            --gap-para: 0.7mm;
+            --gap-head: 0.6mm;
+            --gap-byline-top: 0.6mm;
+            --gap-byline-bottom: 0.8mm;
 
-            /* ---- 分割线几何 ---- */
+            --fs-body: 9pt;
+            --lh-body: 1.45;
+
+            --fs-headline: 14.5pt;
+            --fs-dispatch-title: 12.4pt;
+
+            --fig-width: 54mm;
+            --fig-height: 42mm;
+
             --rule-h: 0.22mm;
         }
 
@@ -119,9 +126,6 @@
 
         /* ============================================================
            二、纸张
-           说明：.paper-outer 只负责占位（等比缩放到视口宽度），
-                 .sheet 内部保持 297mm × 210mm 真实尺寸，
-                 通过 --sheet-scale 做视觉缩放。
            ============================================================ */
         .paper-outer {
             width: 100%;
@@ -165,7 +169,7 @@
         }
 
         /* ============================================================
-           三、版心
+           三、版心（左右栏布局 —— 两页完全一致）
            ============================================================ */
         .page-grid {
             flex: 1;
@@ -190,7 +194,6 @@
             padding-left: 4mm;
         }
 
-        /* ---- 文章块：等分剩余空间 ---- */
         .article-block {
             display: flex;
             flex-direction: column;
@@ -234,7 +237,6 @@
             flex: 1 1 auto;
         }
 
-        /* 内容区：flow-root 建立 BFC，让浮动元素被包裹 */
         .article-content {
             display: flow-root;
             min-width: 0;
@@ -246,8 +248,8 @@
            ============================================================ */
         .masthead-inline,
         .page-head-inline {
-            padding: 0 0 2mm;
-            margin-bottom: 3mm;
+            padding: 0 0 1.5mm;
+            margin-bottom: 2.4mm;
             border-bottom: 0.25mm solid var(--rule-fine);
             position: relative;
             display: flex;
@@ -294,7 +296,7 @@
         .t-block,
         .t-rail {
             font-family: var(--font-headline);
-            font-size: 14.5pt;
+            font-size: var(--fs-headline);
             font-weight: 900;
             line-height: 1.18;
             letter-spacing: 1pt;
@@ -331,9 +333,9 @@
            ============================================================ */
         .article-body {
             font-family: var(--font-body);
-            font-size: 9pt;
+            font-size: var(--fs-body);
             font-weight: 400;
-            line-height: 1.50;
+            line-height: var(--lh-body);
             text-align: justify;
             text-justify: inter-ideograph;
             text-indent: 2em;
@@ -347,11 +349,11 @@
         }
 
         /* ============================================================
-           七、配图（右浮动，无阴影）
+           七、配图（右浮动）
            ============================================================ */
         .inline-figure {
             float: right;
-            width: 54mm;
+            width: var(--fig-width);
             margin: 0.2mm 0 1.2mm 3.5mm;
             padding: 0;
             display: block;
@@ -361,7 +363,7 @@
         .inline-figure img {
             display: block;
             width: 100%;
-            height: 42mm;
+            height: var(--fig-height);
             object-fit: cover;
             border: 0.3mm solid var(--rule-strong);
             background: #ece5d5;
@@ -380,7 +382,7 @@
         }
 
         /* ============================================================
-           八、组员通讯
+           八、组员通讯（仅第 2 页使用）
            ============================================================ */
         .dispatch-section {
             display: flex;
@@ -390,14 +392,14 @@
 
         .dispatch-title {
             font-family: var(--font-headline);
-            font-size: 12.6pt;
+            font-size: var(--fs-dispatch-title);
             font-weight: 900;
             color: var(--ink);
             background: transparent;
             letter-spacing: 3.4pt;
             text-align: center;
-            padding: 0 0 2mm;
-            margin-bottom: 3.2mm;
+            padding: 0 0 1.4mm;
+            margin-bottom: 2.4mm;
             border-bottom: 0.25mm solid var(--rule-fine);
             flex-shrink: 0;
         }
@@ -406,15 +408,15 @@
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 3.2mm;
+            gap: 2.4mm;
             flex: 0 0 auto;
         }
 
         .dispatch-item {
             font-family: var(--font-body);
-            font-size: 9pt;
+            font-size: var(--fs-body);
             font-weight: 400;
-            line-height: 1.55;
+            line-height: var(--lh-body);
             color: var(--ink);
             text-align: justify;
             text-justify: inter-ideograph;
@@ -422,15 +424,15 @@
 
         .dispatch-item .d-num {
             display: inline-block;
-            width: 4.6mm;
-            height: 4.6mm;
-            line-height: 4.4mm;
+            width: 4.4mm;
+            height: 4.4mm;
+            line-height: 4.2mm;
             text-align: center;
             border: 0.22mm solid var(--rule-strong);
             border-radius: 50%;
             color: var(--ink);
             font-family: var(--font-headline);
-            font-size: 6.4pt;
+            font-size: 6.2pt;
             font-weight: 900;
             margin-right: 4px;
             vertical-align: 0.25mm;
@@ -448,14 +450,14 @@
         }
 
         /* ============================================================
-           九、第 2 页右栏配图
+           九、组员通讯配图（仅第 2 页使用）
            ============================================================ */
         .dispatch-photo {
-            margin-top: 2.4mm;
+            margin-top: 1.8mm;
             padding-top: 0;
             border-top: none;
             display: block;
-            width: 58%;
+            width: 50%;
             margin-left: auto;
             margin-right: auto;
             flex: 0 0 auto;
@@ -482,21 +484,21 @@
         }
 
         /* ============================================================
-           十、右下角署名
+           十、右下角署名（仅第 2 页使用）
            ============================================================ */
         .credit-block {
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 0.8mm;
-            padding: 0 0.5mm 1.4mm;
+            gap: 0.6mm;
+            padding: 0 0.5mm 1.2mm;
             font-family: var(--font-sub);
             font-size: 9pt;
             font-weight: 400;
             color: var(--ink-soft);
             letter-spacing: 0.4pt;
-            line-height: 1.4;
+            line-height: 1.35;
             text-align: right;
         }
 
@@ -514,13 +516,13 @@
         }
 
         /* ============================================================
-           十一、页脚
+           十一、页脚（两页共用）
            ============================================================ */
         .footer {
             flex-shrink: 0;
             margin-top: auto;
             border-top: 0.25mm solid var(--rule-fine);
-            padding-top: 2mm;
+            padding-top: 1.8mm;
             position: relative;
         }
 
@@ -550,110 +552,24 @@
         }
 
         /* ============================================================
-           十一·附、第 1 页专属：增大行距与间距，填充留白
+           十一·附、第 1 页专属微调
+           ── 唯一与第 2 页不同的地方：仅重定义 6 个间距/行距变量，
+              第 1 页内容较少，用较大的行距与间距填充留白，
+              使两页视觉密度接近。所有具体元素样式（字号、颜色、
+              边框、栅格等）仍与第 2 页完全一致。
+              若需更紧/更松，只调这 6 个数字即可。
            ============================================================ */
-        #paper-sheet-1 .article-body {
-            font-size: 9pt;
-            line-height: 1.58;
-            margin-top: 1.2mm;
-        }
-
-        #paper-sheet-1 .article-body + .article-body {
-            margin-top: 1.8mm;
-        }
-
-        #paper-sheet-1 .article-block + .article-block {
-            padding-top: 3.8mm;
-        }
-
-        #paper-sheet-1 .byline {
-            margin-top: 1.2mm;
-            margin-bottom: 1.4mm;
-        }
-
-        #paper-sheet-1 .sub-lead,
-        #paper-sheet-1 .sub-block,
-        #paper-sheet-1 .sub-rail {
-            margin-top: 1.2mm;
+        #paper-sheet-1 {
+            --lh-body: 1.62;             /* 第 2 页为 1.45 */
+            --gap-para: 1.3mm;           /* 第 2 页为 0.7mm */
+            --gap-block: 3.6mm;          /* 第 2 页为 2.5mm */
+            --gap-head: 1.1mm;           /* 第 2 页为 0.6mm */
+            --gap-byline-top: 1.0mm;     /* 第 2 页为 0.6mm */
+            --gap-byline-bottom: 1.2mm;  /* 第 2 页为 0.8mm */
         }
 
         /* ============================================================
-           十一·附二、第 2 页专属：微增行距（约多 2 行空间）
-           ============================================================ */
-        #paper-sheet-2 .article-body {
-            font-size: 9pt;
-            line-height: 1.47;
-            margin-top: 0.65mm;
-        }
-
-        #paper-sheet-2 .article-body + .article-body {
-            margin-top: 0.8mm;
-        }
-
-        #paper-sheet-2 .article-block + .article-block {
-            padding-top: 2.4mm;
-        }
-
-        #paper-sheet-2 .t-rail {
-            font-size: 13pt;
-        }
-
-        #paper-sheet-2 .byline {
-            margin-top: 0.65mm;
-            margin-bottom: 0.85mm;
-        }
-
-        #paper-sheet-2 .sub-rail {
-            margin-top: 0.65mm;
-        }
-
-        #paper-sheet-2 .dispatch-title {
-            font-size: 12pt;
-            padding-bottom: 1.3mm;
-            margin-bottom: 2.2mm;
-        }
-
-        #paper-sheet-2 .dispatch-list {
-            gap: 2.4mm;
-        }
-
-        #paper-sheet-2 .dispatch-item {
-            font-size: 9pt;
-            line-height: 1.46;
-        }
-
-        #paper-sheet-2 .dispatch-item .d-num {
-            width: 4.2mm;
-            height: 4.2mm;
-            line-height: 4.0mm;
-            font-size: 6pt;
-        }
-
-        #paper-sheet-2 .dispatch-photo {
-            margin-top: 1.8mm;
-            width: 50%;
-        }
-
-        #paper-sheet-2 .inline-figure {
-            width: 52mm;
-            margin: 0.2mm 0 1.1mm 3.2mm;
-        }
-
-        #paper-sheet-2 .inline-figure img {
-            height: 40mm;
-        }
-
-        #paper-sheet-2 .page-head-inline {
-            padding-bottom: 1.4mm;
-            margin-bottom: 2.3mm;
-        }
-
-        #paper-sheet-2 .page-head-inline .head-title {
-            font-size: 16pt;
-        }
-
-        /* ============================================================
-           十二、打印样式（确保正好两页，无空白页）
+           十二、打印样式
            ============================================================ */
         @media print {
             @page {
@@ -668,7 +584,7 @@
                 margin: 0 !important;
                 padding: 0 !important;
                 background: #fff !important;
-                display: block !important;      /* flex 改 block，分页更稳 */
+                display: block !important;
                 gap: 0 !important;
                 overflow: visible;
                 -webkit-print-color-adjust: exact;
@@ -679,7 +595,6 @@
                 display: none !important;
             }
 
-            /* 每一张纸 = 一个 A4 横向页面 */
             .paper-outer {
                 width: 297mm !important;
                 height: 210mm !important;
@@ -695,13 +610,11 @@
                 break-inside: avoid;
             }
 
-            /* 用 last-of-type 避免 script 影响 */
             .paper-outer:last-of-type {
                 page-break-after: avoid;
                 break-after: avoid;
             }
 
-            /* 打印时取消缩放，恢复真实尺寸 */
             .sheet {
                 transform: none !important;
                 width: 297mm !important;
@@ -711,12 +624,10 @@
                 overflow: hidden;
             }
 
-            /* 打印时关闭纸张噪点纹理（不可见且拖慢打印） */
             .sheet::before {
                 display: none !important;
             }
 
-            /* 保证报头红色、标题颜色都被打印 */
             .paper-name,
             .head-title {
                 -webkit-print-color-adjust: exact;
@@ -727,8 +638,7 @@
 </head>
 <body>
 
-    <!-- 版本号标识 -->
-    <span class="version-badge" aria-hidden="true">版本 v0036</span>
+    <span class="version-badge" aria-hidden="true">版本 v0039</span>
 
     <!-- ============================================================
          第 1 页
@@ -995,22 +905,17 @@
             if (!sheets.length) return;
 
             var root = document.documentElement;
-            var BASE_W = 0;          // 只测一次，之后不再重测
+            var BASE_W = 0;
             var lastW = -1;
             var rafId = null;
 
             function applyScale() {
-                var vw = root.clientWidth;   // 不含滚动条宽度
+                var vw = root.clientWidth;
                 if (vw === lastW) return;
 
-                // 首次测量基准宽度。此时 --sheet-scale 仍为默认值 1，
-                // 且 transform 不改变布局尺寸，offsetWidth 反映真实宽度。
                 if (!BASE_W) {
                     BASE_W = sheets[0].offsetWidth;
-                    if (!BASE_W) {          // 布局尚未完成，下次再试
-                        lastW = -1;
-                        return;
-                    }
+                    if (!BASE_W) { lastW = -1; return; }
                 }
 
                 lastW = vw;
@@ -1032,7 +937,7 @@
 
             if (document.fonts && document.fonts.ready) {
                 document.fonts.ready.then(function () {
-                    lastW = -1;   // 强制重算，但 BASE_W 已缓存，不会重测
+                    lastW = -1;
                     applyScale();
                 });
             }
