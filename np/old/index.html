@@ -17,9 +17,9 @@ body{font-family:"Noto Serif SC","SimSun","宋体",serif;background:var(--bg);co
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 
 /* ===== 时间轴（顶部） ===== */
-.timeline-bar{background:var(--paper);border-bottom:1px solid var(--rule);padding:12px clamp(12px,3vw,20px) 10px;flex-shrink:0}
-.tl-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
-.tl-current{display:flex;align-items:baseline;gap:10px;min-width:0;overflow:hidden}
+.timeline-bar{background:var(--paper);border-bottom:1px solid var(--rule);padding:12px clamp(12px,3vw,20px);flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+.tl-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tl-current{display:flex;align-items:center;gap:10px;min-width:0}
 .tl-id{font-size:clamp(14px,2.5vw,16px);font-weight:bold;color:var(--red);letter-spacing:1px;flex-shrink:0}
 .tl-time{font-size:clamp(11px,2vw,13px);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tl-count{font-size:clamp(10px,1.8vw,11px);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
@@ -28,12 +28,13 @@ body{font-family:"Noto Serif SC","SimSun","宋体",serif;background:var(--bg);co
 .tl-preload.done{opacity:0}
 @keyframes tlpulse{0%,100%{opacity:.2}50%{opacity:1}}
 
+.tl-track-wrapper{position:relative;padding:8px 0 6px}
 .timeline-track{position:relative;cursor:pointer;user-select:none;touch-action:none;overflow:hidden;border-radius:3px;background:rgba(26,23,20,.02)}
 .timeline-track.scrubbing{cursor:grabbing}
-.tl-band{position:absolute;top:0;bottom:0;z-index:0;background:rgba(163,33,30,.05);border-left:1px solid rgba(26,23,20,.07)}
+.tl-band{position:absolute;top:4px;bottom:4px;z-index:0;background:rgba(163,33,30,.05);border-left:1px solid rgba(26,23,20,.07)}
 .tl-band.alt{background:rgba(109,103,90,.055)}
-.tl-band-label{position:absolute;top:3px;left:6px;font-size:10px;color:var(--muted);white-space:nowrap;letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis}
-.tl-band-label.right{left:auto;right:6px}
+.tl-band-label{position:absolute;top:50%;left:6px;transform:translateY(-50%);font-size:10px;color:var(--muted);white-space:nowrap;letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis}
+.tl-band-label.right{left:auto;right:6px;transform:translateY(-50%)}
 .tl-baseline{position:absolute;top:50%;left:9px;right:9px;height:2px;background:repeating-linear-gradient(90deg,var(--rule) 0 5px,transparent 5px 10px);transform:translateY(-50%);z-index:1}
 .tl-progress{position:absolute;top:50%;left:9px;width:0;height:2px;background:var(--red);transform:translateY(-50%);transition:width .15s ease;z-index:2}
 .tl-marker{position:absolute;top:50%;transform:translateY(-50%);cursor:pointer;transition:opacity .15s}
@@ -44,7 +45,7 @@ body{font-family:"Noto Serif SC","SimSun","宋体",serif;background:var(--bg);co
 .tl-tip{position:absolute;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted);white-space:nowrap;opacity:0;transition:opacity .14s;pointer-events:none;z-index:10;background:var(--paper);padding:2px 6px;border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,.1)}
 .tl-marker:hover .tl-tip,.tl-marker.active .tl-tip{opacity:1;color:var(--red)}
 
-.tl-foot{display:flex;align-items:center;gap:12px;margin-top:8px}
+.tl-foot{display:flex;align-items:center;gap:12px}
 .tl-controls{display:flex;align-items:center;gap:6px}
 .btn{padding:4px 12px;border:1px solid var(--rule);background:var(--paper);cursor:pointer;font-size:12px;font-family:inherit;color:var(--ink);transition:background .15s,color .15s,border-color .15s;-webkit-tap-highlight-color:transparent;outline:none}
 .btn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
@@ -79,9 +80,11 @@ body{font-family:"Noto Serif SC","SimSun","宋体",serif;background:var(--bg);co
 </div>
 <div class="tl-preload" id="preloadInfo"><span class="dot"></span><span id="preloadText">后台预加载 1 / 43</span></div>
 </div>
+<div class="tl-track-wrapper">
 <div class="timeline-track" id="track">
 <div class="tl-baseline"></div>
 <div class="tl-progress" id="progress"></div>
+</div>
 </div>
 <div class="tl-foot">
 <div class="tl-controls">
