@@ -176,6 +176,17 @@ function positionTip(target) {
   globalTip.style.top  = top  + 'px';
   globalTip.style.left = left + 'px';
   globalTip.classList.toggle('is-below', below);
+
+  /* ---- 动态调整三角指针指向目标标记 ---- */
+  // 计算目标中心点相对于提示框左边框的偏移
+  const targetCenter = tr.left + tr.width / 2;
+  let triangleLeft = targetCenter - left;
+  // 限制在提示框内部（留出一些边距）
+  const minTri = 12;
+  const maxTri = pr.width - 12;
+  if (triangleLeft < minTri) triangleLeft = minTri;
+  if (triangleLeft > maxTri) triangleLeft = maxTri;
+  globalTip.style.setProperty('--tri-left', triangleLeft + 'px');
 }
 
 function hideTip() {
