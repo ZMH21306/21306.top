@@ -43,7 +43,6 @@ body{font-family:"Noto Serif SC","SimSun","宋体",serif;background:var(--bg);co
 .tl-marker::after{content:"";position:absolute;top:50%;left:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--paper);border:1.5px solid var(--rule);transition:background .14s,border-color .14s,width .14s,height .14s,margin .14s,box-shadow .14s}
 .tl-marker:hover::after{border-color:var(--red)}
 .tl-marker.active::after{background:var(--red);border-color:var(--red);width:13px;height:13px;margin:-6.5px 0 0 -6.5px;box-shadow:0 0 0 3px rgba(163,33,30,.18)}
-.tl-marker.preloaded::after{background:var(--red);border-color:var(--red);width:11px;height:11px;margin:-5.5px 0 0 -5.5px}
 .timeline-track.resizing .tl-progress{transition:none}
 .tl-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:1px;font-size:10px;color:var(--muted);white-space:nowrap;opacity:0;transition:opacity .14s;pointer-events:none}
 .tl-marker:hover .tl-tip,.tl-marker.active .tl-tip{opacity:1;color:var(--red)}
