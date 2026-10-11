@@ -60,7 +60,7 @@ const N=versions.length;
 // 全部版本仅引用这两张图片（同一 URL ⇒ 浏览器缓存复用，只下载一次）
 const IMAGES=['这是一张图.jpg','这又是一张图.jpg'].map(n=>'https://21306.top/np/v2/'+encodeURIComponent(n));
 
-let currentIndex=0,isPlaying=false,playInterval=null;const playSpeed=200;
+let currentIndex=0,isPlaying=false,playTimer=null;const playSpeed=200;
 
 const viewer=document.getElementById('viewer'),track=document.getElementById('track'),progress=document.getElementById('progress');
 const curVer=document.getElementById('curVer'),curTime=document.getElementById('curTime'),curCount=document.getElementById('curCount');
@@ -69,12 +69,22 @@ const viewerHint=document.getElementById('viewerHint'),preloadInfo=document.getE
 
 const markers=[];
 const buffers=[];
-let front=0,frontVersion=-1,backVersion=-1,pending=-1,loadTimer=null,swapTimer=null;
+let front=0,frontVersion=-1,backVersion=-1,pending=-1,loadTimer=null,swapTimer=null,loading=false;
 
 /* ---------- 工具：位置与时间格式化 ---------- */
 const R=i=>i/(N-1);
 function leftOf(i){return 'calc(9px + (100% - 18px) * '+R(i).toFixed(6)+')'}
 function spanOf(a,b){return 'calc((100% - 18px) * '+Math.max(0,R(b)-R(a)).toFixed(6)+')'}
+
+/* ---------- 预加载状态：驱动时间轴线路（已缓存=红色实线，未缓存=灰色虚线） ---------- */
+const preloaded=new Array(N).fill(false);preloaded[0]=true;   // 第 0 版是首帧，视为已就绪
+let plHead=0;                                                 // 已“连续”缓存到的最高版本索引
+function markPreloaded(i){
+    if(i<0||i>=N||preloaded[i])return;
+    preloaded[i]=true;
+    while(plHead+1<N&&preloaded[plHead+1])plHead++;
+    progress.style.width=spanOf(0,plHead);
+}
 function parts(t){return{mo:t.slice(4,6),d:t.slice(6,8),h:t.slice(9,11),mi:t.slice(11,13)}}
 function fullTime(t){const p=parts(t);return t.slice(0,4)+'年'+parseInt(p.mo,10)+'月'+parseInt(p.d,10)+'日 '+p.h+':'+p.mi}
 function shortTime(t){const p=parts(t);return p.mo+'/'+p.d+' '+p.h+':'+p.mi}
@@ -110,7 +120,6 @@ function updateMeta(i){
     curVer.textContent=v.id;
     curTime.textContent=fullTime(v.time);
     curCount.textContent='第 '+(i+1)+' / '+N+' 版';
-    progress.style.width=spanOf(0,i);
     markers.forEach((m,k)=>m.classList.toggle('active',k===i));
 }
 
@@ -125,14 +134,14 @@ function goTo(i){
     if(i<0||i>=N)return;
     updateMeta(i);pending=i;
     if(frontVersion===i)return;      // 已在前台
-    if(backVersion===i)return;       // 正在后台加载，load 后自动切换
+    if(loading)return;               // 有加载在途：不打断，commit 后自动补载最新目标
     loadIntoBack(i);
 }
 
 function loadIntoBack(i){
     if(i<0||i>=N)return;
     const b=buffers[1-front];
-    backVersion=i;
+    backVersion=i;loading=true;
     clearTimeout(loadTimer);
     b.onload=()=>{if(backVersion===i)commit(i)};
     b.onerror=()=>{if(backVersion===i)commit(i)};
@@ -141,7 +150,7 @@ function loadIntoBack(i){
 }
 
 function commit(i){
-    clearTimeout(loadTimer);
+    clearTimeout(loadTimer);loading=false;
     const nb=buffers[1-front],ob=buffers[front];
     /* 新帧置于上层淡入，旧帧保持不透明垫底：淡入过程中不会透出底色，避免忽明忽暗 */
     nb.style.zIndex=6;ob.style.zIndex=5;
@@ -150,16 +159,18 @@ function commit(i){
     viewerHint.classList.add('hidden');
     clearTimeout(swapTimer);
     swapTimer=setTimeout(()=>{ob.classList.remove('active');ob.style.zIndex=''},120);
-    if(pending!==i)loadIntoBack(pending);   // 加载期间目标已改变
+    if(pending!==i)loadIntoBack(pending);                    // 加载期间目标已变 → 立刻补载最新目标
+    else if(isPlaying){clearTimeout(playTimer);playTimer=setTimeout(tick,playSpeed)}   // 本帧显示后再推进一版
 }
 
 /* ---------- 播放控制 ---------- */
 function prev(){goTo(currentIndex-1)}
 function next(){goTo(currentIndex+1)}
+function tick(){if(isPlaying)goTo(currentIndex>=N-1?0:currentIndex+1)}
 function togglePlay(){
     isPlaying=!isPlaying;playBtn.textContent=isPlaying?'⏸':'▶';
-    clearInterval(playInterval);
-    if(isPlaying){playInterval=setInterval(()=>{currentIndex<N-1?goTo(currentIndex+1):goTo(0)},playSpeed)}
+    clearTimeout(playTimer);
+    if(isPlaying)tick();
 }
 
 /* ---------- 拖动轨道快速定位 ---------- */
@@ -194,18 +205,18 @@ function warmImages(){
     });
 }
 function startWarmer(){
-    /* fetch 只下载字节、不解析不渲染，可真正并行（实测并发 6 提速约 6 倍），
-       命中浏览器 HTTP 缓存后，之后 iframe 打开同一页即为本地读取 */
-    const POOL=6;
+    /* 打开页面即全速把 54 版 HTML 拉进浏览器 HTTP 缓存（fetch 只下载不渲染，可真正并行），
+       之后 iframe 打开同一版即命中缓存、本地读取 */
+    const POOL=6;   // 浏览器对单域名 HTTP/1.1 的连接上限，用满即为最大并发
     let next=1,loaded=1,finished=false;
     const pump=()=>{
         if(finished||next>=N)return;
         const idx=next++;
         const done=()=>{
-            loaded++;
+            loaded++;markPreloaded(idx);
             preloadText.textContent='后台预加载 '+loaded+' / '+N;
             if(loaded>=N){finished=true;preloadText.textContent='后台预加载完成';preloadInfo.classList.add('done');return}
-            setTimeout(pump,isPlaying?600:0);   // 播放中让路，否则立刻发起下一个
+            setTimeout(pump,0);   // 立即占用空闲连接，不放慢
         };
         fetch(versions[idx].file,{cache:'default'}).then(r=>r.text()).then(done,done);
     };
