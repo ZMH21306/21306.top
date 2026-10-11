@@ -60,102 +60,42 @@ const playBtn = document.getElementById('playBtn');
 const viewerHint = document.getElementById('viewerHint');
 const preloadInfo = document.getElementById('preloadInfo');
 const preloadText = document.getElementById('preloadText');
-const tlTime = document.getElementById('curTime');
-const tlCount = document.getElementById('curCount');
-const tlHint = document.querySelector('.tl-hint');
 
 const markers = [];
+const buffers = [];
+let front = 0, frontVersion = -1, backVersion = -1, pending = -1, loading = false;
 
-// ========== 预缓存方案 ==========
-const CONCURRENCY = Math.min(8, N);
-const iframePool = [];
-const iframeReady = new Array(N).fill(false);
-let preloadedCount = 0;
-let poolLoadingDone = false;
+// 预加载状态：连续缓存进度驱动进度条（已缓存=红色实线，未缓存=灰色虚线）
+const preloaded = new Array(N).fill(false);
+preloaded[0] = true;   // 第 0 版是首帧，视为已就绪
+let plHead = 0;
 
-function createBufferedIframe(index) {
-    const iframe = document.createElement('iframe');
-    iframe.className = 'frame';
-    iframe.setAttribute('allowfullscreen', '');
-    iframe.setAttribute('title', '版本预览');
-    iframe.style.position = 'absolute';
-    iframe.style.top = '0';
-    iframe.style.left = '0';
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.border = 'none';
-    iframe.style.display = 'block';
-    iframe.style.opacity = '0';
-    iframe.style.pointerEvents = 'none';
-    iframe.style.zIndex = '0';
-    viewer.appendChild(iframe);
-    iframePool[index] = iframe;
+// HTML 内存缓存：fetch 后存入，切换时直接 document.write 跳过解析
+const htmlCache = new Array(N).fill(null);
 
-    return new Promise(resolve => {
-        iframe.onload = () => {
-            iframeReady[index] = true;
-            preloadedCount++;
-            updatePreloadProgress();
-            resolve();
-        };
-        iframe.onerror = () => {
-            iframeReady[index] = true;
-            preloadedCount++;
-            updatePreloadProgress();
-            resolve();
-        };
-        iframe.src = versions[index].file;
-    });
-}
-
-function updatePreloadProgress() {
-    preloadText.textContent = `后台预加载 ${preloadedCount} / ${N}`;
-    if (preloadedCount >= N) {
-        poolLoadingDone = true;
-        preloadText.textContent = '后台预加载完成';
-        preloadInfo.classList.add('done');
-    }
-}
-
-// ========== 响应式布局：根据轨道宽度计算 marker 尺寸和轨道高度 ==========
-function updateTrackLayout() {
-    const w = track.offsetWidth;
-    if (w <= 0) return;
-
-    // 可用宽度 = 轨道宽 - 左右各9px边距
-    const usable = w - 18;
-
-    // 最小可点击 marker 尺寸：12px（触屏最小触控区域）
-    // 计算 marker 间距 = usable / (N-1)，取较大值保证可点击性
-    const minMarkerPx = Math.max(12, usable / (N - 1) * 0.8);
-
-    // marker 宽高（正方形）
-    const ms = Math.min(18, minMarkerPx);
-    // 轨道高度 = marker 宽度的 3~4 倍（保证足够视觉空间）
-    const mh = Math.max(36, ms * 3.5);
-
-    // 应用轨道高度
-    track.style.height = mh + 'px';
-
-    // 更新所有 marker（内联样式覆盖 CSS）
-    const halfM = ms / 2;
-    markers.forEach(m => {
-        m.style.width = ms + 'px';
-        m.style.height = ms + 'px';
-        m.style.marginLeft = -halfM + 'px';
-    });
-
-    // CSS 变量控制 ::after 伪元素尺寸
-    track.style.setProperty('--ms', ms + 'px');
-}
-
-// 在 CSS 中用 var() 控制 ::after 尺寸，JS 通过 style.setProperty 动态设置
-
-// ========== 时间轴构建 ==========
+/* ---------- 工具：位置与时间格式化 ---------- */
 const R = i => i / (N - 1);
 function leftOf(i) { return 'calc(9px + (100% - 18px) * ' + R(i).toFixed(6) + ')'; }
 function spanOf(a, b) { return 'calc((100% - 18px) * ' + Math.max(0, R(b) - R(a)).toFixed(6) + ')'; }
 
+function markPreloaded(i) {
+    if (i < 0 || i >= N || preloaded[i]) return;
+    preloaded[i] = true;
+    while (plHead + 1 < N && preloaded[plHead + 1]) plHead++;
+    progress.style.width = spanOf(0, plHead);
+}
+
+function parts(t) { return { mo: t.slice(4, 6), d: t.slice(6, 8), h: t.slice(9, 11), mi: t.slice(11, 13) }; }
+function fullTime(t) {
+    const p = parts(t);
+    return t.slice(0, 4) + '年' + parseInt(p.mo, 10) + '月' + parseInt(p.d, 10) + '日 ' + p.h + ':' + p.mi;
+}
+function shortTime(t) {
+    const p = parts(t);
+    return p.mo + '/' + p.d + ' ' + p.h + ':' + p.mi;
+}
+
+/* ---------- 时间轴构建（百分比定位，窗口缩放天然自适应） ---------- */
 function buildTrack() {
     const groups = [];
     let cur = null;
@@ -176,7 +116,6 @@ function buildTrack() {
         const lb = document.createElement('span');
         lb.className = 'tl-band-label' + (gi === groups.length - 1 ? ' right' : '');
         lb.textContent = g.key + ' · ' + (g.end - g.start + 1) + '版';
-        tlBandLabels.push(lb);
         band.appendChild(lb);
         track.appendChild(band);
     });
@@ -194,17 +133,6 @@ function buildTrack() {
     });
 }
 
-// ========== 工具函数 ==========
-function parts(t) { return { mo: t.slice(4, 6), d: t.slice(6, 8), h: t.slice(9, 11), mi: t.slice(11, 13) }; }
-function fullTime(t) {
-    const p = parts(t);
-    return t.slice(0, 4) + '年' + parseInt(p.mo, 10) + '月' + parseInt(p.d, 10) + '日 ' + p.h + ':' + p.mi;
-}
-function shortTime(t) {
-    const p = parts(t);
-    return p.mo + '/' + p.d + ' ' + p.h + ':' + p.mi;
-}
-
 function updateMeta(i) {
     currentIndex = i;
     const v = versions[i];
@@ -212,46 +140,77 @@ function updateMeta(i) {
     curTime.textContent = fullTime(v.time);
     curCount.textContent = '第 ' + (i + 1) + ' / ' + N + ' 版';
     markers.forEach((m, k) => m.classList.toggle('active', k === i));
-    const pct = (i / (N - 1)) * 100;
-    progress.style.width = `calc(${pct}% - 9px)`;
 }
 
-// ========== 播放控制 ==========
-let goToPending = false;
+/* ---------- 双缓冲渲染：切换只做淡入淡出，避免白屏闪烁 ---------- */
+function createBuffer() {
+    const f = document.createElement('iframe');
+    f.className = 'frame';
+    f.setAttribute('allowfullscreen', '');
+    f.setAttribute('title', '版本预览');
+    viewer.appendChild(f);
+    buffers.push(f);
+    return f;
+}
+
 function goTo(i) {
     if (i < 0 || i >= N) return;
-    if (i === currentIndex) return;  // 防止重复跳转
-    if (goToPending) return;         // 防止并发调用
-    goToPending = true;
-
-    const prevIdx = currentIndex;
     updateMeta(i);
-
-    // 确保 iframe 存在
-    if (!iframePool[i]) {
-        createBufferedIframe(i);
-    }
-
-    // 立即将目标帧提升到顶层
-    const newFrame = iframePool[i];
-    newFrame.style.zIndex = '10';  // 先置顶，确保可见
-    newFrame.style.opacity = '1';
-    newFrame.style.pointerEvents = 'auto';
-
-    // 立即隐藏旧帧（不等setTimeout）
-    if (prevIdx !== i && iframePool[prevIdx]) {
-        const oldFrame = iframePool[prevIdx];
-        oldFrame.style.opacity = '0';
-        oldFrame.style.zIndex = '5';
-        oldFrame.style.pointerEvents = 'none';
-        goToPending = false;
-    } else {
-        goToPending = false;
-    }
-
-    viewerHint.classList.add('hidden');
+    pending = i;
+    if (frontVersion === i) return;      // 已在前台
+    if (loading) return;                 // 有加载在途：不打断，commit 后自动补载最新目标
+    loadIntoBack(i);
 }
 
+function loadIntoBack(i) {
+    if (i < 0 || i >= N) return;
+    const b = buffers[1 - front];
+    backVersion = i;
+    loading = true;
+
+    // 无论命中还是未命中，1.5s 后强制 commit 防止永远等待
+    clearTimeout(loadTimer);
+    b.onload = () => { if (backVersion === i) commit(i); };
+    b.onerror = () => { if (backVersion === i) commit(i); };
+    loadTimer = setTimeout(() => { if (backVersion === i) commit(i); }, 1500);
+
+    if (htmlCache[i]) {
+        // 缓存命中：直接写入，跳过网络请求与 HTML 解析，切换耗时 <50ms
+        const doc = b.contentDocument || b.contentWindow.document;
+        doc.open();
+        doc.write(htmlCache[i]);
+        doc.close();
+    } else {
+        // 缓存未命中：正常加载
+        b.src = versions[i].file;
+    }
+}
+
+let loadTimer = null;
+
+function commit(i) {
+    clearTimeout(loadTimer);
+    loading = false;
+    const nb = buffers[1 - front], ob = buffers[front];
+    /* 新帧置于上层淡入，旧帧保持不透明垫底：淡入过程中不会透出底色，避免忽明忽暗 */
+    nb.style.zIndex = '6';
+    ob.style.zIndex = '5';
+    nb.classList.add('active');
+    front = 1 - front;
+    frontVersion = i;
+    backVersion = -1;
+    viewerHint.classList.add('hidden');
+
+    clearTimeout(swapTimer);
+    swapTimer = setTimeout(() => { ob.classList.remove('active'); ob.style.zIndex = ''; }, 120);
+
+    if (pending !== i) loadIntoBack(pending);                    // 加载期间目标已变 → 立刻补载最新目标
+    else if (isPlaying) { clearTimeout(playTimer); playTimer = setTimeout(tick, playSpeed); } // 本帧显示后再推进一版
+}
+
+let swapTimer = null;
+
+/* ---------- 播放控制 ---------- */
 function prev() { goTo(currentIndex - 1); }
 function next() { goTo(currentIndex + 1); }
 
@@ -264,7 +223,6 @@ function tick() {
         return;
     }
     goTo(currentIndex + 1);
-    playTimer = setTimeout(tick, playSpeed);
 }
 
 function togglePlay() {
@@ -274,7 +232,7 @@ function togglePlay() {
     if (isPlaying) tick();
 }
 
-// ========== 拖动轨道快速定位 ==========
+/* ---------- 拖动轨道快速定位 ---------- */
 let scrubbing = false, scrubRaf = null, scrubX = 0;
 function indexFromX(clientX) {
     const rect = track.getBoundingClientRect(), usable = rect.width - 18;
@@ -299,7 +257,7 @@ track.addEventListener('pointerup', endScrub);
 track.addEventListener('pointercancel', endScrub);
 track.addEventListener('lostpointercapture', endScrub);
 
-// ========== 预热图片缓存 ==========
+/* ---------- 预热图片缓存 ---------- */
 function warmImages() {
     IMAGES.forEach(u => {
         const im = new Image();
@@ -309,50 +267,60 @@ function warmImages() {
     });
 }
 
-// ========== 初始化 ==========
-function init() {
-    // 1. 立即创建首帧iframe（src赋值后浏览器立即开始加载，页面继续渲染）
-    //    首帧onload后立即淡入显示并隐藏hint，确保内容渲染完成才可见
-    createBufferedIframe(0).then(() => {
-        iframePool[0].style.opacity = '1';
-        iframePool[0].style.zIndex = '6';
-        iframePool[0].style.pointerEvents = 'auto';
-        viewerHint.classList.add('hidden');
-    });
-
-    // 2. 立即更新元数据（标题/时间/进度条），用户马上看到文字信息
-    updateMeta(0);
-
-    // 3. 并发预加载其余版本（后台进行，不影响首帧显示）
-    for (let k = 1; k < CONCURRENCY && k < N; k++) {
-        createBufferedIframe(k);
-    }
-
-    // 4. 继续预加载剩余版本（当有空位时）
-    let next = CONCURRENCY;
-    const loadInterval = setInterval(() => {
-        if (poolLoadingDone || next >= N) {
-            clearInterval(loadInterval);
-            return;
-        }
-        for (let i = 0; i < 3 && next < N; i++) {
-            createBufferedIframe(next++);
-        }
-    }, 50);
+/* ---------- 后台预加载（6路并发 fetch 池，非阻塞） ---------- */
+function startWarmer() {
+    const POOL = 6;
+    let nextIdx = 1, loaded = 1, finished = false;
+    const pump = () => {
+        if (finished || nextIdx >= N) return;
+        const idx = nextIdx++;
+        const done = () => {
+            loaded++;
+            markPreloaded(idx);
+            preloadText.textContent = '后台预加载 ' + loaded + ' / ' + N;
+            if (loaded >= N) {
+                finished = true;
+                preloadText.textContent = '后台预加载完成';
+                preloadInfo.classList.add('done');
+            } else {
+                setTimeout(pump, 0);
+            }
+        };
+        fetch(versions[idx].file, { cache: 'default' })
+            .then(r => r.text())
+            .then(t => { htmlCache[idx] = t; done(); })
+            .catch(done);
+    };
+    for (let k = 0; k < Math.min(POOL, N - 1); k++) pump();
 }
 
-// ========== 窗口缩放 ==========
+/* ---------- 响应式布局：根据轨道宽度计算 marker 尺寸和轨道高度 ---------- */
+function updateTrackLayout() {
+    const w = track.offsetWidth;
+    if (w <= 0) return;
+    const usable = w - 18;
+    const minMarkerPx = Math.max(12, usable / (N - 1) * 0.8);
+    const ms = Math.min(18, minMarkerPx);
+    const mh = Math.max(36, ms * 3.5);
+    track.style.height = mh + 'px';
+    const halfM = ms / 2;
+    markers.forEach(m => {
+        m.style.width = ms + 'px';
+        m.style.height = ms + 'px';
+        m.style.marginLeft = -halfM + 'px';
+    });
+    track.style.setProperty('--ms', ms + 'px');
+}
+
+/* ---------- 窗口缩放：临时关闭进度条过渡，避免拖影 ---------- */
 let rzT;
 window.addEventListener('resize', () => {
     track.classList.add('resizing');
     clearTimeout(rzT);
-    rzT = setTimeout(() => {
-        track.classList.remove('resizing');
-        updateTrackLayout();
-    }, 150);
+    rzT = setTimeout(() => { track.classList.remove('resizing'); updateTrackLayout(); }, 150);
 });
 
-// ========== 事件与初始化 ==========
+/* ---------- 事件 ---------- */
 playBtn.addEventListener('click', togglePlay);
 
 document.addEventListener('keydown', e => {
@@ -374,8 +342,22 @@ document.addEventListener('touchend', e => {
     lastTouchEnd = now;
 }, { passive: false });
 
+/* ---------- 初始化 ---------- */
+createBuffer();
+createBuffer();
 buildTrack();
 updateTrackLayout();
-viewerHint.classList.remove('hidden');
+
+frontVersion = 0;
+pending = 0;
+buffers[0].onload = () => viewerHint.classList.add('hidden');
+setTimeout(() => { if (!viewerHint.classList.contains('hidden')) viewerHint.classList.add('hidden'); }, 2500);
+buffers[0].src = versions[0].file;
+buffers[0].classList.add('active');
+updateMeta(0);
+
 warmImages();
-init();
+viewerHint.classList.remove('hidden');
+
+// 延迟启动后台预加载，避免阻塞首帧渲染
+setTimeout(startWarmer, 800);
