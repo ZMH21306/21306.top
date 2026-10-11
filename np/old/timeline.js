@@ -232,26 +232,36 @@ function updateMeta(i) {
 }
 
 // ========== 播放控制 ==========
+let goToPending = false;
 function goTo(i) {
     if (i < 0 || i >= N) return;
+    if (i === currentIndex) return;  // 防止重复跳转
+    if (goToPending) return;         // 防止并发调用
+    goToPending = true;
+
     const prevIdx = currentIndex;
     updateMeta(i);
 
+    // 确保 iframe 存在
     if (!iframePool[i]) {
         createBufferedIframe(i);
     }
 
-    iframePool[i].style.opacity = '1';
-    iframePool[i].style.zIndex = '6';
-    iframePool[i].style.pointerEvents = 'auto';
+    // 立即将目标帧提升到顶层
+    const newFrame = iframePool[i];
+    newFrame.style.zIndex = '10';  // 先置顶，确保可见
+    newFrame.style.opacity = '1';
+    newFrame.style.pointerEvents = 'auto';
 
+    // 立即隐藏旧帧（不等setTimeout）
     if (prevIdx !== i && iframePool[prevIdx]) {
         const oldFrame = iframePool[prevIdx];
-        setTimeout(() => {
-            oldFrame.style.opacity = '0';
-            oldFrame.style.zIndex = '5';
-            oldFrame.style.pointerEvents = 'none';
-        }, 50);
+        oldFrame.style.opacity = '0';
+        oldFrame.style.zIndex = '5';
+        oldFrame.style.pointerEvents = 'none';
+        goToPending = false;
+    } else {
+        goToPending = false;
     }
 
     viewerHint.classList.add('hidden');
