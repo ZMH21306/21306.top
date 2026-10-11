@@ -500,15 +500,30 @@ track.addEventListener('pointercancel', endScrub);
 track.addEventListener('lostpointercapture', endScrub);
 
 /* ==========================================================================
-   图片预热
+   图片预热（增强版：等待图片完全下载并解码）
    ========================================================================== */
-function warmImages() {
-  IMAGES.forEach(u => {
-    const im = new Image();
-    im.decoding = 'async';
-    im.src = u;
-    if (im.decode) im.decode().catch(() => {});
-  });
+let imageWarmPromise = null;
+
+async function warmImages() {
+  // 返回一个 Promise，确保所有图片都已下载并解码完成
+  return imageWarmPromise = Promise.all(
+    IMAGES.map(url => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.decoding = 'async';
+        img.onload = () => {
+          if (img.decode) {
+            img.decode().then(resolve).catch(resolve);
+          } else {
+            resolve();
+          }
+        };
+        img.onerror = resolve; // 即使失败也继续
+        img.src = url;
+      });
+    })
+  );
 }
 
 /* ==========================================================================
@@ -661,6 +676,15 @@ async function init() {
   pending = 0;
   updateMeta(0);
 
+  // 先等待图片预热完成（这是最耗时的部分，只有2张图片但需要完全下载）
+  viewerHint.textContent = '正在预加载图片资源...';
+  try {
+    await warmImages();
+  } catch (e) {
+    console.warn('图片预热失败，继续加载:', e);
+  }
+  viewerHint.classList.add('is-hidden');
+
   try {
     const html = await fetchHTML(0);
     writeToBuffer(buffers[0], html);
@@ -668,7 +692,6 @@ async function init() {
 
     await nextFrame();
     await nextFrame();
-    viewerHint.classList.add('is-hidden');
   } catch (e) {
     buffers[0].src = versions[0].file;
     buffers[0].classList.add('is-active');
@@ -679,7 +702,6 @@ async function init() {
     setTimeout(() => viewerHint.classList.add('is-hidden'), 2500);
   }
 
-  warmImages();
   startWarmer();
 }
 
