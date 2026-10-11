@@ -142,6 +142,8 @@ function loadIntoBack(i){
         doc.open();
         doc.write(htmlCache[i]);
         doc.close();
+        // 缓存命中后立即提交，无需等待 onload 事件
+        if(backVersion===i)commit(i);
     } else {
         // 缓存未命中：正常加载
         b.src=versions[i].file;
@@ -235,6 +237,13 @@ function startWarmer(){
     for(let k=0;k<Math.min(POOL,N-1);k++)pump();
 }
 
+// 预加载完成后，立即填充所有缓存到内存中，确保播放时无需等待
+function fillCacheFromPreload(){
+    for(let i=1;i<N;i++){
+        if(htmlCache[i])markPreloaded(i);
+    }
+}
+
 /* ---------- 窗口缩放：临时关闭进度条过渡，避免拖影 ---------- */
 let rzT;
 window.addEventListener('resize',()=>{
@@ -263,3 +272,10 @@ buffers[0].classList.add('active');
 updateMeta(0);
 warmImages();
 setTimeout(startWarmer,800);
+
+// 监听预加载完成事件，填充缓存
+const originalMarkPreloaded = markPreloaded;
+markPreloaded = function(i){
+    originalMarkPreloaded(i);
+    if(i === N-1)fillCacheFromPreload();
+};
