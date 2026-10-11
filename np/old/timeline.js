@@ -54,3 +54,59 @@ const versions = [
   {"id":"v0053","file":"v0053-20261011092350.html","time":"20261011 092350"},
   {"id":"v0054","file":"v0054-20261011092810.html","time":"20261011 092810"}
 ];
+
+let currentIndex=0,isPlaying=false,playInterval=null,playSpeed=800;
+const speeds=[2000,1200,800,400],labels=['慢','较少','快','极快'];let speedIdx=2;
+const frame=document.getElementById('frame'),track=document.getElementById('track'),progress=document.getElementById('progress');
+const curVer=document.getElementById('curVer'),curTime=document.getElementById('curTime');
+const playBtn=document.getElementById('playBtn'),prevBtn=document.getElementById('prevBtn');
+const nextBtn=document.getElementById('nextBtn'),speedCtrl=document.getElementById('speedCtrl');
+
+function initTimeline(){
+    const mw=12,sp=(track.offsetWidth-mw)/(versions.length-1);
+    let lastDate='';
+    versions.forEach((v,i)=>{
+        const m=document.createElement('div');
+        m.className='timeline-marker';m.style.left=(i*sp+mw/2)+'px';
+        const l=document.createElement('span');l.className='marker-label';l.textContent=v.id;m.appendChild(l);
+        m.addEventListener('click',()=>goTo(i));track.appendChild(m);
+        const ds=v.time.match(/(\d{4})(\d{2})(\d{2})/);
+        const dateKey=ds?ds[2]+'/'+ds[3]:'';
+        if(dateKey!==lastDate){
+            const s=document.createElement('div');s.className='date-separator';s.style.left=(i*sp)+'px';track.appendChild(s);
+            const dl=document.createElement('span');dl.className='date-label';dl.style.left=(i*sp)+'px';
+            dl.textContent=dateKey;track.appendChild(dl);lastDate=dateKey;
+        }
+    });
+}
+
+function updateViewer(index){
+    currentIndex=index;const v=versions[index];
+    frame.src=v.file;curVer.textContent=v.id;
+    const t=v.time.replace(/(\d{4})(\d{2})(\d{2})/,'$1-$2-$3').replace(/(\d{2})(\d{2})(\d{2})/,'$1:$2:$3');
+    const d=new Date(t.replace(/(\d{2}):(\d{2}):(\d{2})/,'$1:$2'));
+    curTime.textContent=(d.getMonth()+1)+'月'+d.getDate()+'日 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    progress.style.width=(index/(versions.length-1)*100)+'%';
+    document.querySelectorAll('.timeline-marker').forEach((m,i)=>{m.classList.toggle('active',i===index)});
+}
+
+function goTo(i){if(i<0||i>=versions.length)return;updateViewer(i)}
+function prev(){goTo(currentIndex-1)}
+function next(){goTo(currentIndex+1)}
+function togglePlay(){
+    isPlaying=!isPlaying;playBtn.textContent=isPlaying?'⏸':'▶';
+    if(isPlaying){playInterval=setInterval(()=>{currentIndex<versions.length-1?next():goTo(0)},playSpeed)}
+    else{clearInterval(playInterval)}
+}
+function cycleSpeed(){
+    speedIdx=(speedIdx+1)%speeds.length;playSpeed=speeds[speedIdx];
+    speedCtrl.textContent='速度: '+labels[speedIdx];
+    if(isPlaying){clearInterval(playInterval);playInterval=setInterval(()=>{currentIndex<versions.length-1?next():goTo(0)},playSpeed)}
+}
+prevBtn.addEventListener('click',prev);nextBtn.addEventListener('click',next);
+playBtn.addEventListener('click',togglePlay);speedCtrl.addEventListener('click',cycleSpeed);
+document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowLeft')prev();else if(e.key==='ArrowRight')next();
+    else if(e.key===' '){e.preventDefault();togglePlay()}
+});
+initTimeline();updateViewer(0);
