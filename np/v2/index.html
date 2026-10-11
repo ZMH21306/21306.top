@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="凌云逐风（总第001期）——横版A4 两页">
+    <meta name="color-scheme" content="light">
     <title>凌云逐风 | 2026年10月9日</title>
 
     <!-- ===== 字体：全部使用 Web 字体，保证所有设备渲染一致 ===== -->
@@ -32,6 +33,9 @@
             --red-deep: #6e1a14;
             --stage: #cfc9bd;
             --muted: #6a6558;
+
+            /* ---- 页面缩放（由 JS 写入，用于响应式适配视口宽度） ---- */
+            --sheet-scale: 1;
 
             /* ---- 字体栈（统一 Web 字体，跨设备一致） ---- */
             --font-body: "Noto Serif SC",
@@ -80,12 +84,11 @@
             background: var(--stage);
             color: var(--ink);
             margin: 0;
-            padding: 0;
+            padding: 16px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 16px;
-            padding: 16px 0;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
@@ -116,10 +119,13 @@
 
         /* ============================================================
            二、纸张
+           说明：.paper-outer 只负责占位（等比缩放到视口宽度），
+                 .sheet 内部保持 297mm × 210mm 真实尺寸，
+                 通过 --sheet-scale 做视觉缩放。
            ============================================================ */
         .paper-outer {
-            width: 100vw;
-            height: calc(100vw * 210 / 297);
+            width: 100%;
+            aspect-ratio: 297 / 210;
             overflow: hidden;
             position: relative;
             background: var(--stage);
@@ -127,15 +133,18 @@
         }
 
         .sheet {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 297mm;
             height: 210mm;
             padding: 3mm 5mm 2.5mm;
             background: var(--paper);
-            position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             gap: 1.1mm;
+            transform: scale(var(--sheet-scale));
             transform-origin: top left;
             box-shadow:
                 0 1px 2px rgba(22, 19, 15, 0.06),
@@ -176,11 +185,6 @@
             gap: 0;
         }
 
-        #paper-sheet-1 .col-left,
-        #paper-sheet-1 .col-right {
-            height: 100%;
-        }
-
         .col-right {
             border-left: 0.25mm solid var(--rule-fine);
             padding-left: 4mm;
@@ -195,7 +199,6 @@
         }
 
         .article-block + .article-block {
-            border-top: none;
             position: relative;
             padding-top: var(--gap-block);
             margin-top: 0;
@@ -231,17 +234,11 @@
             flex: 1 1 auto;
         }
 
-        /* 内容区：块级布局，让 float 生效 */
+        /* 内容区：flow-root 建立 BFC，让浮动元素被包裹 */
         .article-content {
-            display: block;
+            display: flow-root;
             min-width: 0;
             flex: 1 1 auto;
-        }
-
-        .article-content::after {
-            content: "";
-            display: block;
-            clear: both;
         }
 
         /* ============================================================
@@ -291,7 +288,7 @@
         }
 
         /* ============================================================
-           五、标题层级（已移除标题前的黑色短竖线）
+           五、标题层级
            ============================================================ */
         .t-lead,
         .t-block,
@@ -330,7 +327,7 @@
         }
 
         /* ============================================================
-           六、正文段落（基础字号统一为 9pt）
+           六、正文段落
            ============================================================ */
         .article-body {
             font-family: var(--font-body);
@@ -359,7 +356,6 @@
             padding: 0;
             display: block;
             break-inside: avoid;
-            shape-outside: margin-box;
         }
 
         .inline-figure img {
@@ -384,7 +380,7 @@
         }
 
         /* ============================================================
-           八、组员通讯（基础字号统一为 9pt）
+           八、组员通讯
            ============================================================ */
         .dispatch-section {
             display: flex;
@@ -452,7 +448,7 @@
         }
 
         /* ============================================================
-           九、第 2 页右栏配图（贴近上方列表，无阴影）
+           九、第 2 页右栏配图
            ============================================================ */
         .dispatch-photo {
             margin-top: 2.4mm;
@@ -486,7 +482,7 @@
         }
 
         /* ============================================================
-           十、右下角署名（已放大字号）
+           十、右下角署名
            ============================================================ */
         .credit-block {
             flex-shrink: 0;
@@ -687,7 +683,7 @@
             .paper-outer {
                 width: 297mm !important;
                 height: 210mm !important;
-                max-height: 210mm !important;
+                aspect-ratio: auto !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 background: #fff !important;
@@ -699,28 +695,30 @@
                 break-inside: avoid;
             }
 
-            /* 关键：用 last-of-type 而不是 last-child（script 是 last-child） */
+            /* 用 last-of-type 避免 script 影响 */
             .paper-outer:last-of-type {
                 page-break-after: avoid;
                 break-after: avoid;
             }
 
-            /* 每张纸内部强制 1:1 尺寸，覆盖屏幕端 JS 内联 zoom */
+            /* 打印时取消缩放，恢复真实尺寸 */
             .sheet {
-                zoom: 1 !important;
                 transform: none !important;
                 width: 297mm !important;
                 height: 210mm !important;
-                max-height: 210mm !important;
                 margin: 0 !important;
                 box-shadow: none !important;
                 overflow: hidden;
             }
 
-            /* 保证报头红色、纹理、标题颜色都被打印 */
-            .paper-name,
-            .head-title,
+            /* 打印时关闭纸张噪点纹理（不可见且拖慢打印） */
             .sheet::before {
+                display: none !important;
+            }
+
+            /* 保证报头红色、标题颜色都被打印 */
+            .paper-name,
+            .head-title {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -730,7 +728,7 @@
 <body>
 
     <!-- 版本号标识 -->
-    <div class="version-badge">版本 v0034</div>
+    <span class="version-badge" aria-hidden="true">版本 v0035</span>
 
     <!-- ============================================================
          第 1 页
@@ -814,7 +812,9 @@
 
                         <div class="article-content">
                             <figure class="inline-figure">
-                                <img src="https://21306.top/np/v2/这又是一张图.jpg" alt="体测备战现场">
+                                <img src="https://21306.top/np/v2/%E8%BF%99%E5%8F%88%E6%98%AF%E4%B8%80%E5%BC%A0%E5%9B%BE.jpg"
+                                     alt="体测备战现场"
+                                     loading="lazy" decoding="async">
                                 <figcaption>△ 体测备战现场（摄影：语文 6 班同学）</figcaption>
                             </figure>
 
@@ -840,9 +840,9 @@
             <footer class="footer">
                 <div class="footer-info">
                     <span>2026 年 10 月 9 日 星期五</span>
-                    <span class="f-sep">◆</span>
+                    <span class="f-sep" aria-hidden="true">◆</span>
                     <span>第 1 版</span>
-                    <span class="f-sep">◆</span>
+                    <span class="f-sep" aria-hidden="true">◆</span>
                     <span>本版编辑：语文 6 班 5 组</span>
                 </div>
             </footer>
@@ -861,15 +861,15 @@
                 <div class="col-left">
 
                     <div class="page-head-inline">
-                        <span class="head-title">凌云逐风</span>
+                        <h1 class="head-title">凌云逐风</h1>
                     </div>
 
                     <article class="article-block">
-                        <h2 class="t-rail">备战体考，听听陈建老师怎么说</h2>
+                        <h2 class="t-rail">备战体考，听听陈健老师怎么说</h2>
                         <p class="byline">■ 李伯雄</p>
 
                         <p class="article-body">
-                            随着体考的到来，同学们既充满期待又有些紧张。近日，初二（6）班学生记者团带着大家的疑问，专门采访了体育老师陈建，为同学们的备考答疑解惑。
+                            随着体考的到来，同学们既充满期待又有些紧张。近日，初二（6）班学生记者团带着大家的疑问，专门采访了体育老师陈健，为同学们的备考答疑解惑。
                         </p>
                         <p class="article-body">
                             考前一周该加练还是休息？陈老师明确表示，考前一两天不要突击大强度加练，避免受伤。建议以慢跑、拉伸等轻量活动为主，保证睡眠。针对跑步，他提醒大家要打磨呼吸节奏，合理分配每圈配速，切忌一起跑就全力冲刺。心态上，认真对待模拟测试，紧张时深呼吸，告诉自己“我们做足了准备”。
@@ -935,7 +935,7 @@
                     </article>
 
                     <section class="dispatch-section article-block grow">
-                        <h3 class="dispatch-title">组员通讯</h3>
+                        <h2 class="dispatch-title">组员通讯</h2>
                         <ul class="dispatch-list">
                             <li class="dispatch-item">
                                 <span class="d-num">01</span>张雨杨同学分享跑步训练方法：日常以 5 至 7.5 公里有氧跑打底，配合速度练习，注重节奏与呼吸调控。他给自己定下 120 分的目标，一年来坚持周一、三、五体能加练，50 米跑与立定跳远成绩显著提升，靠长期积累收获优异成绩。
@@ -956,7 +956,9 @@
                         </ul>
 
                         <figure class="dispatch-photo">
-                            <img src="https://21306.top/np/v2/这是一张图.jpg" alt="体育模拟考试现场">
+                            <img src="https://21306.top/np/v2/%E8%BF%99%E6%98%AF%E4%B8%80%E5%BC%A0%E5%9B%BE.jpg"
+                                 alt="体育模拟考试现场"
+                                 loading="lazy" decoding="async">
                             <figcaption>△ 体育模拟考试现场（摄影：胡珈宁）</figcaption>
                         </figure>
                     </section>
@@ -977,9 +979,9 @@
             <footer class="footer">
                 <div class="footer-info">
                     <span>2026 年 10 月 9 日 星期五</span>
-                    <span class="f-sep">◆</span>
+                    <span class="f-sep" aria-hidden="true">◆</span>
                     <span>第 2 版</span>
-                    <span class="f-sep">◆</span>
+                    <span class="f-sep" aria-hidden="true">◆</span>
                     <span>本版编辑：语文 6 班 5 组</span>
                 </div>
             </footer>
@@ -992,42 +994,46 @@
             var sheets = document.querySelectorAll('.sheet');
             if (!sheets.length) return;
 
-            var lastWidth = 0;
+            var root = document.documentElement;
+            var BASE_W = 0;          // 只测一次，之后不再重测
+            var lastW = -1;
             var rafId = null;
 
-            function applyZoom() {
-                var vw = document.documentElement.clientWidth;
+            function applyScale() {
+                var vw = root.clientWidth;   // 不含滚动条宽度
+                if (vw === lastW) return;
 
-                var baseW = sheets[0].offsetWidth;
-                if (!baseW) return;
-
-                if (vw === lastWidth) return;
-                lastWidth = vw;
-
-                var zoom = vw / baseW;
-
-                for (var i = 0; i < sheets.length; i++) {
-                    sheets[i].style.zoom = zoom;
+                // 首次测量基准宽度。此时 --sheet-scale 仍为默认值 1，
+                // 且 transform 不改变布局尺寸，offsetWidth 反映真实宽度。
+                if (!BASE_W) {
+                    BASE_W = sheets[0].offsetWidth;
+                    if (!BASE_W) {          // 布局尚未完成，下次再试
+                        lastW = -1;
+                        return;
+                    }
                 }
+
+                lastW = vw;
+                root.style.setProperty('--sheet-scale', (vw / BASE_W).toFixed(5));
             }
 
             function scheduleFit() {
                 if (rafId) return;
                 rafId = requestAnimationFrame(function () {
                     rafId = null;
-                    applyZoom();
+                    applyScale();
                 });
             }
 
             window.addEventListener('resize', scheduleFit);
             window.addEventListener('orientationchange', scheduleFit);
 
-            applyZoom();
+            applyScale();
 
             if (document.fonts && document.fonts.ready) {
                 document.fonts.ready.then(function () {
-                    lastWidth = 0;
-                    applyZoom();
+                    lastW = -1;   // 强制重算，但 BASE_W 已缓存，不会重测
+                    applyScale();
                 });
             }
         })();
