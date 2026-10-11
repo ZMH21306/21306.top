@@ -1,6 +1,6 @@
 /* ==========================================================================
    语文5组的神秘报纸 · 版本时间轴
-   — 头部右上角实时显示当前版本号 + 时间点 · 全局顶层 tooltip
+   — 轨道贯穿屏幕横向 · 无 9px 内边距
    ========================================================================== */
 
 const versions = [
@@ -73,34 +73,64 @@ const globalTip    = document.getElementById('globalTip');
 let currentIndex = 0;
 let isPlaying    = false;
 let playTimer    = null;
-let loadTimer    = null;
 let swapTimer    = null;
+let loading      = false;
 
-const PLAY_SPEED  = 200;
-const COMMIT_WAIT = 1500;
-const WARM_POOL   = 6;
+const PLAY_SPEED = 200;
+const WARM_POOL  = 8;
 
 const markers = [];
 const buffers = [];
-let front = 0, frontVersion = -1, backVersion = -1, pending = -1, loading = false;
+let front = 0, frontVersion = -1, pending = -1;
 
 const preloaded = new Array(N).fill(false);
 preloaded[0] = true;
 let plHead = 0;
 
 const htmlCache = new Array(N).fill(null);
+const inflight  = new Map();
 
 /* ==========================================================================
    位置计算：每版一格，圆点在格心
+   — 关键：从 100% 全长计算，不再预留左右 9px 内边距
    ========================================================================== */
 const markerLeft = i =>
-  `calc(9px + (100% - 18px) * ${(((i + 0.5) / N).toFixed(6))})`;
+  `calc(100% * ${(((i + 0.5) / N).toFixed(6))})`;
 
 const spanLeft = start =>
-  `calc(9px + (100% - 18px) * ${((start / N).toFixed(6))})`;
+  `calc(100% * ${((start / N).toFixed(6))})`;
 
 const spanWidth = (start, end) =>
-  `calc((100% - 18px) * ${(((end - start + 1) / N).toFixed(6))})`;
+  `calc(100% * ${(((end - start + 1) / N).toFixed(6))})`;
+
+/* ==========================================================================
+   统一加载入口
+   ========================================================================== */
+function fetchHTML(i) {
+  if (htmlCache[i]) return Promise.resolve(htmlCache[i]);
+  if (inflight.has(i)) return inflight.get(i);
+
+  const ctrl = new AbortController();
+  const timeout = setTimeout(() => ctrl.abort(), 8000);
+
+  const p = fetch(versions[i].file, { cache: 'default', signal: ctrl.signal })
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
+    .then(t => {
+      htmlCache[i] = t;
+      markPreloaded(i, true);
+      return t;
+    })
+    .finally(() => {
+      clearTimeout(timeout);
+      inflight.delete(i);
+    });
+
+  inflight.set(i, p);
+  return p;
+}
 
 /* ==========================================================================
    全局 tooltip
@@ -122,15 +152,20 @@ function positionTip(target) {
   const tr = target.getBoundingClientRect();
   const pr = globalTip.getBoundingClientRect();
 
-  const GAP = 8;
+  const GAP = 10;
   const EDGE = 4;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
+  let below = false;
   let top = tr.top - pr.height - GAP;
-  if (top < EDGE) top = tr.bottom + GAP;
+  if (top < EDGE) {
+    top = tr.bottom + GAP;
+    below = true;
+  }
   if (top + pr.height > vh - EDGE) {
     top = Math.max(EDGE, vh - pr.height - EDGE);
+    below = top > tr.top;
   }
 
   let left = tr.left + tr.width / 2 - pr.width / 2;
@@ -139,6 +174,7 @@ function positionTip(target) {
 
   globalTip.style.top  = top  + 'px';
   globalTip.style.left = left + 'px';
+  globalTip.classList.toggle('is-below', below);
 }
 
 function hideTip() {
@@ -166,11 +202,8 @@ function markPreloaded(i, ok) {
 
 function parts(t) {
   return {
-    y:  t.slice(0, 4),
-    mo: t.slice(4, 6),
-    d:  t.slice(6, 8),
-    h:  t.slice(9, 11),
-    mi: t.slice(11, 13)
+    y:  t.slice(0, 4), mo: t.slice(4, 6), d: t.slice(6, 8),
+    h:  t.slice(9, 11), mi: t.slice(11, 13)
   };
 }
 function fullTime(t) {
@@ -226,12 +259,10 @@ function buildMarkers() {
     m.addEventListener('pointerleave', e => {
       if (e.pointerType === 'mouse') hideTip();
     });
-
     m.addEventListener('pointerdown', e => {
       e.stopPropagation();
       if (e.pointerType !== 'mouse') showTip(m, label);
     });
-
     m.addEventListener('click', e => {
       e.stopPropagation();
       goTo(i);
@@ -268,7 +299,6 @@ function updateMeta(i) {
   currentIndex = i;
   const v = versions[i];
 
-  /* 头部右上角实时更新 */
   curVer.textContent       = v.id;
   curTimeShort.textContent = shortTime(v.time);
   curTimeFull.textContent  = fullTime(v.time);
@@ -304,63 +334,20 @@ function createBuffer() {
   f.className = 'viewer__frame';
   f.setAttribute('allowfullscreen', '');
   f.setAttribute('title', '版本预览');
-  f.addEventListener('load', () => attachFrameKeys(f));
   viewer.appendChild(f);
   buffers.push(f);
   return f;
 }
 
-function goTo(i) {
-  if (i < 0 || i >= N) return;
-  if (i === currentIndex && frontVersion === i) return;
-  updateMeta(i);
-  pending = i;
-  if (frontVersion === i) return;
-  if (loading) return;
-  loadIntoBack(i);
+function writeToBuffer(buf, html) {
+  const doc = buf.contentDocument || buf.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+  attachFrameKeys(buf);
 }
 
-function loadIntoBack(i) {
-  if (i < 0 || i >= N) return;
-  const b = buffers[1 - front];
-  backVersion = i;
-  loading = true;
-
-  clearTimeout(loadTimer);
-  b.onload  = () => { if (backVersion === i) commit(i); };
-  b.onerror = () => { if (backVersion === i) commit(i); };
-  loadTimer = setTimeout(() => { if (backVersion === i) commit(i); }, COMMIT_WAIT);
-
-  if (htmlCache[i]) {
-    const doc = b.contentDocument || b.contentWindow.document;
-    doc.open();
-    doc.write(htmlCache[i]);
-    doc.close();
-    attachFrameKeys(b);
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      if (backVersion === i) commit(i);
-    }));
-  } else {
-    b.src = versions[i].file;
-  }
-}
-
-function commit(i) {
-  clearTimeout(loadTimer);
-
-  if (frontVersion === i) {
-    loading = false;
-    backVersion = -1;
-    if (pending !== i) {
-      loadIntoBack(pending);
-    } else if (isPlaying) {
-      clearTimeout(playTimer);
-      playTimer = setTimeout(tick, PLAY_SPEED);
-    }
-    return;
-  }
-
-  loading = false;
+function swapBuffers(i) {
   const nb = buffers[1 - front];
   const ob = buffers[front];
 
@@ -370,28 +357,84 @@ function commit(i) {
 
   front = 1 - front;
   frontVersion = i;
-  backVersion = -1;
   viewerHint.classList.add('is-hidden');
 
   clearTimeout(swapTimer);
   swapTimer = setTimeout(() => {
     ob.classList.remove('is-active');
     ob.style.zIndex = '';
-  }, 120);
+  }, 150);
+}
 
-  if (pending !== i) {
-    loadIntoBack(pending);
-  } else if (isPlaying) {
-    clearTimeout(playTimer);
-    playTimer = setTimeout(tick, PLAY_SPEED);
+const nextFrame = () => new Promise(r => requestAnimationFrame(r));
+
+/* ==========================================================================
+   核心加载流程
+   ========================================================================== */
+async function processLoad(startI) {
+  let i = startI;
+
+  while (true) {
+    if (frontVersion === i) {
+      loading = false;
+      if (pending === i && isPlaying) scheduleNextTick();
+      return;
+    }
+
+    let html;
+    try {
+      html = await fetchHTML(i);
+    } catch (e) {
+      loading = false;
+      return;
+    }
+
+    if (pending !== i) { i = pending; continue; }
+
+    const nb = buffers[1 - front];
+    writeToBuffer(nb, html);
+
+    await nextFrame();
+    await nextFrame();
+
+    if (frontVersion === i) {
+      loading = false;
+      if (pending === i && isPlaying) scheduleNextTick();
+      return;
+    }
+
+    swapBuffers(i);
+
+    if (pending === i) {
+      loading = false;
+      if (isPlaying) scheduleNextTick();
+      return;
+    }
+    i = pending;
   }
+}
+
+function goTo(i) {
+  if (i < 0 || i >= N) return;
+  if (i === currentIndex && frontVersion === i) return;
+
+  updateMeta(i);
+  pending = i;
+
+  if (frontVersion === i) return;
+  if (loading) return;
+
+  loading = true;
+  processLoad(i);
 }
 
 /* ==========================================================================
    播放控制
    ========================================================================== */
-function prev() { goTo(currentIndex - 1); }
-function next() { goTo(currentIndex + 1); }
+function scheduleNextTick() {
+  clearTimeout(playTimer);
+  playTimer = setTimeout(tick, PLAY_SPEED);
+}
 
 function tick() {
   if (!isPlaying) return;
@@ -413,16 +456,20 @@ function togglePlay() {
   if (isPlaying) tick();
 }
 
+function prev() { goTo(currentIndex - 1); }
+function next() { goTo(currentIndex + 1); }
+
 /* ==========================================================================
    轨道拖动定位
    ========================================================================== */
 let scrubbing = false, scrubRaf = null, scrubX = 0;
 
+/* 关键：直接按轨道全宽（100%）映射，无左右内边距 */
 function indexFromX(clientX) {
   const rect = track.getBoundingClientRect();
-  const usable = rect.width - 18;
+  const usable = rect.width;
   if (usable <= 0) return 0;
-  const r = (clientX - rect.left - 9) / usable;
+  const r = (clientX - rect.left) / usable;
   return Math.max(0, Math.min(N - 1, Math.floor(r * N)));
 }
 
@@ -467,46 +514,45 @@ function warmImages() {
    后台预加载
    ========================================================================== */
 function startWarmer() {
-  let nextIdx   = 1;
-  let loaded    = 1;
-  let attempted = 1;
-  let finished  = false;
+  let cursor   = 1;
+  let active   = 0;
+  let done     = 1;
+  let finished = false;
 
   const updateLabel = () => {
-    if (attempted >= N) {
-      preloadText.textContent = loaded >= N
-        ? '预加载完成'
-        : `预加载完成（${loaded}/${N}）`;
+    if (finished) {
+      preloadText.textContent = done >= N
+        ? '全部就绪'
+        : `就绪 ${done} / ${N}`;
     } else {
-      preloadText.textContent = `预加载 ${loaded} / ${N}`;
+      preloadText.textContent = `预加载 ${done} / ${N}`;
     }
   };
 
   const pump = () => {
-    if (finished || nextIdx >= N) return;
-    const idx = nextIdx++;
+    if (finished) return;
+    if (cursor >= N) {
+      if (active === 0) {
+        finished = true;
+        updateLabel();
+        preloadInfo.classList.add('is-done');
+      }
+      return;
+    }
+    const idx = cursor++;
+    active++;
 
-    fetch(versions[idx].file, { cache: 'default' })
-      .then(r => r.text())
-      .then(t => {
-        htmlCache[idx] = t;
-        loaded++;
-        markPreloaded(idx, true);
-      })
+    fetchHTML(idx)
       .catch(() => {})
       .finally(() => {
-        attempted++;
+        active--;
+        done++;
         updateLabel();
-        if (attempted >= N) {
-          finished = true;
-          preloadInfo.classList.add('is-done');
-        } else {
-          setTimeout(pump, 0);
-        }
+        pump();
       });
   };
 
-  for (let k = 0; k < Math.min(WARM_POOL, N - 1); k++) pump();
+  for (let i = 0; i < WARM_POOL; i++) pump();
   updateLabel();
 }
 
@@ -517,11 +563,12 @@ function updateTrackLayout() {
   const w = track.offsetWidth;
   if (w <= 0) return;
 
-  const usable = w - 18;
+  /* 关键：轨道宽度即全宽，无内边距扣除 */
+  const usable = w;
   const gap = usable / Math.max(1, N);
 
-  const ms = Math.max(4, Math.min(16, gap * 0.72));
-  const th = Math.max(32, Math.min(52, ms * 3.5));
+  const ms = Math.max(5, Math.min(16, gap * 0.72));
+  const th = Math.max(40, Math.min(56, ms * 3.6));
 
   track.style.height = th + 'px';
   track.style.setProperty('--ms', ms + 'px');
@@ -530,13 +577,9 @@ function updateTrackLayout() {
   for (let k = 0; k < items.length; k++) {
     const el = items[k];
     const wpx = parseFloat(getComputedStyle(el).width) || 0;
-    if (wpx >= 78) {
-      el.textContent = el.dataset.full;
-    } else if (wpx >= 42) {
-      el.textContent = el.dataset.short;
-    } else {
-      el.textContent = el.dataset.tiny;
-    }
+    if (wpx >= 82)      el.textContent = el.dataset.full;
+    else if (wpx >= 44) el.textContent = el.dataset.short;
+    else                el.textContent = el.dataset.tiny;
   }
 
   repositionTip();
@@ -556,11 +599,9 @@ function onResize() {
 }
 window.addEventListener('resize', onResize);
 window.addEventListener('orientationchange', onResize);
-
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', onResize);
 }
-
 window.addEventListener('scroll', repositionTip, { passive: true, capture: true });
 
 /* ==========================================================================
@@ -587,9 +628,7 @@ document.addEventListener('keydown', e => {
 
 document.addEventListener('pointerdown', e => {
   if (globalTip.classList.contains('is-visible')) {
-    if (!e.target.closest || !e.target.closest('.tl-marker')) {
-      hideTip();
-    }
+    if (!e.target.closest || !e.target.closest('.tl-marker')) hideTip();
   }
 }, true);
 
@@ -607,7 +646,7 @@ document.addEventListener('touchmove', e => {
 /* ==========================================================================
    初始化
    ========================================================================== */
-function init() {
+async function init() {
   createBuffer();
   createBuffer();
 
@@ -615,25 +654,32 @@ function init() {
   buildBands(groups);
   buildMarkers();
   buildRuler(groups);
-
   updateTrackLayout();
 
   frontVersion = 0;
   pending = 0;
-
-  buffers[0].addEventListener('load', () => {
-    attachFrameKeys(buffers[0]);
-    viewerHint.classList.add('is-hidden');
-  });
-
-  setTimeout(() => viewerHint.classList.add('is-hidden'), 2500);
-
-  buffers[0].src = versions[0].file;
-  buffers[0].classList.add('is-active');
   updateMeta(0);
 
+  try {
+    const html = await fetchHTML(0);
+    writeToBuffer(buffers[0], html);
+    buffers[0].classList.add('is-active');
+
+    await nextFrame();
+    await nextFrame();
+    viewerHint.classList.add('is-hidden');
+  } catch (e) {
+    buffers[0].src = versions[0].file;
+    buffers[0].classList.add('is-active');
+    buffers[0].addEventListener('load', () => {
+      attachFrameKeys(buffers[0]);
+      viewerHint.classList.add('is-hidden');
+    });
+    setTimeout(() => viewerHint.classList.add('is-hidden'), 2500);
+  }
+
   warmImages();
-  setTimeout(startWarmer, 800);
+  startWarmer();
 }
 
 if (N > 0) {
