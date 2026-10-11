@@ -78,8 +78,9 @@ const R = i => i / (N - 1);
 function leftOf(i) { return 'calc(9px + (100% - 18px) * ' + R(i).toFixed(6) + ')'; }
 function spanOf(a, b) { return 'calc((100% - 18px) * ' + Math.max(0, R(b) - R(a)).toFixed(6) + ')'; }
 
-function markPreloaded(i) {
+function markPreloaded(i, success) {
     if (i < 0 || i >= N || preloaded[i]) return;
+    if (!success) return;  // 加载失败不计入进度
     preloaded[i] = true;
     while (plHead + 1 < N && preloaded[plHead + 1]) plHead++;
     progress.style.width = spanOf(0, plHead);
@@ -274,9 +275,11 @@ function startWarmer() {
     const pump = () => {
         if (finished || nextIdx >= N) return;
         const idx = nextIdx++;
-        const done = () => {
-            loaded++;
-            markPreloaded(idx);
+        const done = (success) => {
+            if (success) {
+                loaded++;
+                markPreloaded(idx, true);
+            }
             preloadText.textContent = '后台预加载 ' + loaded + ' / ' + N;
             if (loaded >= N) {
                 finished = true;
@@ -288,8 +291,8 @@ function startWarmer() {
         };
         fetch(versions[idx].file, { cache: 'default' })
             .then(r => r.text())
-            .then(t => { htmlCache[idx] = t; done(); })
-            .catch(done);
+            .then(t => { htmlCache[idx] = t; done(true); })
+            .catch(() => { done(false); });
     };
     for (let k = 0; k < Math.min(POOL, N - 1); k++) pump();
 }
