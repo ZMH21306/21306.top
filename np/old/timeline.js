@@ -1,6 +1,6 @@
 /* ==========================================================================
    语文5组的神秘报纸 · 版本时间轴
-   — 重写 UI · 修复全部已知缺陷 · 全设备适配
+   — 布局模型：每个版本占一"格" · 圆点居中 · 日期标尺独立成行
    ========================================================================== */
 
 const versions = [
@@ -57,6 +57,7 @@ const IMAGES = ['这是一张图.jpg','这又是一张图.jpg']
 const viewer       = document.getElementById('viewer');
 const viewerHint   = document.getElementById('viewerHint');
 const track        = document.getElementById('track');
+const ruler        = document.getElementById('ruler');
 const progress     = document.getElementById('progress');
 const curVer       = document.getElementById('curVer');
 const curTime      = document.getElementById('curTime');
@@ -74,9 +75,9 @@ let playTimer    = null;
 let loadTimer    = null;
 let swapTimer    = null;
 
-const PLAY_SPEED  = 200;   // 每版停留 ms
-const COMMIT_WAIT = 1500;  // 兜底提交 ms
-const WARM_POOL   = 6;     // 预加载并发
+const PLAY_SPEED  = 200;
+const COMMIT_WAIT = 1500;
+const WARM_POOL   = 6;
 
 const markers = [];
 const buffers = [];
@@ -89,22 +90,33 @@ let plHead = 0;
 const htmlCache = new Array(N).fill(null);
 
 /* ==========================================================================
-   工具函数
+   位置计算：每版一格，圆点在格心
+   — 可用宽度 = 100% - 18px（左右各 9px 留白）
+   — 第 i 版占 [i/N, (i+1)/N] 区间
    ========================================================================== */
 
-/* N=1 时 R(i) 退化为 0，避免除零 → NaN */
-const R = i => (N <= 1 ? 0 : i / (N - 1));
+/* 圆点中心：位于该格正中央 */
+const markerLeft = i =>
+  `calc(9px + (100% - 18px) * ${(((i + 0.5) / N).toFixed(6))})`;
 
-const leftOf = i => `calc(9px + (100% - 18px) * ${R(i).toFixed(6)})`;
-const spanOf = (a, b) =>
-  `calc((100% - 18px) * ${Math.max(0, R(b) - R(a)).toFixed(6)})`;
+/* 分段左边界：第 start 版格的左沿 */
+const spanLeft = start =>
+  `calc(9px + (100% - 18px) * ${((start / N).toFixed(6))})`;
 
+/* 分段宽度：从 start 到 end（含）共占几格 */
+const spanWidth = (start, end) =>
+  `calc((100% - 18px) * ${(((end - start + 1) / N).toFixed(6))})`;
+
+/* ==========================================================================
+   工具
+   ========================================================================== */
 function markPreloaded(i, ok) {
   if (i < 0 || i >= N || preloaded[i]) return;
   if (!ok) return;
   preloaded[i] = true;
   while (plHead + 1 < N && preloaded[plHead + 1]) plHead++;
-  progress.style.width = spanOf(0, plHead);
+  /* 进度长度 = 已缓存前 plHead+1 个版本的总宽度 */
+  progress.style.width = spanWidth(0, plHead);
 }
 
 function parts(t) {
@@ -126,10 +138,11 @@ function shortTime(t) {
 }
 
 /* ==========================================================================
-   时间轴构建
+   时间轴构建（三段：背景带 / 圆点 / 日期标尺）
    ========================================================================== */
-function buildTrack() {
-  /* 日期分组背景带 */
+
+/* 按日期分组 */
+function groupByDay() {
   const groups = [];
   let cur = null;
   versions.forEach((v, i) => {
@@ -141,33 +154,32 @@ function buildTrack() {
       cur.end = i;
     }
   });
+  return groups;
+}
 
+/* 背景带：仅作视觉分组，无文字 */
+function buildBands(groups) {
   groups.forEach((g, gi) => {
     const band = document.createElement('div');
     band.className = 'tl-band' + (gi % 2 ? ' is-alt' : '');
-    band.style.left  = leftOf(g.start);
-    band.style.width = spanOf(g.start, g.end);
-
-    const lb = document.createElement('span');
-    lb.className = 'tl-band__label' + (gi === groups.length - 1 ? ' is-right' : '');
-    lb.textContent = `${g.key} · ${g.end - g.start + 1}版`;
-    band.appendChild(lb);
-
+    band.style.left  = spanLeft(g.start);
+    band.style.width = spanWidth(g.start, g.end);
     track.appendChild(band);
   });
+}
 
-  /* 版本圆点 */
+/* 圆点 */
+function buildMarkers() {
   versions.forEach((v, i) => {
     const m = document.createElement('div');
     m.className = 'tl-marker';
-    m.style.left = leftOf(i);
+    m.style.left = markerLeft(i);
 
     const tip = document.createElement('span');
     tip.className = 'tl-tip';
     tip.textContent = `${v.id} · ${shortTime(v.time)}`;
     m.appendChild(tip);
 
-    /* 阻止 pointerdown 冒泡，避免点击标记时轨道也走一遍 scrub */
     m.addEventListener('pointerdown', e => e.stopPropagation());
     m.addEventListener('click', e => {
       e.stopPropagation();
@@ -176,6 +188,25 @@ function buildTrack() {
 
     track.appendChild(m);
     markers.push(m);
+  });
+}
+
+/* 日期标尺：独立行，永不与圆点重叠 */
+function buildRuler(groups) {
+  groups.forEach((g, gi) => {
+    const item = document.createElement('div');
+    item.className = 'tl-ruler__item' + (gi === 0 ? ' is-first' : '');
+    item.style.left  = spanLeft(g.start);
+    item.style.width = spanWidth(g.start, g.end);
+
+    const total = g.end - g.start + 1;
+    /* 优先显示 "10/07 · 26版"，若过窄则退化为 "10/07"，再窄则退化为 "07" */
+    item.textContent = `${g.key} · ${total}版`;
+    item.dataset.short = g.key;
+    item.dataset.tiny  = g.key.slice(3);
+    item.title = `${g.key} · 共 ${total} 版`;
+
+    ruler.appendChild(item);
   });
 }
 
@@ -189,7 +220,6 @@ function updateMeta(i) {
 
   markers.forEach((m, k) => m.classList.toggle('is-active', k === i));
 
-  /* a11y：同步 slider 值 */
   track.setAttribute('aria-valuenow', String(i));
   track.setAttribute('aria-valuetext', `${v.id} · ${fullTime(v.time)}`);
 }
@@ -197,8 +227,6 @@ function updateMeta(i) {
 /* ==========================================================================
    双缓冲渲染
    ========================================================================== */
-
-/* iframe 内 keydown 转发：解决聚焦 iframe 后父页面快捷键失效 */
 function attachFrameKeys(f) {
   try {
     const doc = f.contentDocument;
@@ -206,18 +234,12 @@ function attachFrameKeys(f) {
     doc.__keysBound = true;
     doc.addEventListener('keydown', e => {
       const ev = new KeyboardEvent('keydown', {
-        key: e.key,
-        code: e.code,
-        bubbles: true,
-        cancelable: true
+        key: e.key, code: e.code, bubbles: true, cancelable: true
       });
       const notPrevented = document.dispatchEvent(ev);
-      if (!notPrevented) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
+      if (!notPrevented) { e.preventDefault(); e.stopPropagation(); }
     }, true);
-  } catch (_) { /* 跨域则静默忽略 */ }
+  } catch (_) {}
 }
 
 function createBuffer() {
@@ -225,7 +247,6 @@ function createBuffer() {
   f.className = 'viewer__frame';
   f.setAttribute('allowfullscreen', '');
   f.setAttribute('title', '版本预览');
-  f.setAttribute('scrolling', 'auto');
   f.addEventListener('load', () => attachFrameKeys(f));
   viewer.appendChild(f);
   buffers.push(f);
@@ -237,8 +258,8 @@ function goTo(i) {
   if (i === currentIndex && frontVersion === i) return;
   updateMeta(i);
   pending = i;
-  if (frontVersion === i) return;   // 已在前台
-  if (loading) return;              // 有加载在途，commit 后自动补载
+  if (frontVersion === i) return;
+  if (loading) return;
   loadIntoBack(i);
 }
 
@@ -254,13 +275,11 @@ function loadIntoBack(i) {
   loadTimer = setTimeout(() => { if (backVersion === i) commit(i); }, COMMIT_WAIT);
 
   if (htmlCache[i]) {
-    /* 缓存命中：直接写入，跳过网络请求 */
     const doc = b.contentDocument || b.contentWindow.document;
     doc.open();
     doc.write(htmlCache[i]);
     doc.close();
     attachFrameKeys(b);
-    /* doc.write 不触发 load：双 rAF 等待布局完成再提交，避免闪白 */
     requestAnimationFrame(() => requestAnimationFrame(() => {
       if (backVersion === i) commit(i);
     }));
@@ -270,10 +289,8 @@ function loadIntoBack(i) {
 }
 
 function commit(i) {
-  /* 无论如何先清掉计时器，防止残留空回调 */
   clearTimeout(loadTimer);
 
-  /* 目标已在前台：不交换，但必须把播放/加载流水线接回去 */
   if (frontVersion === i) {
     loading = false;
     backVersion = -1;
@@ -287,7 +304,6 @@ function commit(i) {
   }
 
   loading = false;
-
   const nb = buffers[1 - front];
   const ob = buffers[front];
 
@@ -345,12 +361,13 @@ function togglePlay() {
    ========================================================================== */
 let scrubbing = false, scrubRaf = null, scrubX = 0;
 
+/* 每版一格：r 落在哪格就是哪版 */
 function indexFromX(clientX) {
   const rect = track.getBoundingClientRect();
   const usable = rect.width - 18;
   if (usable <= 0) return 0;
   const r = (clientX - rect.left - 9) / usable;
-  return Math.max(0, Math.min(N - 1, Math.round(r * (N - 1))));
+  return Math.max(0, Math.min(N - 1, Math.floor(r * N)));
 }
 
 function queueScrub(x) {
@@ -392,7 +409,6 @@ function warmImages() {
 
 /* ==========================================================================
    后台预加载
-   — 用 attempted 判定完成，任一版失败也不会让计数停滞
    ========================================================================== */
 function startWarmer() {
   let nextIdx   = 1;
@@ -421,7 +437,7 @@ function startWarmer() {
         loaded++;
         markPreloaded(idx, true);
       })
-      .catch(() => { /* 失败不计入连续进度 */ })
+      .catch(() => {})
       .finally(() => {
         attempted++;
         updateLabel();
@@ -440,22 +456,35 @@ function startWarmer() {
 
 /* ==========================================================================
    响应式布局
-   — marker 只作锚点，尺寸由 --ms 决定；位置由 left 决定
+   — 圆点尺寸随宽度自适应；标尺文字按组宽度分级降级
    ========================================================================== */
 function updateTrackLayout() {
   const w = track.offsetWidth;
   if (w <= 0) return;
 
   const usable = w - 18;
-  const gap = usable / Math.max(1, N - 1);
+  const gap = usable / Math.max(1, N);
 
-  /* 圆点尺寸：间距的 75%，钳制在 4–16px */
-  const ms = Math.max(4, Math.min(16, gap * 0.75));
-  /* 轨道高度：随圆点尺寸微调，32–52px */
+  /* 圆点尺寸：格宽的 72%，钳制 4–16px */
+  const ms = Math.max(4, Math.min(16, gap * 0.72));
   const th = Math.max(32, Math.min(52, ms * 3.5));
 
   track.style.height = th + 'px';
   track.style.setProperty('--ms', ms + 'px');
+
+  /* 日期标尺文字分级降级，避免过窄被截成省略号 */
+  const items = ruler.children;
+  for (let k = 0; k < items.length; k++) {
+    const el = items[k];
+    const wpx = parseFloat(getComputedStyle(el).width) || 0;
+    if (wpx >= 78) {
+      el.textContent = el.title.split(' · ')[0] + ' · ' + el.title.match(/共 (\d+) 版/)[1] + '版';
+    } else if (wpx >= 42) {
+      el.textContent = el.dataset.short;
+    } else {
+      el.textContent = el.dataset.tiny;
+    }
+  }
 }
 
 /* ==========================================================================
@@ -473,7 +502,6 @@ function onResize() {
 window.addEventListener('resize', onResize);
 window.addEventListener('orientationchange', onResize);
 
-/* visualViewport：移动端地址栏伸缩 */
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', onResize);
 }
@@ -486,7 +514,6 @@ prevBtn.addEventListener('click', prev);
 nextBtn.addEventListener('click', next);
 
 document.addEventListener('keydown', e => {
-  /* 忽略输入框内的按键 */
   const t = e.target;
   if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
 
@@ -501,17 +528,13 @@ document.addEventListener('keydown', e => {
   }
 });
 
-/* 移动端双击缩放抑制（保留单指操作与双指缩放） */
 let lastTouchEnd = 0;
 document.addEventListener('touchend', e => {
   const now = Date.now();
-  if (now - lastTouchEnd <= 300 && e.touches.length === 0) {
-    e.preventDefault();
-  }
+  if (now - lastTouchEnd <= 300 && e.touches.length === 0) e.preventDefault();
   lastTouchEnd = now;
 }, { passive: false });
 
-/* 阻止 iOS 橡皮筋 */
 document.addEventListener('touchmove', e => {
   if (e.touches.length > 1) e.preventDefault();
 }, { passive: false });
@@ -522,7 +545,12 @@ document.addEventListener('touchmove', e => {
 function init() {
   createBuffer();
   createBuffer();
-  buildTrack();
+
+  const groups = groupByDay();
+  buildBands(groups);
+  buildMarkers();
+  buildRuler(groups);
+
   updateTrackLayout();
 
   frontVersion = 0;
@@ -540,8 +568,6 @@ function init() {
   updateMeta(0);
 
   warmImages();
-
-  /* 延迟启动预加载，避免阻塞首帧 */
   setTimeout(startWarmer, 800);
 }
 
