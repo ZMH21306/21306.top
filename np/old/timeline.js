@@ -181,6 +181,8 @@ function updateMeta(i) {
 // ========== 播放控制 ==========
 function goTo(i) {
     if (i < 0 || i >= N) return;
+    // 保存旧索引（在updateMeta更新currentIndex之前）
+    const prevIdx = currentIndex;
     updateMeta(i);
 
     if (!iframePool[i]) {
@@ -193,8 +195,8 @@ function goTo(i) {
     iframePool[i].style.pointerEvents = 'auto';
 
     // 旧帧延迟隐藏，避免闪烁
-    if (iframePool[currentIndex] && currentIndex !== i) {
-        const oldFrame = iframePool[currentIndex];
+    if (prevIdx !== i && iframePool[prevIdx]) {
+        const oldFrame = iframePool[prevIdx];
         setTimeout(() => {
             oldFrame.style.opacity = '0';
             oldFrame.style.zIndex = '5';
