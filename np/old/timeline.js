@@ -145,8 +145,18 @@ function loadIntoBack(i){
     clearTimeout(loadTimer);
     b.onload=()=>{if(backVersion===i)commit(i)};
     b.onerror=()=>{if(backVersion===i)commit(i)};
-    loadTimer=setTimeout(()=>{if(backVersion===i)commit(i)},1500);  // 兜底：超时也切换
-    b.src=versions[i].file;
+    loadTimer=setTimeout(()=>{if(backVersion===i)commit(i)},1500);
+    
+    if(htmlCache[i]){
+        // 缓存命中：直接写入，跳过网络请求与 HTML 解析
+        const doc=b.contentDocument||b.contentWindow.document;
+        doc.open();
+        doc.write(htmlCache[i]);
+        doc.close();
+    } else {
+        // 缓存未命中：正常加载
+        b.src=versions[i].file;
+    }
 }
 
 function commit(i){
@@ -204,10 +214,10 @@ function warmImages(){
         if(im.decode)im.decode().catch(()=>{});
     });
 }
+const htmlCache = new Array(N).fill(null);
+
 function startWarmer(){
-    /* 打开页面即全速把 54 版 HTML 拉进浏览器 HTTP 缓存（fetch 只下载不渲染，可真正并行），
-       之后 iframe 打开同一版即命中缓存、本地读取 */
-    const POOL=6;   // 浏览器对单域名 HTTP/1.1 的连接上限，用满即为最大并发
+    const POOL=6;
     let next=1,loaded=1,finished=false;
     const pump=()=>{
         if(finished||next>=N)return;
@@ -216,9 +226,12 @@ function startWarmer(){
             loaded++;markPreloaded(idx);
             preloadText.textContent='后台预加载 '+loaded+' / '+N;
             if(loaded>=N){finished=true;preloadText.textContent='后台预加载完成';preloadInfo.classList.add('done');return}
-            setTimeout(pump,0);   // 立即占用空闲连接，不放慢
+            setTimeout(pump,0);
         };
-        fetch(versions[idx].file,{cache:'default'}).then(r=>r.text()).then(done,done);
+        fetch(versions[idx].file,{cache:'default'})
+            .then(r=>r.text())
+            .then(t=>{htmlCache[idx]=t;done()})
+            .catch(done);
     };
     for(let k=0;k<Math.min(POOL,N-1);k++)pump();
 }
