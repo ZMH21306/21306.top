@@ -17,35 +17,52 @@ body{font-family:"Noto Serif SC","SimSun","宋体",serif;background:var(--bg);co
 .header-title{font-size:20px;font-weight:bold;letter-spacing:2px;color:var(--red)}
 .header-meta{font-size:12px;color:var(--muted)}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.timeline-bar{background:var(--paper);border-bottom:1px solid var(--rule);padding:12px 20px;flex-shrink:0}
-.timeline-info{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:13px}
-.current-version{font-weight:bold;color:var(--red)}
-.current-time{color:var(--muted);font-size:11px}
-.timeline-track{position:relative;height:40px;cursor:pointer;user-select:none}
-.timeline-line{position:absolute;top:50%;left:0;right:0;height:2px;background:var(--rule);transform:translateY(-50%)}
-.timeline-progress{position:absolute;top:50%;left:0;height:2px;background:var(--red);transform:translateY(-50%);transition:width .1s ease}
-.timeline-marker{position:absolute;top:50%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);cursor:pointer;transition:all .15s ease;z-index:2}
-.timeline-marker.active{background:var(--red);border-color:var(--red);transform:translate(-50%,-50%)scale(1.3)}
-.timeline-marker:hover{border-color:var(--red);transform:translate(-50%,-50%)scale(1.2)}
-.marker-label{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:5px;font-size:10px;color:var(--muted);white-space:nowrap;opacity:0;transition:opacity .15s;pointer-events:none}
-.timeline-marker:hover .marker-label,.timeline-marker.active .marker-label{opacity:1;color:var(--red)}
-.date-separator{position:absolute;top:0;bottom:0;width:1px;background:var(--muted);opacity:.3}
-.date-label{position:absolute;top:calc(50% + 14px);font-size:9px;color:var(--muted);transform:translateX(-50%)}
-.playback-controls{display:flex;align-items:center;gap:8px;margin-top:10px}
-.btn{padding:4px 12px;border:1px solid var(--rule);background:var(--paper);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s}
+
+/* ===== 时间轴（顶部） ===== */
+.timeline-bar{background:var(--paper);border-bottom:1px solid var(--rule);padding:12px 20px 10px;flex-shrink:0}
+.tl-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
+.tl-current{display:flex;align-items:baseline;gap:10px;min-width:0;overflow:hidden}
+.tl-id{font-size:16px;font-weight:bold;color:var(--red);letter-spacing:1px}
+.tl-time{font-size:13px;color:var(--ink);white-space:nowrap}
+.tl-count{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tl-preload{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap;transition:opacity .5s ease}
+.tl-preload .dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:tlpulse 1.2s ease-in-out infinite}
+.tl-preload.done{opacity:0}
+@keyframes tlpulse{0%,100%{opacity:.2}50%{opacity:1}}
+
+.timeline-track{position:relative;height:64px;cursor:pointer;user-select:none;touch-action:none;overflow:hidden;border-radius:3px;background:rgba(26,23,20,.02)}
+.timeline-track.scrubbing{cursor:grabbing}
+.tl-band{position:absolute;top:0;bottom:0;z-index:0;background:rgba(163,33,30,.05);border-left:1px solid rgba(26,23,20,.07)}
+.tl-band.alt{background:rgba(109,103,90,.055)}
+.tl-band-label{position:absolute;top:4px;left:7px;font-size:10px;color:var(--muted);white-space:nowrap;letter-spacing:.5px}
+.tl-band-label.right{left:auto;right:7px}
+.tl-baseline{position:absolute;top:50%;left:0;right:0;height:2px;background:var(--rule);transform:translateY(-50%);z-index:1}
+.tl-progress{position:absolute;top:50%;left:9px;height:2px;background:var(--red);transform:translateY(-50%);transition:width .12s ease;z-index:2}
+.timeline-track.resizing .tl-progress{transition:none}
+.tl-marker{position:absolute;top:50%;width:18px;height:18px;margin-left:-9px;transform:translateY(-50%);z-index:3;cursor:pointer}
+.tl-marker::after{content:"";position:absolute;top:50%;left:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--paper);border:1.5px solid var(--rule);transition:background .14s,border-color .14s,width .14s,height .14s,margin .14s,box-shadow .14s}
+.tl-marker:hover::after{border-color:var(--red)}
+.tl-marker.active::after{background:var(--red);border-color:var(--red);width:13px;height:13px;margin:-6.5px 0 0 -6.5px;box-shadow:0 0 0 3px rgba(163,33,30,.18)}
+.tl-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:1px;font-size:10px;color:var(--muted);white-space:nowrap;opacity:0;transition:opacity .14s;pointer-events:none}
+.tl-marker:hover .tl-tip,.tl-marker.active .tl-tip{opacity:1;color:var(--red)}
+
+.tl-foot{display:flex;align-items:center;gap:12px;margin-top:8px}
+.tl-controls{display:flex;align-items:center;gap:6px}
+.btn{padding:4px 12px;border:1px solid var(--rule);background:var(--paper);cursor:pointer;font-size:12px;font-family:inherit;color:var(--ink);transition:background .15s,color .15s,border-color .15s}
 .btn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.btn-play{width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%}
-.speed-control{font-size:11px;color:var(--muted);margin-left:auto;cursor:pointer}
+.btn-play{width:30px;height:30px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:14px;line-height:1}
+.btn-primary{background:var(--red);color:var(--paper);border-color:var(--red)}
+.btn-primary:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.btn-speed{font-size:11px;color:var(--muted)}
+.tl-hint{margin-left:auto;font-size:11px;color:var(--muted);white-space:nowrap}
+
+/* ===== 版本视口（双缓冲） ===== */
 .viewer{position:relative;flex:1;min-height:0;background:#d8d3c8;overflow:hidden}
-.viewer .frame{position:absolute;top:0;left:0;width:100%;height:100%;border:none;display:block;background:#d8d3c8;opacity:0;visibility:hidden;z-index:1}
-.viewer .frame.active{opacity:1;visibility:visible;z-index:2}
-.loading-mask{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:opacity .35s ease}
-.loading-mask.hidden{opacity:0;pointer-events:none}
-.loading-inner{width:min(320px,70%);text-align:center}
-.loading-title{font-size:14px;letter-spacing:1px;color:var(--ink);margin-bottom:14px}
-.loading-bar{height:4px;background:var(--rule);border-radius:2px;overflow:hidden}
-.loading-bar-fill{height:100%;width:0;background:var(--red);transition:width .15s ease}
-.loading-count{margin-top:10px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.viewer .frame{position:absolute;top:0;left:0;width:100%;height:100%;border:none;display:block;background:#d8d3c8;opacity:0;pointer-events:none;transition:opacity .1s ease;z-index:1}
+.viewer .frame.active{opacity:1;pointer-events:auto;z-index:2}
+.viewer-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);background:#d8d3c8;z-index:3;transition:opacity .3s ease}
+.viewer-hint.hidden{opacity:0;pointer-events:none}
+.warmer{position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;border:0;pointer-events:none;z-index:-1}
 </style>
 </head>
 <body>
@@ -55,36 +72,35 @@ body{font-family:"Noto Serif SC","SimSun","宋体",serif;background:var(--bg);co
 </header>
 <div class="main">
 <div class="timeline-bar">
-<div class="timeline-info">
-<span class="current-version" id="curVer">v0001</span>
-<span class="current-time" id="curTime">2026年10月7日 13:22</span>
+<div class="tl-head">
+<div class="tl-current">
+<span class="tl-id" id="curVer">v0001</span>
+<span class="tl-time" id="curTime">2026年10月7日 13:22</span>
+<span class="tl-count" id="curCount">第 1 / 54 版</span>
+</div>
+<div class="tl-preload" id="preloadInfo"><span class="dot"></span><span id="preloadText">后台预加载 1 / 54</span></div>
 </div>
 <div class="timeline-track" id="track">
-<div class="timeline-line"></div>
-<div class="timeline-progress" id="progress"></div>
+<div class="tl-baseline"></div>
+<div class="tl-progress" id="progress"></div>
 </div>
-<div class="playback-controls">
-<button class="btn btn-play" id="prevBtn" title="上一个版本">‹</button>
-<button class="btn btn-play" id="playBtn" title="自动播放">▶</button>
-<button class="btn btn-play" id="nextBtn" title="下一个版本">›</button>
-<span class="speed-control" id="speedCtrl">速度: 快</span>
+<div class="tl-foot">
+<div class="tl-controls">
+<button class="btn btn-play btn-primary" id="playBtn" title="播放 / 暂停（空格）">▶</button>
+<button class="btn btn-speed" id="speedCtrl" title="切换播放速度">速度: 极快</button>
+</div>
+<div class="tl-hint">拖动轨道快速定位 · ←/→ 切换 · 空格播放 · Home/End 首尾</div>
 </div>
 </div>
 <div class="viewer" id="viewer">
-<div class="loading-mask" id="loadingMask">
-<div class="loading-inner">
-<div class="loading-title">正在预加载全部版本…</div>
-<div class="loading-bar"><div class="loading-bar-fill" id="maskBar"></div></div>
-<div class="loading-count" id="maskText">0 / 54</div>
-</div>
-</div>
+<div class="viewer-hint" id="viewerHint">正在载入…</div>
 </div>
 </div>
 <script src="timeline.js"></script>
 </body>
 </html>'''
 
-with open(os.path.join(base_path, 'index.html'), 'w', encoding='utf-8') as f:
+with open(os.path.join(base_path, 'index.html'), 'w', encoding='utf-8', newline='\n') as f:
     f.write(html_content)
 
 print('Base HTML created')
