@@ -45,8 +45,6 @@ const versions = [
 ];
 
 const N = versions.length;
-
-// 全部版本仅引用这两张图片（同一 URL ⇒ 浏览器缓存复用，只下载一次）
 const IMAGES = ['这是一张图.jpg','这又是一张图.jpg'].map(n => 'https://21306.top/np/v2/' + encodeURIComponent(n));
 
 let currentIndex = 0, isPlaying = false, playTimer = null;
@@ -65,13 +63,12 @@ const preloadText = document.getElementById('preloadText');
 
 const markers = [];
 
-// ========== 预缓存方案：所有版本提前加载进隐藏的 iframe 池 ==========
-const CONCURRENCY = Math.min(8, N); // 并发加载数（浏览器单域名限制内最大化带宽）
-const iframePool = []; // 存放所有预渲染的 iframe
-const iframeReady = new Array(N).fill(false); // 标记每个版本是否就绪
-let preloadedCount = 0; // 已就绪数量
-let poolLoadingDone = false; // 所有版本预加载完成
-let pendingPromises = 0; // 当前正在等待的 Promise
+// ========== 预缓存方案 ==========
+const CONCURRENCY = Math.min(8, N);
+const iframePool = [];
+const iframeReady = new Array(N).fill(false);
+let preloadedCount = 0;
+let poolLoadingDone = false;
 
 function createBufferedIframe(index) {
     const iframe = document.createElement('iframe');
@@ -91,22 +88,16 @@ function createBufferedIframe(index) {
     viewer.appendChild(iframe);
     iframePool[index] = iframe;
 
-    pendingPromises++;
-    updatePreloadProgress();
-
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
         iframe.onload = () => {
             iframeReady[index] = true;
             preloadedCount++;
-            pendingPromises--;
             updatePreloadProgress();
             resolve();
         };
         iframe.onerror = () => {
-            // 即使出错也标记为就绪，避免死锁
             iframeReady[index] = true;
             preloadedCount++;
-            pendingPromises--;
             updatePreloadProgress();
             resolve();
         };
@@ -183,7 +174,6 @@ function updateMeta(i) {
     curTime.textContent = fullTime(v.time);
     curCount.textContent = '第 ' + (i + 1) + ' / ' + N + ' 版';
     markers.forEach((m, k) => m.classList.toggle('active', k === i));
-    // 更新进度条
     const pct = (i / (N - 1)) * 100;
     progress.style.width = `calc(${pct}% - 9px)`;
 }
@@ -193,19 +183,17 @@ function goTo(i) {
     if (i < 0 || i >= N) return;
     updateMeta(i);
 
-    // 确保 iframe 存在
     if (!iframePool[i]) {
         createBufferedIframe(i);
     }
 
-    // 显示新帧（淡入）
+    // 新帧淡入
     iframePool[i].style.opacity = '1';
     iframePool[i].style.zIndex = '6';
     iframePool[i].style.pointerEvents = 'auto';
 
-    // 延迟隐藏旧帧，避免闪烁
+    // 旧帧延迟隐藏，避免闪烁
     if (iframePool[currentIndex] && currentIndex !== i) {
-        // 使用 transitionend 确保动画完成后再隐藏
         const oldFrame = iframePool[currentIndex];
         setTimeout(() => {
             oldFrame.style.opacity = '0';
@@ -274,34 +262,33 @@ function warmImages() {
     });
 }
 
-// ========== 初始化：并发预渲染所有版本 ==========
+// ========== 初始化 ==========
 function init() {
-    // 立即创建首帧
-    preloadedCount = 0;
-    createBufferedIframe(0);
+    // 1. 立即创建首帧iframe（src赋值后浏览器立即开始加载，页面继续渲染）
+    //    首帧onload后立即淡入显示并隐藏hint，确保内容渲染完成才可见
+    createBufferedIframe(0).then(() => {
+        iframePool[0].style.opacity = '1';
+        iframePool[0].style.zIndex = '6';
+        iframePool[0].style.pointerEvents = 'auto';
+        viewerHint.classList.add('hidden');
+    });
 
-    // 并发创建多个 iframe（充分利用带宽）
-    const promises = [];
+    // 2. 立即更新元数据（标题/时间/进度条），用户马上看到文字信息
+    updateMeta(0);
+
+    // 3. 并发预加载其余版本（后台进行，不影响首帧显示）
     for (let k = 1; k < CONCURRENCY && k < N; k++) {
-        promises.push(createBufferedIframe(k));
+        createBufferedIframe(k);
     }
 
-    // 继续预加载剩余版本（当有空位时）
     let next = CONCURRENCY;
-    const loadNext = () => {
-        if (next >= N || poolLoadingDone) return;
-        promises.push(createBufferedIframe(next++));
-    };
-
-    // 每 50ms 加载一批，避免阻塞主线程
     const loadInterval = setInterval(() => {
         if (poolLoadingDone || next >= N) {
             clearInterval(loadInterval);
             return;
         }
-        // 每批加载多个，进一步榨干带宽
         for (let i = 0; i < 3 && next < N; i++) {
-            loadNext();
+            createBufferedIframe(next++);
         }
     }, 50);
 }
@@ -325,7 +312,6 @@ document.addEventListener('keydown', e => {
     else if (e.key === 'End') { e.preventDefault(); goTo(N - 1); }
 });
 
-// 阻止移动端双击缩放
 document.addEventListener('touchstart', e => {
     if (e.touches.length > 1) e.preventDefault();
 }, { passive: false });
@@ -338,7 +324,6 @@ document.addEventListener('touchend', e => {
 }, { passive: false });
 
 buildTrack();
-updateMeta(0);
-viewerHint.classList.add('hidden');
+viewerHint.classList.remove('hidden'); // 先显示hint（加载中状态）
 warmImages();
 init();
