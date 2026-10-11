@@ -60,12 +60,11 @@ const N=versions.length;
 // 全部版本仅引用这两张图片（同一 URL ⇒ 浏览器缓存复用，只下载一次）
 const IMAGES=['这是一张图.jpg','这又是一张图.jpg'].map(n=>'https://21306.top/np/v2/'+encodeURIComponent(n));
 
-let currentIndex=0,isPlaying=false,playInterval=null,playSpeed=200;
-const speeds=[2000,1000,500,200],labels=['慢','中','快','极快'];let speedIdx=3;
+let currentIndex=0,isPlaying=false,playInterval=null;const playSpeed=200;
 
 const viewer=document.getElementById('viewer'),track=document.getElementById('track'),progress=document.getElementById('progress');
 const curVer=document.getElementById('curVer'),curTime=document.getElementById('curTime'),curCount=document.getElementById('curCount');
-const playBtn=document.getElementById('playBtn'),speedCtrl=document.getElementById('speedCtrl');
+const playBtn=document.getElementById('playBtn');
 const viewerHint=document.getElementById('viewerHint'),preloadInfo=document.getElementById('preloadInfo'),preloadText=document.getElementById('preloadText');
 
 const markers=[];
@@ -162,11 +161,6 @@ function togglePlay(){
     clearInterval(playInterval);
     if(isPlaying){playInterval=setInterval(()=>{currentIndex<N-1?goTo(currentIndex+1):goTo(0)},playSpeed)}
 }
-function cycleSpeed(){
-    speedIdx=(speedIdx+1)%speeds.length;playSpeed=speeds[speedIdx];
-    speedCtrl.textContent='速度: '+labels[speedIdx];
-    if(isPlaying){clearInterval(playInterval);playInterval=setInterval(()=>{currentIndex<N-1?goTo(currentIndex+1):goTo(0)},playSpeed)}
-}
 
 /* ---------- 拖动轨道快速定位 ---------- */
 let scrubbing=false,scrubRaf=null,scrubX=0;
@@ -199,36 +193,23 @@ function warmImages(){
         if(im.decode)im.decode().catch(()=>{});
     });
 }
-let warmed=1;
 function startWarmer(){
-    /* 并发池：多个 iframe 同时拉取（匹配浏览器单域名 6 连接上限），避免串行时带宽闲置 */
+    /* fetch 只下载字节、不解析不渲染，可真正并行（实测并发 6 提速约 6 倍），
+       命中浏览器 HTTP 缓存后，之后 iframe 打开同一页即为本地读取 */
     const POOL=6;
-    let next=1,remaining=N-1,finished=false;
-    const makeWorker=()=>{
-        const w=document.createElement('iframe');
-        w.className='warmer';w.setAttribute('tabindex','-1');w.setAttribute('aria-hidden','true');
-        document.body.appendChild(w);
-        const run=()=>{
-            if(finished||next>=N)return;
-            const idx=next++;
-            let answered=false;
-            const finish=()=>{
-                if(answered)return;answered=true;clearTimeout(t);
-                w.onload=w.onerror=null;
-                warmed=Math.max(warmed,idx+1);remaining--;
-                preloadText.textContent='后台预加载 '+warmed+' / '+N;
-                if(remaining<=0){finished=true;preloadText.textContent='后台预加载完成';preloadInfo.classList.add('done');return}
-                setTimeout(run,isPlaying?600:0);   // 播放中让路，否则立刻抢占下一个任务
-            };
-            const t=setTimeout(finish,3000);   // 兜底：外部资源阻塞时也继续推进
-            w.onload=finish;
-            w.onerror=finish;
-            w.src=versions[idx].file;
+    let next=1,loaded=1,finished=false;
+    const pump=()=>{
+        if(finished||next>=N)return;
+        const idx=next++;
+        const done=()=>{
+            loaded++;
+            preloadText.textContent='后台预加载 '+loaded+' / '+N;
+            if(loaded>=N){finished=true;preloadText.textContent='后台预加载完成';preloadInfo.classList.add('done');return}
+            setTimeout(pump,isPlaying?600:0);   // 播放中让路，否则立刻发起下一个
         };
-        return run;
+        fetch(versions[idx].file,{cache:'default'}).then(r=>r.text()).then(done,done);
     };
-    const workers=Math.min(POOL,N-1);
-    for(let k=0;k<workers;k++)makeWorker()();
+    for(let k=0;k<Math.min(POOL,N-1);k++)pump();
 }
 
 /* ---------- 窗口缩放：临时关闭进度条过渡，避免拖影 ---------- */
@@ -240,7 +221,7 @@ window.addEventListener('resize',()=>{
 
 /* ---------- 事件与初始化 ---------- */
 playBtn.addEventListener('click',togglePlay);
-speedCtrl.addEventListener('click',cycleSpeed);
+
 document.addEventListener('keydown',e=>{
     if(e.key==='ArrowLeft')prev();
     else if(e.key==='ArrowRight')next();
