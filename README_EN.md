@@ -1,10 +1,10 @@
 # 🚀 21306.top
 
-> Personal Project Showcase & Resource Hub Website
+> ZMH's Personal Project Showcase · Open Source Tools · Student Newspaper
 
 [![Project Status](https://img.shields.io/badge/Status-Active-success?style=flat-square&logo=github)](https://github.com/Zmh20121211/21306.top)
 [![License](https://img.shields.io/badge/License-GPL--3.0-blue?style=flat-square&logo=gnu)](LICENSE)
-[![Last Update](https://img.shields.io/badge/Last_Update-Jun_13,_2025-brightgreen?style=flat-square&logo=calendar)](README_EN.md)
+[![Last Update](https://img.shields.io/badge/Last_Update-Oct_11,_2026-brightgreen?style=flat-square&logo=calendar)](README_EN.md)
 
 [English](README_EN.md) | [中文](README.md)
 
@@ -12,95 +12,103 @@
 
 ## 📖 About
 
-**21306.top** is a personal project showcase and resource hub website, featuring login interface, video player, analog clock, and resource collection modules. Built entirely with frontend technologies, it requires no backend and can be deployed to any static hosting platform (e.g., GitHub Pages).
+**21306.top** is ZMH's personal project showcase and open-source tools website, as well as the publishing platform for the "Chinese Language Class 6 Group 5" student newspaper. Main contents include:
+
+- **Open Source Projects** — ClassIn-DL, LlamaUI, Blender Plugin Chinese Localization Collection
+- **Online Utilities** — Analog Clock, WebGL Performance Test, Arduino Resource Distribution
+- **Student Newspaper** — "Mysterious Newspaper of Chinese Group 5" & "Lingyun Zhufeng", supporting A4 landscape layout, print export, and multi-version index
+
+Built entirely with frontend technologies, requiring no backend, deployable to any static hosting platform (e.g., GitHub Pages).
+
+---
 
 ## ✨ Features
 
 | Module | Description |
 |--------|-------------|
-| 🔐 **Login Interface** | User login entry with icons and interactive effects |
-| ▶️ **Video Player** | Custom URL playback, auto-play, volume control, progress bar, cross-device support |
-| ⏱️ **Analog Clock** | Analog clock interface with icons and fullscreen button |
-| 📊 **Resource Hub** | Resource categorization, page icons, mouse interaction effects |
+| 🏠 **Homepage** | Project showcase & tool navigation, supports light/dark theme toggle |
+| 📹 **ClassIn-DL** | ClassIn course video downloader with multi-threading (C# · Avalonia) |
+| 🦙 **LlamaUI** | LLM local deployment desktop console (Rust · Tauri 2) |
+| 🎨 **Blender ZH** | Chinese localization collection for 7 Blender plugins |
+| ⏱️ **Analog Clock** | Fullscreen analog clock with responsive scaling and fullscreen button |
+| ⚡ **Toadstool Benchmark** | WebGL Mandelbulb renderer to test device GPU performance |
+| 🔌 **Arduino Resources** | NullLab AVR board package distribution and Arduino data files |
+| 📰 **Mysterious Newspaper** | Student newspaper index page with version navigation |
+| 📄 **Campus Daily (v1)** | Sports & Health Special, A4 landscape, four articles |
+| 📄 **Lingyun Zhufeng (v2)** | Dual-page A4 landscape with images, dispatch section, reporter credits |
 | 🚧 **404 Page** | Custom 404 error page |
+
+---
 
 ## 🗂️ Project Structure
 
 ```
 21306.top/
-├── index.html          # Main page (project showcase)
+├── index.html          # Homepage (project showcase + tool entry)
 ├── 404.html            # 404 error page
 ├── clock/              # Analog clock module
 │   └── index.html
-├── vsbm/               # Sub-module
+├── vsbm/               # Toadstool WebGL Benchmark (Mandelbulb renderer)
 │   └── index.html
-├── wrc_rally.html      # Standalone page
-├── 测试.html           # Test page
-├── arduino/            # Arduino resources
+├── arduino/            # Arduino development board resources
+│   ├── 7c020fa3-...zip        # NullLab AVR board package
+│   └── 963a656d-...json       # Arduino package manager manifest
+├── np/                 # Student Newspaper module
+│   ├── index.html       # Newspaper index (version navigation)
+│   ├── v1/
+│   │   └── index.html   # v1: Campus Daily · Sports & Health Special
+│   └── v2/
+│       ├── index.html   # v2: Lingyun Zhufeng (dual-page A4 landscape)
+│       ├── 这是一张图.jpg
+│       └── 这又是一张图.jpg
 ├── favicon.ico         # Site icon
-├── CNAME               # Custom domain configuration
+├── CNAME               # Custom domain (21306.top)
+├── gen_timeline.py     # Timeline generation script
+├── reindex.py          # Version numbering reindex script
+├── rewrite_manifest.py # Manifest rewriting script
+├── export_index.py     # Newspaper version export (Git history fetcher)
 ├── README.md           # Project documentation (Chinese)
 └── README_EN.md        # Project documentation (English)
 ```
 
+---
+
 ## 🛠️ Tech Stack
 
-- **HTML5** — Page structure
-- **CSS3** — Styling & themes (light/dark theme support)
-- **JavaScript** — Interaction logic
-- **GitHub Pages** — Static hosting
+| Category | Technology |
+|----------|-----------|
+| **Frontend** | HTML5 · CSS3 · Vanilla JavaScript |
+| **Graphics** | WebGL 1.0 (Mandelbulb ray marching renderer) |
+| **Fonts** | Google Fonts (Ma Shan Zheng, Noto Serif SC) |
+| **Desktop Apps** | C# · Avalonia (ClassIn-DL); Rust · Tauri 2 (LlamaUI) |
+| **Localization** | Python (Blender plugin Chinese translation) |
+| **Hosting** | GitHub Pages (`https://21306.top`) |
 
-## 🚧 Current Development: New Video Player
+---
 
-| Completion Date | Feature | Details |
-|-----------------|---------|---------|
-| May 25, 2025 | ✨ UI Enhancement | Implemented improved UI design |
-| Jun 6, 2025 | ▶️ Auto Play | Added auto play on page load |
-| Jun 7, 2025 | 📱 Cross-Device Support | Fixed mobile and desktop compatibility |
-| Jun 8, 2025 | 📏 Progress Bar Optimization | Improved progress bar for better UX |
-| Jun 11, 2025 | 🔗 URL Input Field | Added custom video URL input |
-| Jun 11, 2025 | 🎚️ Volume Control | Enhanced volume control precision |
-| Jun 11, 2025 | ⏱️ Playback Time | Fixed playback time fluctuation |
-| Jun 12, 2025 | 🔊 Volume Preset | Set default volume to 50% |
-| Jun 13, 2025 | 🔧 Ongoing Optimization | Bug fixes and performance improvements (In Progress) |
+## 📰 Student Newspaper
 
-## 📅 Project Timeline
+### Design Philosophy
+- Real A4 landscape (297mm × 210mm) paper proportion, CSS zoom for responsive screen fitting
+- Classic newspaper layout: double-line masthead, two-column text, KaiTi bylines, Songti body
+- Native print support (`@media print` + `@page size: A4 landscape`)
+- Fonts loaded via Google Fonts, subresource-split for fast first paint
 
-### Q1 2025
+### Version History
 
-| Date | Development Milestones |
-|------|------------------------|
-| Jan 25, 2025 | ✅ **Project Launch** - Website Setup |
-| Feb 21, 2025 | ✅ **Login Interface** - Core Functionality Completed |
-| Mar 17, 2025 | ✅ **Video Playback** - UI Completed |
-| Mar 18, 2025 | 🔄 Video Player UI Improvements |
-| Mar 12, 2025 | 📝 Added "Star History" to README |
-| Mar 13, 2025 | 🔧 README Improvements |
+| Version | Title | Date | Description |
+|---------|-------|------|-------------|
+| v1 | Campus Daily · Sports & Health Special | 2026-10-08 | Issue 001, four articles, left/right column layout |
+| v2 | Lingyun Zhufeng | 2026-10-09 | Dual-page A4 with inline images, dispatch section, reporter credits, full layout upgrade |
+| v3 | (Planned) | — | Third version not yet completed |
 
-### Q2 2025
+### Build Tools
+- **export_index.py** — Fetches all version index.html files from Git history, exports as timestamp-named files
+- **reindex.py** — Auto-renames version numbers in chronological order (v0002→v0001, etc.)
+- **rewrite_manifest.py** — Rewrites `_MANIFEST.txt` linking versions, timestamps, and Git commits
+- **gen_timeline.py** — Timeline generation script (WIP)
 
-| Date | Development Milestones |
-|------|------------------------|
-| Apr 22, 2025 | 🔄 Post-Login Interface Improvements |
-| Apr 25-26, 2025 | 🔄 Structural Refactoring - Directory Optimization |
-| Apr 26-27, 2025 | ➕ Added 404 Page & Improvements |
-| Apr 28, 2025 | ⏱️ Added Analog Clock Interface |
-| Apr 28, 2025 | 🖼️ Login Interface Icon Update |
-| Apr 28, 2025 | 🐞 Fixed Icon Change Bugs |
-| Apr 28, 2025 | 📁 Clock Interface File Renaming |
-| Apr 28, 2025 | 🐞 Fixed Filename Bugs |
-| Apr 28, 2025 | 🐞 Fixed Path Errors |
-| Apr 28, 2025 | 🔄 Major Post-Login UI Update (Converted to Resource Hub) |
-| Apr 29, 2025 | 🗑️ Removed Obsolete Root Files |
-| Apr 29, 2025 | ⏱️ Added Icons & Fullscreen to Clock |
-| Apr 29, 2025 | 📊 Added Page Icons to Resource Hub |
-| Apr 29, 2025 | 🐞 Fixed Resource Hub Icon Visibility |
-| Apr 29, 2025 | ✨ Improved Resource Hub Icons |
-| Apr 29, 2025 | 🖱️ Added Mouse Interaction Effects |
-| May 2-5, 2025 | 📊 Resource Hub Updates: More Resources, Categories, UI Enhancements, Logic Optimization, Clock Integration |
-| May 12, 2025 | 📜 Added GPL-3.0 License & Operation Log |
-| May 13, 2025 | 🔗 Updated Links to Relative Paths |
-| Jun 13, 2025 | 🎨 README Beautification |
+---
 
 ## 🚀 Quick Start
 
@@ -123,6 +131,8 @@ npx serve .
 2. Select the deployment branch (`main`) and root directory
 3. Visit `https://21306.top` or `https://Zmh20121211.github.io/21306.top`
 
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit Issues and Pull Requests.
@@ -133,9 +143,13 @@ Contributions are welcome! Please feel free to submit Issues and Pull Requests.
 4. Push to the branch
 5. Submit a Pull Request
 
+---
+
 ## 📄 License
 
 This project is distributed under the **GPL-3.0** license. See the [LICENSE](LICENSE) file for details.
+
+---
 
 ## ⭐ Star History
 
@@ -144,5 +158,5 @@ This project is distributed under the **GPL-3.0** license. See the [LICENSE](LIC
 ---
 
 <div align="right">
-  <strong>Last Updated:</strong> Jun 13, 2025
+  <strong>Last Updated:</strong> Oct 11, 2026
 </div>
