@@ -24,7 +24,6 @@
   --shadow-sm:0 1px 3px rgba(0,0,0,.10);
   --shadow-md:0 2px 8px rgba(0,0,0,.14);
   --radius:4px;
-  /* 布局变量 */
   --pad-x:clamp(12px,3vw,22px);
   --gap-sm:6px;
   --gap-md:10px;
@@ -38,7 +37,6 @@ html{
   text-size-adjust:100%;
 }
 body{
-  /* 动态视口高度，兼容旧浏览器的回退 */
   height:100vh;
   height:100dvh;
   overflow:hidden;
@@ -47,7 +45,6 @@ body{
   color:var(--ink);
   display:flex;
   flex-direction:column;
-  /* iOS 刘海/home 指示条安全区 */
   padding:
     env(safe-area-inset-top,0)
     env(safe-area-inset-right,0)
@@ -172,22 +169,24 @@ body{
   50%{opacity:1}
 }
 
-/* --- 轨道 --- */
+/* --- 时间轴主体：轨道 + 独立日期标尺 --- */
 .tl-track-wrap{
   position:relative;
-  padding:12px 0 8px;
+  padding:12px 0 2px;
   min-width:0;
 }
+
+/* 圆点轨道 */
 .tl-track{
   position:relative;
-  height:44px;           /* JS 会根据宽度微调 */
+  height:44px;
   border-radius:var(--radius);
   background:rgba(26,23,20,.02);
   cursor:pointer;
   user-select:none;
   -webkit-user-select:none;
   touch-action:none;
-  overflow:visible;
+  overflow:hidden;
 }
 .tl-track.is-scrubbing{
   cursor:grabbing;
@@ -196,7 +195,7 @@ body{
   transition:none;
 }
 
-/* 日期分组背景带 */
+/* 日期分组背景色带（无文字，纯视觉分区） */
 .tl-band{
   position:absolute;
   top:4px;
@@ -208,24 +207,6 @@ body{
 }
 .tl-band.is-alt{
   background:rgba(109,103,90,.055);
-}
-.tl-band__label{
-  position:absolute;
-  top:50%;
-  left:6px;
-  right:6px;
-  transform:translateY(-50%);
-  font-size:10px;
-  line-height:1.2;
-  color:var(--muted);
-  letter-spacing:.02em;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  pointer-events:none;
-}
-.tl-band__label.is-right{
-  text-align:right;
 }
 
 /* 基线（虚线） */
@@ -281,7 +262,7 @@ body{
   z-index:5;
 }
 
-/* 悬浮/激活提示 */
+/* 圆点提示气泡：向上弹，不干扰下方标尺 */
 .tl-tip{
   position:absolute;
   bottom:calc(100% + 6px);
@@ -303,6 +284,37 @@ body{
 .tl-marker:hover .tl-tip,
 .tl-marker.is-active .tl-tip{
   opacity:1;
+}
+
+/* ---- 独立日期标尺（关键改动） ---- */
+/* 位于轨道下方，与轨道上的版本分组严格对齐，永不与圆点争空间 */
+.tl-ruler{
+  position:relative;
+  height:16px;
+  margin-top:4px;
+  min-width:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+.tl-ruler__item{
+  position:absolute;
+  top:0;
+  bottom:0;
+  display:flex;
+  align-items:center;
+  padding:0 5px;
+  font-size:10px;
+  line-height:1;
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  border-left:1px solid var(--rule);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:0;
+}
+.tl-ruler__item.is-first{
+  border-left:none;
 }
 
 /* --- 底部操作行 --- */
@@ -432,53 +444,25 @@ body{
     padding:6px var(--pad-x);
     border-bottom-width:1px;
   }
-  .app-header__title{
-    font-size:13px;
-  }
-  .app-header__meta{
-    font-size:10px;
-  }
-  .timeline-panel{
-    padding:6px var(--pad-x);
-    gap:6px;
-  }
-  .tl-track-wrap{
-    padding:8px 0 4px;
-  }
-  .tl-hint{
-    display:none;
-  }
-  .btn--play{
-    width:34px;
-    height:34px;
-    min-width:34px;
-    min-height:34px;
-  }
-  .btn--icon{
-    width:30px;
-    min-width:30px;
-    min-height:30px;
-  }
-  .btn{
-    min-height:30px;
-  }
+  .app-header__title{font-size:13px}
+  .app-header__meta{font-size:10px}
+  .timeline-panel{padding:6px var(--pad-x);gap:6px}
+  .tl-track-wrap{padding:8px 0 2px}
+  .tl-hint{display:none}
+  .btn--play{width:34px;height:34px;min-width:34px;min-height:34px}
+  .btn--icon{width:30px;min-width:30px;min-height:30px}
+  .btn{min-height:30px}
+  .tl-ruler{height:14px}
+  .tl-ruler__item{font-size:9px}
 }
 
 /* ============ 响应式：极窄屏 ============ */
 @media (max-width:360px){
-  .app-header__meta{
-    display:none;
-  }
-  .tl-info__count{
-    display:none;
-  }
-  .tl-info__preload{
-    margin-left:0;
-  }
-  .tl-info__time{
-    flex-basis:100%;
-    order:3;
-  }
+  .app-header__meta{display:none}
+  .tl-info__count{display:none}
+  .tl-info__preload{margin-left:0}
+  .tl-info__time{flex-basis:100%;order:3}
+  .tl-ruler__item{padding:0 3px;font-size:9px}
 }
 
 /* ============ 偏好减弱动画 ============ */
@@ -536,6 +520,8 @@ body{
       <div class="tl-baseline" aria-hidden="true"></div>
       <div class="tl-progress" id="progress" aria-hidden="true"></div>
     </div>
+    <!-- 日期标尺：独立于轨道，永不与圆点重叠 -->
+    <div class="tl-ruler" id="ruler" aria-hidden="true"></div>
   </div>
 
   <div class="tl-actions">
