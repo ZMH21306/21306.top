@@ -82,7 +82,6 @@ let plHead=0;                                                 // 已“连续”
 function markPreloaded(i){
     if(i<0||i>=N||preloaded[i])return;
     preloaded[i]=true;
-    markers[i].classList.add('preloaded');
     while(plHead+1<N&&preloaded[plHead+1])plHead++;
     progress.style.width=spanOf(0,plHead);
 }
