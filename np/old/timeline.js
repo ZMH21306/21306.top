@@ -66,12 +66,12 @@ const preloadText = document.getElementById('preloadText');
 const markers = [];
 
 // ========== 预缓存方案：所有版本提前加载进隐藏的 iframe 池 ==========
-const IFRAME_POOL_SIZE = Math.min(6, N); // 同时预加载 6 个
+const CONCURRENCY = Math.min(8, N); // 并发加载数（浏览器单域名限制内最大化带宽）
 const iframePool = []; // 存放所有预渲染的 iframe
 const iframeReady = new Array(N).fill(false); // 标记每个版本是否就绪
-let preloadedCount = 1; // 首帧已就绪
-let pendingPoolCount = 0; // 当前正在预加载的数量
+let preloadedCount = 0; // 已就绪数量
 let poolLoadingDone = false; // 所有版本预加载完成
+let pendingPromises = 0; // 当前正在等待的 Promise
 
 function createBufferedIframe(index) {
     const iframe = document.createElement('iframe');
@@ -85,16 +85,20 @@ function createBufferedIframe(index) {
     iframe.style.height = '100%';
     iframe.style.border = 'none';
     iframe.style.display = 'block';
-    iframe.style.opacity = '0'; // 初始隐藏
+    iframe.style.opacity = '0';
     iframe.style.pointerEvents = 'none';
     iframe.style.zIndex = '0';
     viewer.appendChild(iframe);
     iframePool[index] = iframe;
 
+    pendingPromises++;
+    updatePreloadProgress();
+
     return new Promise((resolve) => {
         iframe.onload = () => {
             iframeReady[index] = true;
             preloadedCount++;
+            pendingPromises--;
             updatePreloadProgress();
             resolve();
         };
@@ -102,6 +106,7 @@ function createBufferedIframe(index) {
             // 即使出错也标记为就绪，避免死锁
             iframeReady[index] = true;
             preloadedCount++;
+            pendingPromises--;
             updatePreloadProgress();
             resolve();
         };
@@ -116,10 +121,6 @@ function updatePreloadProgress() {
         preloadText.textContent = '后台预加载完成';
         preloadInfo.classList.add('done');
     }
-}
-
-function markProgress(i) {
-    // 简化版进度条，实际预渲染不依赖这个
 }
 
 // ========== 时间轴构建 ==========
@@ -182,6 +183,9 @@ function updateMeta(i) {
     curTime.textContent = fullTime(v.time);
     curCount.textContent = '第 ' + (i + 1) + ' / ' + N + ' 版';
     markers.forEach((m, k) => m.classList.toggle('active', k === i));
+    // 更新进度条
+    const pct = (i / (N - 1)) * 100;
+    progress.style.width = `calc(${pct}% - 9px)`;
 }
 
 // ========== 播放控制 ==========
@@ -189,36 +193,25 @@ function goTo(i) {
     if (i < 0 || i >= N) return;
     updateMeta(i);
 
-    if (!iframeReady[i]) {
-        // 如果该版本还没预渲染，直接跳转到对应 iframe 并显示
-        if (!iframePool[i]) {
-            createBufferedIframe(i);
-        }
-        iframePool[i].style.opacity = '1';
-        iframePool[i].style.zIndex = '6';
-        iframePool[i].style.pointerEvents = 'auto';
-        // 隐藏旧帧
-        if (iframePool[currentIndex] && currentIndex !== i) {
-            iframePool[currentIndex].style.opacity = '0';
-            iframePool[currentIndex].style.zIndex = '5';
-            iframePool[currentIndex].style.pointerEvents = 'none';
-        }
-        viewerHint.classList.add('hidden');
-        return;
+    // 确保 iframe 存在
+    if (!iframePool[i]) {
+        createBufferedIframe(i);
     }
 
-    // 预渲染完成：直接切换显示
-    if (iframePool[i]) {
-        iframePool[i].style.opacity = '1';
-        iframePool[i].style.zIndex = '6';
-        iframePool[i].style.pointerEvents = 'auto';
-    }
+    // 显示新帧（淡入）
+    iframePool[i].style.opacity = '1';
+    iframePool[i].style.zIndex = '6';
+    iframePool[i].style.pointerEvents = 'auto';
 
-    // 隐藏旧帧
+    // 延迟隐藏旧帧，避免闪烁
     if (iframePool[currentIndex] && currentIndex !== i) {
-        iframePool[currentIndex].style.opacity = '0';
-        iframePool[currentIndex].style.zIndex = '5';
-        iframePool[currentIndex].style.pointerEvents = 'none';
+        // 使用 transitionend 确保动画完成后再隐藏
+        const oldFrame = iframePool[currentIndex];
+        setTimeout(() => {
+            oldFrame.style.opacity = '0';
+            oldFrame.style.zIndex = '5';
+            oldFrame.style.pointerEvents = 'none';
+        }, 50);
     }
 
     viewerHint.classList.add('hidden');
@@ -236,6 +229,7 @@ function tick() {
         return;
     }
     goTo(currentIndex + 1);
+    playTimer = setTimeout(tick, playSpeed);
 }
 
 function togglePlay() {
@@ -280,30 +274,36 @@ function warmImages() {
     });
 }
 
-// ========== 初始化：预渲染所有版本 ==========
+// ========== 初始化：并发预渲染所有版本 ==========
 function init() {
-    createBufferedIframe(0); // 首帧
-    // 其余 1-5 号版本并发预加载
-    for (let k = 1; k < Math.min(IFRAME_POOL_SIZE, N); k++) {
-        createBufferedIframe(k);
+    // 立即创建首帧
+    preloadedCount = 0;
+    createBufferedIframe(0);
+
+    // 并发创建多个 iframe（充分利用带宽）
+    const promises = [];
+    for (let k = 1; k < CONCURRENCY && k < N; k++) {
+        promises.push(createBufferedIframe(k));
     }
+
     // 继续预加载剩余版本（当有空位时）
-    let next = IFRAME_POOL_SIZE;
+    let next = CONCURRENCY;
     const loadNext = () => {
         if (next >= N || poolLoadingDone) return;
-        createBufferedIframe(next++);
-        if (next < N && !poolLoadingDone) {
-            setTimeout(loadNext, 50); // 延迟 50ms 避免阻塞主线程
-        }
+        promises.push(createBufferedIframe(next++));
     };
-    // 每 100ms 加载一个（后台非阻塞）
+
+    // 每 50ms 加载一批，避免阻塞主线程
     const loadInterval = setInterval(() => {
         if (poolLoadingDone || next >= N) {
             clearInterval(loadInterval);
             return;
         }
-        loadNext();
-    }, 100);
+        // 每批加载多个，进一步榨干带宽
+        for (let i = 0; i < 3 && next < N; i++) {
+            loadNext();
+        }
+    }, 50);
 }
 
 // ========== 窗口缩放 ==========
@@ -325,7 +325,18 @@ document.addEventListener('keydown', e => {
     else if (e.key === 'End') { e.preventDefault(); goTo(N - 1); }
 });
 
-createBufferedIframe(0);
+// 阻止移动端双击缩放
+document.addEventListener('touchstart', e => {
+    if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+
+let lastTouchEnd = 0;
+document.addEventListener('touchend', e => {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) e.preventDefault();
+    lastTouchEnd = now;
+}, { passive: false });
+
 buildTrack();
 updateMeta(0);
 viewerHint.classList.add('hidden');
