@@ -1,6 +1,6 @@
 /* ==========================================================================
    语文5组的神秘报纸 · 版本时间轴
-   — 布局模型：每个版本占一"格" · 圆点居中 · 日期标尺独立成行
+   — 头部右上角实时显示当前版本号 + 时间点 · 全局顶层 tooltip
    ========================================================================== */
 
 const versions = [
@@ -60,13 +60,14 @@ const track        = document.getElementById('track');
 const ruler        = document.getElementById('ruler');
 const progress     = document.getElementById('progress');
 const curVer       = document.getElementById('curVer');
-const curTime      = document.getElementById('curTime');
-const curCount     = document.getElementById('curCount');
+const curTimeShort = document.getElementById('curTimeShort');
+const curTimeFull  = document.getElementById('curTimeFull');
 const preloadInfo  = document.getElementById('preloadInfo');
 const preloadText  = document.getElementById('preloadText');
 const playBtn      = document.getElementById('playBtn');
 const prevBtn      = document.getElementById('prevBtn');
 const nextBtn      = document.getElementById('nextBtn');
+const globalTip    = document.getElementById('globalTip');
 
 /* ---------------- 状态 ---------------- */
 let currentIndex = 0;
@@ -91,21 +92,66 @@ const htmlCache = new Array(N).fill(null);
 
 /* ==========================================================================
    位置计算：每版一格，圆点在格心
-   — 可用宽度 = 100% - 18px（左右各 9px 留白）
-   — 第 i 版占 [i/N, (i+1)/N] 区间
    ========================================================================== */
-
-/* 圆点中心：位于该格正中央 */
 const markerLeft = i =>
   `calc(9px + (100% - 18px) * ${(((i + 0.5) / N).toFixed(6))})`;
 
-/* 分段左边界：第 start 版格的左沿 */
 const spanLeft = start =>
   `calc(9px + (100% - 18px) * ${((start / N).toFixed(6))})`;
 
-/* 分段宽度：从 start 到 end（含）共占几格 */
 const spanWidth = (start, end) =>
   `calc((100% - 18px) * ${(((end - start + 1) / N).toFixed(6))})`;
+
+/* ==========================================================================
+   全局 tooltip
+   ========================================================================== */
+let tipTarget = null;
+let tipHideTimer = null;
+
+function showTip(target, text) {
+  clearTimeout(tipHideTimer);
+  tipTarget = target;
+  globalTip.textContent = text;
+  globalTip.classList.add('is-visible');
+  globalTip.setAttribute('aria-hidden', 'false');
+  positionTip(target);
+}
+
+function positionTip(target) {
+  if (!target) return;
+  const tr = target.getBoundingClientRect();
+  const pr = globalTip.getBoundingClientRect();
+
+  const GAP = 8;
+  const EDGE = 4;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  let top = tr.top - pr.height - GAP;
+  if (top < EDGE) top = tr.bottom + GAP;
+  if (top + pr.height > vh - EDGE) {
+    top = Math.max(EDGE, vh - pr.height - EDGE);
+  }
+
+  let left = tr.left + tr.width / 2 - pr.width / 2;
+  if (left < EDGE) left = EDGE;
+  if (left + pr.width > vw - EDGE) left = vw - pr.width - EDGE;
+
+  globalTip.style.top  = top  + 'px';
+  globalTip.style.left = left + 'px';
+}
+
+function hideTip() {
+  tipTarget = null;
+  globalTip.classList.remove('is-visible');
+  globalTip.setAttribute('aria-hidden', 'true');
+}
+
+function repositionTip() {
+  if (tipTarget && globalTip.classList.contains('is-visible')) {
+    positionTip(tipTarget);
+  }
+}
 
 /* ==========================================================================
    工具
@@ -115,7 +161,6 @@ function markPreloaded(i, ok) {
   if (!ok) return;
   preloaded[i] = true;
   while (plHead + 1 < N && preloaded[plHead + 1]) plHead++;
-  /* 进度长度 = 已缓存前 plHead+1 个版本的总宽度 */
   progress.style.width = spanWidth(0, plHead);
 }
 
@@ -138,10 +183,8 @@ function shortTime(t) {
 }
 
 /* ==========================================================================
-   时间轴构建（三段：背景带 / 圆点 / 日期标尺）
+   时间轴构建
    ========================================================================== */
-
-/* 按日期分组 */
 function groupByDay() {
   const groups = [];
   let cur = null;
@@ -157,7 +200,6 @@ function groupByDay() {
   return groups;
 }
 
-/* 背景带：仅作视觉分组，无文字 */
 function buildBands(groups) {
   groups.forEach((g, gi) => {
     const band = document.createElement('div');
@@ -168,22 +210,35 @@ function buildBands(groups) {
   });
 }
 
-/* 圆点 */
 function buildMarkers() {
   versions.forEach((v, i) => {
     const m = document.createElement('div');
     m.className = 'tl-marker';
     m.style.left = markerLeft(i);
+    m.setAttribute('role', 'button');
+    m.setAttribute('aria-label', `${v.id} · ${fullTime(v.time)}`);
 
-    const tip = document.createElement('span');
-    tip.className = 'tl-tip';
-    tip.textContent = `${v.id} · ${shortTime(v.time)}`;
-    m.appendChild(tip);
+    const label = `${v.id} · ${shortTime(v.time)}`;
 
-    m.addEventListener('pointerdown', e => e.stopPropagation());
+    m.addEventListener('pointerenter', e => {
+      if (e.pointerType === 'mouse') showTip(m, label);
+    });
+    m.addEventListener('pointerleave', e => {
+      if (e.pointerType === 'mouse') hideTip();
+    });
+
+    m.addEventListener('pointerdown', e => {
+      e.stopPropagation();
+      if (e.pointerType !== 'mouse') showTip(m, label);
+    });
+
     m.addEventListener('click', e => {
       e.stopPropagation();
       goTo(i);
+      if (e.pointerType !== 'mouse') {
+        clearTimeout(tipHideTimer);
+        tipHideTimer = setTimeout(hideTip, 1500);
+      }
     });
 
     track.appendChild(m);
@@ -191,7 +246,6 @@ function buildMarkers() {
   });
 }
 
-/* 日期标尺：独立行，永不与圆点重叠 */
 function buildRuler(groups) {
   groups.forEach((g, gi) => {
     const item = document.createElement('div');
@@ -200,11 +254,11 @@ function buildRuler(groups) {
     item.style.width = spanWidth(g.start, g.end);
 
     const total = g.end - g.start + 1;
-    /* 优先显示 "10/07 · 26版"，若过窄则退化为 "10/07"，再窄则退化为 "07" */
-    item.textContent = `${g.key} · ${total}版`;
+    item.dataset.full  = `${g.key} · ${total}版`;
     item.dataset.short = g.key;
     item.dataset.tiny  = g.key.slice(3);
     item.title = `${g.key} · 共 ${total} 版`;
+    item.textContent = item.dataset.full;
 
     ruler.appendChild(item);
   });
@@ -214,14 +268,17 @@ function updateMeta(i) {
   currentIndex = i;
   const v = versions[i];
 
-  curVer.textContent   = v.id;
-  curTime.textContent  = fullTime(v.time);
-  curCount.textContent = `第 ${i + 1} / ${N} 版`;
+  /* 头部右上角实时更新 */
+  curVer.textContent       = v.id;
+  curTimeShort.textContent = shortTime(v.time);
+  curTimeFull.textContent  = fullTime(v.time);
 
   markers.forEach((m, k) => m.classList.toggle('is-active', k === i));
 
   track.setAttribute('aria-valuenow', String(i));
   track.setAttribute('aria-valuetext', `${v.id} · ${fullTime(v.time)}`);
+
+  repositionTip();
 }
 
 /* ==========================================================================
@@ -361,7 +418,6 @@ function togglePlay() {
    ========================================================================== */
 let scrubbing = false, scrubRaf = null, scrubX = 0;
 
-/* 每版一格：r 落在哪格就是哪版 */
 function indexFromX(clientX) {
   const rect = track.getBoundingClientRect();
   const usable = rect.width - 18;
@@ -419,10 +475,10 @@ function startWarmer() {
   const updateLabel = () => {
     if (attempted >= N) {
       preloadText.textContent = loaded >= N
-        ? '后台预加载完成'
-        : `预加载完成（${loaded} / ${N}，部分失败）`;
+        ? '预加载完成'
+        : `预加载完成（${loaded}/${N}）`;
     } else {
-      preloadText.textContent = `后台预加载 ${loaded} / ${N}`;
+      preloadText.textContent = `预加载 ${loaded} / ${N}`;
     }
   };
 
@@ -456,7 +512,6 @@ function startWarmer() {
 
 /* ==========================================================================
    响应式布局
-   — 圆点尺寸随宽度自适应；标尺文字按组宽度分级降级
    ========================================================================== */
 function updateTrackLayout() {
   const w = track.offsetWidth;
@@ -465,26 +520,26 @@ function updateTrackLayout() {
   const usable = w - 18;
   const gap = usable / Math.max(1, N);
 
-  /* 圆点尺寸：格宽的 72%，钳制 4–16px */
   const ms = Math.max(4, Math.min(16, gap * 0.72));
   const th = Math.max(32, Math.min(52, ms * 3.5));
 
   track.style.height = th + 'px';
   track.style.setProperty('--ms', ms + 'px');
 
-  /* 日期标尺文字分级降级，避免过窄被截成省略号 */
   const items = ruler.children;
   for (let k = 0; k < items.length; k++) {
     const el = items[k];
     const wpx = parseFloat(getComputedStyle(el).width) || 0;
     if (wpx >= 78) {
-      el.textContent = el.title.split(' · ')[0] + ' · ' + el.title.match(/共 (\d+) 版/)[1] + '版';
+      el.textContent = el.dataset.full;
     } else if (wpx >= 42) {
       el.textContent = el.dataset.short;
     } else {
       el.textContent = el.dataset.tiny;
     }
   }
+
+  repositionTip();
 }
 
 /* ==========================================================================
@@ -505,6 +560,8 @@ window.addEventListener('orientationchange', onResize);
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', onResize);
 }
+
+window.addEventListener('scroll', repositionTip, { passive: true, capture: true });
 
 /* ==========================================================================
    事件绑定
@@ -527,6 +584,14 @@ document.addEventListener('keydown', e => {
     case 'End':  e.preventDefault(); goTo(N - 1); break;
   }
 });
+
+document.addEventListener('pointerdown', e => {
+  if (globalTip.classList.contains('is-visible')) {
+    if (!e.target.closest || !e.target.closest('.tl-marker')) {
+      hideTip();
+    }
+  }
+}, true);
 
 let lastTouchEnd = 0;
 document.addEventListener('touchend', e => {
