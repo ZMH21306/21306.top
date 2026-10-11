@@ -44,238 +44,290 @@ const versions = [
   {"id":"v0043","file":"v0043-20261011092810.html","time":"20261011 092810"}
 ];
 
-const N=versions.length;
+const N = versions.length;
 
 // 全部版本仅引用这两张图片（同一 URL ⇒ 浏览器缓存复用，只下载一次）
-const IMAGES=['这是一张图.jpg','这又是一张图.jpg'].map(n=>'https://21306.top/np/v2/'+encodeURIComponent(n));
+const IMAGES = ['这是一张图.jpg','这又是一张图.jpg'].map(n => 'https://21306.top/np/v2/' + encodeURIComponent(n));
 
-let currentIndex=0,isPlaying=false,playTimer=null;const playSpeed=200;
+let currentIndex = 0, isPlaying = false, playTimer = null;
+const playSpeed = 200;
 
-const viewer=document.getElementById('viewer'),track=document.getElementById('track'),progress=document.getElementById('progress');
-const curVer=document.getElementById('curVer'),curTime=document.getElementById('curTime'),curCount=document.getElementById('curCount');
-const playBtn=document.getElementById('playBtn');
-const viewerHint=document.getElementById('viewerHint'),preloadInfo=document.getElementById('preloadInfo'),preloadText=document.getElementById('preloadText');
+const viewer = document.getElementById('viewer');
+const track = document.getElementById('track');
+const progress = document.getElementById('progress');
+const curVer = document.getElementById('curVer');
+const curTime = document.getElementById('curTime');
+const curCount = document.getElementById('curCount');
+const playBtn = document.getElementById('playBtn');
+const viewerHint = document.getElementById('viewerHint');
+const preloadInfo = document.getElementById('preloadInfo');
+const preloadText = document.getElementById('preloadText');
 
-const markers=[];
-const buffers=[];
-let front=0,frontVersion=-1,backVersion=-1,pending=-1,loadTimer=null,swapTimer=null,loading=false;
+const markers = [];
 
-/* ---------- 工具：位置与时间格式化 ---------- */
-const R=i=>i/(N-1);
-function leftOf(i){return 'calc(9px + (100% - 18px) * '+R(i).toFixed(6)+')'}
-function spanOf(a,b){return 'calc((100% - 18px) * '+Math.max(0,R(b)-R(a)).toFixed(6)+')'}
+// ========== 预缓存方案：所有版本提前加载进隐藏的 iframe 池 ==========
+const IFRAME_POOL_SIZE = Math.min(6, N); // 同时预加载 6 个
+const iframePool = []; // 存放所有预渲染的 iframe
+const iframeReady = new Array(N).fill(false); // 标记每个版本是否就绪
+let preloadedCount = 1; // 首帧已就绪
+let pendingPoolCount = 0; // 当前正在预加载的数量
+let poolLoadingDone = false; // 所有版本预加载完成
 
-/* ---------- 预加载状态：驱动时间轴线路（已缓存=红色实线，未缓存=灰色虚线） ---------- */
-const preloaded=new Array(N).fill(false);preloaded[0]=true;   // 第 0 版是首帧，视为已就绪
-let plHead=0;                                                 // 已"连续"缓存到的最高版本索引
-function markPreloaded(i){
-    if(i<0||i>=N||preloaded[i])return;
-    preloaded[i]=true;
-    while(plHead+1<N&&preloaded[plHead+1])plHead++;
-    progress.style.width=spanOf(0,plHead);
-}
-function parts(t){return{mo:t.slice(4,6),d:t.slice(6,8),h:t.slice(9,11),mi:t.slice(11,13)}}
-function fullTime(t){const p=parts(t);return t.slice(0,4)+'年'+parseInt(p.mo,10)+'月'+parseInt(p.d,10)+'日 '+p.h+':'+p.mi}
-function shortTime(t){const p=parts(t);return p.mo+'/'+p.d+' '+p.h+':'+p.mi}
+function createBufferedIframe(index) {
+    const iframe = document.createElement('iframe');
+    iframe.className = 'frame';
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('title', '版本预览');
+    iframe.style.position = 'absolute';
+    iframe.style.top = '0';
+    iframe.style.left = '0';
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
+    iframe.style.display = 'block';
+    iframe.style.opacity = '0'; // 初始隐藏
+    iframe.style.pointerEvents = 'none';
+    iframe.style.zIndex = '0';
+    viewer.appendChild(iframe);
+    iframePool[index] = iframe;
 
-/* ---------- 时间轴构建（百分比定位，窗口缩放天然自适应） ---------- */
-function buildTrack(){
-    const groups=[];let cur=null;
-    versions.forEach((v,i)=>{
-        const key=v.time.slice(4,6)+'/'+v.time.slice(6,8);
-        if(!cur||cur.key!==key){cur={key,start:i,end:i};groups.push(cur)}else{cur.end=i}
+    return new Promise((resolve) => {
+        iframe.onload = () => {
+            iframeReady[index] = true;
+            preloadedCount++;
+            updatePreloadProgress();
+            resolve();
+        };
+        iframe.onerror = () => {
+            // 即使出错也标记为就绪，避免死锁
+            iframeReady[index] = true;
+            preloadedCount++;
+            updatePreloadProgress();
+            resolve();
+        };
+        iframe.src = versions[index].file;
     });
-    groups.forEach((g,gi)=>{
-        const band=document.createElement('div');
-        band.className='tl-band'+(gi%2?' alt':'');
-        band.style.left=leftOf(g.start);band.style.width=spanOf(g.start,g.end);
-        const lb=document.createElement('span');
-        lb.className='tl-band-label'+(gi===groups.length-1?' right':'');
-        lb.textContent=g.key+' · '+(g.end-g.start+1)+'版';band.appendChild(lb);
-        track.appendChild(band);
-    });
-    versions.forEach((v,i)=>{
-        const m=document.createElement('div');
-        m.className='tl-marker';m.style.left=leftOf(i);
-        const tip=document.createElement('span');tip.className='tl-tip';
-        tip.textContent=v.id+' · '+shortTime(v.time);m.appendChild(tip);
-        m.addEventListener('click',e=>{e.stopPropagation();goTo(i)});
-        track.appendChild(m);markers.push(m);
-    });
 }
 
-function updateMeta(i){
-    currentIndex=i;const v=versions[i];
-    curVer.textContent=v.id;
-    curTime.textContent=fullTime(v.time);
-    curCount.textContent='第 '+(i+1)+' / '+N+' 版';
-    markers.forEach((m,k)=>m.classList.toggle('active',k===i));
-}
-
-/* ---------- 双缓冲渲染：切换只做淡入淡出，避免白屏闪烁 ---------- */
-function createBuffer(){
-    const f=document.createElement('iframe');
-    f.className='frame';f.setAttribute('allowfullscreen','');f.setAttribute('title','版本预览');
-    viewer.appendChild(f);buffers.push(f);return f;
-}
-
-function goTo(i){
-    if(i<0||i>=N)return;
-    updateMeta(i);pending=i;
-    if(frontVersion===i)return;      // 已在前台
-    if(loading)return;               // 有加载在途：不打断，commit 后自动补载最新目标
-    loadIntoBack(i);
-}
-
-function loadIntoBack(i){
-    if(i<0||i>=N)return;
-    const b=buffers[1-front];
-    backVersion=i;loading=true;
-    clearTimeout(loadTimer);
-    b.onload=()=>{if(backVersion===i)commit(i)};
-    b.onerror=()=>{if(backVersion===i)commit(i)};
-    loadTimer=setTimeout(()=>{if(backVersion===i)commit(i)},1500);
-
-    if(htmlCache[i]){
-        // 缓存命中：直接写入，跳过网络请求与 HTML 解析
-        const doc=b.contentDocument||b.contentWindow.document;
-        doc.open();
-        doc.write(htmlCache[i]);
-        doc.close();
-        // 缓存命中后立即提交，无需等待 onload 事件
-        if(backVersion===i)commit(i);
-    } else {
-        // 缓存未命中：正常加载
-        b.src=versions[i].file;
+function updatePreloadProgress() {
+    preloadText.textContent = `后台预加载 ${preloadedCount} / ${N}`;
+    if (preloadedCount >= N) {
+        poolLoadingDone = true;
+        preloadText.textContent = '后台预加载完成';
+        preloadInfo.classList.add('done');
     }
 }
 
-function commit(i){
-    clearTimeout(loadTimer);loading=false;
-    const nb=buffers[1-front],ob=buffers[front];
-    /* 新帧置于上层淡入，旧帧保持不透明垫底：淡入过程中不会透出底色，避免忽明忽暗 */
-    nb.style.zIndex=6;ob.style.zIndex=5;
-    nb.classList.add('active');
-    front=1-front;frontVersion=i;backVersion=-1;
-    viewerHint.classList.add('hidden');
-    clearTimeout(swapTimer);
-    swapTimer=setTimeout(()=>{ob.classList.remove('active');ob.style.zIndex=''},120);
-    if(pending!==i)loadIntoBack(pending);                    // 加载期间目标已变 → 立刻补载最新目标
-    else if(isPlaying){clearTimeout(playTimer);playTimer=setTimeout(tick,playSpeed)}   // 本帧显示后再推进一版
+function markProgress(i) {
+    // 简化版进度条，实际预渲染不依赖这个
 }
 
-/* ---------- 播放控制 ---------- */
-function prev(){goTo(currentIndex-1)}
-function next(){goTo(currentIndex+1)}
-function tick(){
-    if(!isPlaying)return;
-    if(currentIndex>=N-1){
-        // 播放完毕，停止
-        isPlaying=false;
-        playBtn.textContent='▶';
+// ========== 时间轴构建 ==========
+const R = i => i / (N - 1);
+function leftOf(i) { return 'calc(9px + (100% - 18px) * ' + R(i).toFixed(6) + ')'; }
+function spanOf(a, b) { return 'calc((100% - 18px) * ' + Math.max(0, R(b) - R(a)).toFixed(6) + ')'; }
+
+function buildTrack() {
+    const groups = [];
+    let cur = null;
+    versions.forEach((v, i) => {
+        const key = v.time.slice(4, 6) + '/' + v.time.slice(6, 8);
+        if (!cur || cur.key !== key) {
+            cur = { key, start: i, end: i };
+            groups.push(cur);
+        } else {
+            cur.end = i;
+        }
+    });
+    groups.forEach((g, gi) => {
+        const band = document.createElement('div');
+        band.className = 'tl-band' + (gi % 2 ? ' alt' : '');
+        band.style.left = leftOf(g.start);
+        band.style.width = spanOf(g.start, g.end);
+        const lb = document.createElement('span');
+        lb.className = 'tl-band-label' + (gi === groups.length - 1 ? ' right' : '');
+        lb.textContent = g.key + ' · ' + (g.end - g.start + 1) + '版';
+        band.appendChild(lb);
+        track.appendChild(band);
+    });
+    versions.forEach((v, i) => {
+        const m = document.createElement('div');
+        m.className = 'tl-marker';
+        m.style.left = leftOf(i);
+        const tip = document.createElement('span');
+        tip.className = 'tl-tip';
+        tip.textContent = v.id + ' · ' + shortTime(v.time);
+        m.appendChild(tip);
+        m.addEventListener('click', e => { e.stopPropagation(); goTo(i); });
+        track.appendChild(m);
+        markers.push(m);
+    });
+}
+
+// ========== 工具函数 ==========
+function parts(t) { return { mo: t.slice(4, 6), d: t.slice(6, 8), h: t.slice(9, 11), mi: t.slice(11, 13) }; }
+function fullTime(t) {
+    const p = parts(t);
+    return t.slice(0, 4) + '年' + parseInt(p.mo, 10) + '月' + parseInt(p.d, 10) + '日 ' + p.h + ':' + p.mi;
+}
+function shortTime(t) {
+    const p = parts(t);
+    return p.mo + '/' + p.d + ' ' + p.h + ':' + p.mi;
+}
+
+function updateMeta(i) {
+    currentIndex = i;
+    const v = versions[i];
+    curVer.textContent = v.id;
+    curTime.textContent = fullTime(v.time);
+    curCount.textContent = '第 ' + (i + 1) + ' / ' + N + ' 版';
+    markers.forEach((m, k) => m.classList.toggle('active', k === i));
+}
+
+// ========== 播放控制 ==========
+function goTo(i) {
+    if (i < 0 || i >= N) return;
+    updateMeta(i);
+
+    if (!iframeReady[i]) {
+        // 如果该版本还没预渲染，直接跳转到对应 iframe 并显示
+        if (!iframePool[i]) {
+            createBufferedIframe(i);
+        }
+        iframePool[i].style.opacity = '1';
+        iframePool[i].style.zIndex = '6';
+        iframePool[i].style.pointerEvents = 'auto';
+        // 隐藏旧帧
+        if (iframePool[currentIndex] && currentIndex !== i) {
+            iframePool[currentIndex].style.opacity = '0';
+            iframePool[currentIndex].style.zIndex = '5';
+            iframePool[currentIndex].style.pointerEvents = 'none';
+        }
+        viewerHint.classList.add('hidden');
+        return;
+    }
+
+    // 预渲染完成：直接切换显示
+    if (iframePool[i]) {
+        iframePool[i].style.opacity = '1';
+        iframePool[i].style.zIndex = '6';
+        iframePool[i].style.pointerEvents = 'auto';
+    }
+
+    // 隐藏旧帧
+    if (iframePool[currentIndex] && currentIndex !== i) {
+        iframePool[currentIndex].style.opacity = '0';
+        iframePool[currentIndex].style.zIndex = '5';
+        iframePool[currentIndex].style.pointerEvents = 'none';
+    }
+
+    viewerHint.classList.add('hidden');
+}
+
+function prev() { goTo(currentIndex - 1); }
+function next() { goTo(currentIndex + 1); }
+
+function tick() {
+    if (!isPlaying) return;
+    if (currentIndex >= N - 1) {
+        isPlaying = false;
+        playBtn.textContent = '▶';
         clearTimeout(playTimer);
         return;
     }
-    goTo(currentIndex+1);
-}
-function togglePlay(){
-    isPlaying=!isPlaying;playBtn.textContent=isPlaying?'⏸':'▶';
-    clearTimeout(playTimer);
-    if(isPlaying)tick();
+    goTo(currentIndex + 1);
 }
 
-/* ---------- 拖动轨道快速定位 ---------- */
-let scrubbing=false,scrubRaf=null,scrubX=0;
-function indexFromX(clientX){
-    const rect=track.getBoundingClientRect(),usable=rect.width-18;
-    if(usable<=0)return 0;
-    const r=(clientX-rect.left-9)/usable;
-    return Math.max(0,Math.min(N-1,Math.round(r*(N-1))));
+function togglePlay() {
+    isPlaying = !isPlaying;
+    playBtn.textContent = isPlaying ? '⏸' : '▶';
+    clearTimeout(playTimer);
+    if (isPlaying) tick();
 }
-function queueScrub(x){
-    scrubX=x;
-    if(scrubRaf)return;
-    scrubRaf=requestAnimationFrame(()=>{scrubRaf=null;goTo(indexFromX(scrubX))});
+
+// ========== 拖动轨道快速定位 ==========
+let scrubbing = false, scrubRaf = null, scrubX = 0;
+function indexFromX(clientX) {
+    const rect = track.getBoundingClientRect(), usable = rect.width - 18;
+    if (usable <= 0) return 0;
+    const r = (clientX - rect.left - 9) / usable;
+    return Math.max(0, Math.min(N - 1, Math.round(r * (N - 1))));
 }
-track.addEventListener('pointerdown',e=>{
-    scrubbing=true;track.classList.add('scrubbing');
-    try{if(track.setPointerCapture)track.setPointerCapture(e.pointerId)}catch(_){}
+function queueScrub(x) {
+    scrubX = x;
+    if (scrubRaf) return;
+    scrubRaf = requestAnimationFrame(() => { scrubRaf = null; goTo(indexFromX(scrubX)); });
+}
+track.addEventListener('pointerdown', e => {
+    scrubbing = true;
+    track.classList.add('scrubbing');
+    try { if (track.setPointerCapture) track.setPointerCapture(e.pointerId); } catch (_) { }
     queueScrub(e.clientX);
 });
-track.addEventListener('pointermove',e=>{if(scrubbing)queueScrub(e.clientX)});
-function endScrub(){scrubbing=false;track.classList.remove('scrubbing')}
-track.addEventListener('pointerup',endScrub);
-track.addEventListener('pointercancel',endScrub);
-track.addEventListener('lostpointercapture',endScrub);
+track.addEventListener('pointermove', e => { if (scrubbing) queueScrub(e.clientX); });
+function endScrub() { scrubbing = false; track.classList.remove('scrubbing'); }
+track.addEventListener('pointerup', endScrub);
+track.addEventListener('pointercancel', endScrub);
+track.addEventListener('lostpointercapture', endScrub);
 
-/* ---------- 后台预加载（非阻塞） ---------- */
-function warmImages(){
-    IMAGES.forEach(u=>{
-        const im=new Image();im.decoding='async';im.src=u;
-        if(im.decode)im.decode().catch(()=>{});
+// ========== 预热图片缓存 ==========
+function warmImages() {
+    IMAGES.forEach(u => {
+        const im = new Image();
+        im.decoding = 'async';
+        im.src = u;
+        if (im.decode) im.decode().catch(() => { });
     });
 }
-const htmlCache = new Array(N).fill(null);
 
-function startWarmer(){
-    const POOL=6;
-    let next=1,loaded=1,finished=false;
-    const pump=()=>{
-        if(finished||next>=N)return;
-        const idx=next++;
-        const done=()=>{
-            loaded++;markPreloaded(idx);
-            preloadText.textContent='后台预加载 '+loaded+' / '+N;
-            if(loaded>=N){finished=true;preloadText.textContent='后台预加载完成';preloadInfo.classList.add('done');return}
-            setTimeout(pump,0);
-        };
-        fetch(versions[idx].file,{cache:'default'})
-            .then(r=>r.text())
-            .then(t=>{htmlCache[idx]=t;done()})
-            .catch(done);
-    };
-    for(let k=0;k<Math.min(POOL,N-1);k++)pump();
-}
-
-// 预加载完成后，立即填充所有缓存到内存中，确保播放时无需等待
-function fillCacheFromPreload(){
-    for(let i=1;i<N;i++){
-        if(htmlCache[i])markPreloaded(i);
+// ========== 初始化：预渲染所有版本 ==========
+function init() {
+    createBufferedIframe(0); // 首帧
+    // 其余 1-5 号版本并发预加载
+    for (let k = 1; k < Math.min(IFRAME_POOL_SIZE, N); k++) {
+        createBufferedIframe(k);
     }
+    // 继续预加载剩余版本（当有空位时）
+    let next = IFRAME_POOL_SIZE;
+    const loadNext = () => {
+        if (next >= N || poolLoadingDone) return;
+        createBufferedIframe(next++);
+        if (next < N && !poolLoadingDone) {
+            setTimeout(loadNext, 50); // 延迟 50ms 避免阻塞主线程
+        }
+    };
+    // 每 100ms 加载一个（后台非阻塞）
+    const loadInterval = setInterval(() => {
+        if (poolLoadingDone || next >= N) {
+            clearInterval(loadInterval);
+            return;
+        }
+        loadNext();
+    }, 100);
 }
 
-/* ---------- 窗口缩放：临时关闭进度条过渡，避免拖影 ---------- */
+// ========== 窗口缩放 ==========
 let rzT;
-window.addEventListener('resize',()=>{
+window.addEventListener('resize', () => {
     track.classList.add('resizing');
-    clearTimeout(rzT);rzT=setTimeout(()=>track.classList.remove('resizing'),150);
+    clearTimeout(rzT);
+    rzT = setTimeout(() => track.classList.remove('resizing'), 150);
 });
 
-/* ---------- 事件与初始化 ---------- */
-playBtn.addEventListener('click',togglePlay);
+// ========== 事件与初始化 ==========
+playBtn.addEventListener('click', togglePlay);
 
-document.addEventListener('keydown',e=>{
-    if(e.key==='ArrowLeft')prev();
-    else if(e.key==='ArrowRight')next();
-    else if(e.key===' '){e.preventDefault();togglePlay()}
-    else if(e.key==='Home'){e.preventDefault();goTo(0)}
-    else if(e.key==='End'){e.preventDefault();goTo(N-1)}
+document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') prev();
+    else if (e.key === 'ArrowRight') next();
+    else if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(N - 1); }
 });
 
-createBuffer();createBuffer();
+createBufferedIframe(0);
 buildTrack();
-frontVersion=0;pending=0;
-buffers[0].onload=()=>viewerHint.classList.add('hidden');
-setTimeout(()=>viewerHint.classList.add('hidden'),2500);   // 兜底：外部资源阻塞时不至于一直显示"载入中"
-buffers[0].src=versions[0].file;      // 首帧立即显示，不做阻塞式等待
-buffers[0].classList.add('active');
 updateMeta(0);
+viewerHint.classList.add('hidden');
 warmImages();
-setTimeout(startWarmer,800);
-
-// 监听预加载完成事件，填充缓存
-const originalMarkPreloaded = markPreloaded;
-markPreloaded = function(i){
-    originalMarkPreloaded(i);
-    if(i === N-1)fillCacheFromPreload();
-};
+init();
