@@ -36,8 +36,8 @@ body{font-family:"Noto Serif SC","SimSun","宋体",serif;background:var(--bg);co
 .tl-band.alt{background:rgba(109,103,90,.055)}
 .tl-band-label{position:absolute;top:4px;left:7px;font-size:10px;color:var(--muted);white-space:nowrap;letter-spacing:.5px}
 .tl-band-label.right{left:auto;right:7px}
-.tl-baseline{position:absolute;top:50%;left:0;right:0;height:2px;background:var(--rule);transform:translateY(-50%);z-index:1}
-.tl-progress{position:absolute;top:50%;left:9px;height:2px;background:var(--red);transform:translateY(-50%);transition:width .12s ease;z-index:2}
+.tl-baseline{position:absolute;top:50%;left:9px;right:9px;height:2px;background:repeating-linear-gradient(90deg,var(--rule) 0 5px,transparent 5px 10px);transform:translateY(-50%);z-index:1}
+.tl-progress{position:absolute;top:50%;left:9px;width:0;height:2px;background:var(--red);transform:translateY(-50%);transition:width .12s ease;z-index:2}
 .timeline-track.resizing .tl-progress{transition:none}
 .tl-marker{position:absolute;top:50%;width:18px;height:18px;margin-left:-9px;transform:translateY(-50%);z-index:3;cursor:pointer}
 .tl-marker::after{content:"";position:absolute;top:50%;left:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--paper);border:1.5px solid var(--rule);transition:background .14s,border-color .14s,width .14s,height .14s,margin .14s,box-shadow .14s}
