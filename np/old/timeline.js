@@ -1,3 +1,8 @@
+/* ==========================================================================
+   语文5组的神秘报纸 · 版本时间轴
+   — 重写 UI · 修复全部已知缺陷 · 全设备适配
+   ========================================================================== */
+
 const versions = [
   {"id":"v0001","file":"v0001-20261007132222.html","time":"20261007 132222"},
   {"id":"v0002","file":"v0002-20261007141220.html","time":"20261007 141220"},
@@ -45,322 +50,503 @@ const versions = [
 ];
 
 const N = versions.length;
-const IMAGES = ['这是一张图.jpg','这又是一张图.jpg'].map(n => 'https://21306.top/np/v2/' + encodeURIComponent(n));
+const IMAGES = ['这是一张图.jpg','这又是一张图.jpg']
+  .map(n => 'https://21306.top/np/v2/' + encodeURIComponent(n));
 
-let currentIndex = 0, isPlaying = false, playTimer = null;
-const playSpeed = 200;
+/* ---------------- DOM ---------------- */
+const viewer       = document.getElementById('viewer');
+const viewerHint   = document.getElementById('viewerHint');
+const track        = document.getElementById('track');
+const progress     = document.getElementById('progress');
+const curVer       = document.getElementById('curVer');
+const curTime      = document.getElementById('curTime');
+const curCount     = document.getElementById('curCount');
+const preloadInfo  = document.getElementById('preloadInfo');
+const preloadText  = document.getElementById('preloadText');
+const playBtn      = document.getElementById('playBtn');
+const prevBtn      = document.getElementById('prevBtn');
+const nextBtn      = document.getElementById('nextBtn');
 
-const viewer = document.getElementById('viewer');
-const track = document.getElementById('track');
-const progress = document.getElementById('progress');
-const curVer = document.getElementById('curVer');
-const curTime = document.getElementById('curTime');
-const curCount = document.getElementById('curCount');
-const playBtn = document.getElementById('playBtn');
-const viewerHint = document.getElementById('viewerHint');
-const preloadInfo = document.getElementById('preloadInfo');
-const preloadText = document.getElementById('preloadText');
+/* ---------------- 状态 ---------------- */
+let currentIndex = 0;
+let isPlaying    = false;
+let playTimer    = null;
+let loadTimer    = null;
+let swapTimer    = null;
+
+const PLAY_SPEED  = 200;   // 每版停留 ms
+const COMMIT_WAIT = 1500;  // 兜底提交 ms
+const WARM_POOL   = 6;     // 预加载并发
 
 const markers = [];
 const buffers = [];
 let front = 0, frontVersion = -1, backVersion = -1, pending = -1, loading = false;
 
-// 预加载状态：连续缓存进度驱动进度条（已缓存=红色实线，未缓存=灰色虚线）
 const preloaded = new Array(N).fill(false);
-preloaded[0] = true;   // 第 0 版是首帧，视为已就绪
+preloaded[0] = true;
 let plHead = 0;
 
-// HTML 内存缓存：fetch 后存入，切换时直接 document.write 跳过解析
 const htmlCache = new Array(N).fill(null);
 
-/* ---------- 工具：位置与时间格式化 ---------- */
-const R = i => i / (N - 1);
-function leftOf(i) { return 'calc(9px + (100% - 18px) * ' + R(i).toFixed(6) + ')'; }
-function spanOf(a, b) { return 'calc((100% - 18px) * ' + Math.max(0, R(b) - R(a)).toFixed(6) + ')'; }
+/* ==========================================================================
+   工具函数
+   ========================================================================== */
 
-function markPreloaded(i, success) {
-    if (i < 0 || i >= N || preloaded[i]) return;
-    if (!success) return;  // 加载失败不计入进度
-    preloaded[i] = true;
-    while (plHead + 1 < N && preloaded[plHead + 1]) plHead++;
-    progress.style.width = spanOf(0, plHead);
+/* N=1 时 R(i) 退化为 0，避免除零 → NaN */
+const R = i => (N <= 1 ? 0 : i / (N - 1));
+
+const leftOf = i => `calc(9px + (100% - 18px) * ${R(i).toFixed(6)})`;
+const spanOf = (a, b) =>
+  `calc((100% - 18px) * ${Math.max(0, R(b) - R(a)).toFixed(6)})`;
+
+function markPreloaded(i, ok) {
+  if (i < 0 || i >= N || preloaded[i]) return;
+  if (!ok) return;
+  preloaded[i] = true;
+  while (plHead + 1 < N && preloaded[plHead + 1]) plHead++;
+  progress.style.width = spanOf(0, plHead);
 }
 
-function parts(t) { return { mo: t.slice(4, 6), d: t.slice(6, 8), h: t.slice(9, 11), mi: t.slice(11, 13) }; }
+function parts(t) {
+  return {
+    y:  t.slice(0, 4),
+    mo: t.slice(4, 6),
+    d:  t.slice(6, 8),
+    h:  t.slice(9, 11),
+    mi: t.slice(11, 13)
+  };
+}
 function fullTime(t) {
-    const p = parts(t);
-    return t.slice(0, 4) + '年' + parseInt(p.mo, 10) + '月' + parseInt(p.d, 10) + '日 ' + p.h + ':' + p.mi;
+  const p = parts(t);
+  return `${p.y}年${parseInt(p.mo,10)}月${parseInt(p.d,10)}日 ${p.h}:${p.mi}`;
 }
 function shortTime(t) {
-    const p = parts(t);
-    return p.mo + '/' + p.d + ' ' + p.h + ':' + p.mi;
+  const p = parts(t);
+  return `${p.mo}/${p.d} ${p.h}:${p.mi}`;
 }
 
-/* ---------- 时间轴构建（百分比定位，窗口缩放天然自适应） ---------- */
+/* ==========================================================================
+   时间轴构建
+   ========================================================================== */
 function buildTrack() {
-    const groups = [];
-    let cur = null;
-    versions.forEach((v, i) => {
-        const key = v.time.slice(4, 6) + '/' + v.time.slice(6, 8);
-        if (!cur || cur.key !== key) {
-            cur = { key, start: i, end: i };
-            groups.push(cur);
-        } else {
-            cur.end = i;
-        }
+  /* 日期分组背景带 */
+  const groups = [];
+  let cur = null;
+  versions.forEach((v, i) => {
+    const key = v.time.slice(4, 6) + '/' + v.time.slice(6, 8);
+    if (!cur || cur.key !== key) {
+      cur = { key, start: i, end: i };
+      groups.push(cur);
+    } else {
+      cur.end = i;
+    }
+  });
+
+  groups.forEach((g, gi) => {
+    const band = document.createElement('div');
+    band.className = 'tl-band' + (gi % 2 ? ' is-alt' : '');
+    band.style.left  = leftOf(g.start);
+    band.style.width = spanOf(g.start, g.end);
+
+    const lb = document.createElement('span');
+    lb.className = 'tl-band__label' + (gi === groups.length - 1 ? ' is-right' : '');
+    lb.textContent = `${g.key} · ${g.end - g.start + 1}版`;
+    band.appendChild(lb);
+
+    track.appendChild(band);
+  });
+
+  /* 版本圆点 */
+  versions.forEach((v, i) => {
+    const m = document.createElement('div');
+    m.className = 'tl-marker';
+    m.style.left = leftOf(i);
+
+    const tip = document.createElement('span');
+    tip.className = 'tl-tip';
+    tip.textContent = `${v.id} · ${shortTime(v.time)}`;
+    m.appendChild(tip);
+
+    /* 阻止 pointerdown 冒泡，避免点击标记时轨道也走一遍 scrub */
+    m.addEventListener('pointerdown', e => e.stopPropagation());
+    m.addEventListener('click', e => {
+      e.stopPropagation();
+      goTo(i);
     });
-    groups.forEach((g, gi) => {
-        const band = document.createElement('div');
-        band.className = 'tl-band' + (gi % 2 ? ' alt' : '');
-        band.style.left = leftOf(g.start);
-        band.style.width = spanOf(g.start, g.end);
-        const lb = document.createElement('span');
-        lb.className = 'tl-band-label' + (gi === groups.length - 1 ? ' right' : '');
-        lb.textContent = g.key + ' · ' + (g.end - g.start + 1) + '版';
-        band.appendChild(lb);
-        track.appendChild(band);
-    });
-    versions.forEach((v, i) => {
-        const m = document.createElement('div');
-        m.className = 'tl-marker';
-        m.style.left = leftOf(i);
-        const tip = document.createElement('span');
-        tip.className = 'tl-tip';
-        tip.textContent = v.id + ' · ' + shortTime(v.time);
-        m.appendChild(tip);
-        m.addEventListener('click', e => { e.stopPropagation(); goTo(i); });
-        track.appendChild(m);
-        markers.push(m);
-    });
+
+    track.appendChild(m);
+    markers.push(m);
+  });
 }
 
 function updateMeta(i) {
-    currentIndex = i;
-    const v = versions[i];
-    curVer.textContent = v.id;
-    curTime.textContent = fullTime(v.time);
-    curCount.textContent = '第 ' + (i + 1) + ' / ' + N + ' 版';
-    markers.forEach((m, k) => m.classList.toggle('active', k === i));
+  currentIndex = i;
+  const v = versions[i];
+
+  curVer.textContent   = v.id;
+  curTime.textContent  = fullTime(v.time);
+  curCount.textContent = `第 ${i + 1} / ${N} 版`;
+
+  markers.forEach((m, k) => m.classList.toggle('is-active', k === i));
+
+  /* a11y：同步 slider 值 */
+  track.setAttribute('aria-valuenow', String(i));
+  track.setAttribute('aria-valuetext', `${v.id} · ${fullTime(v.time)}`);
 }
 
-/* ---------- 双缓冲渲染：切换只做淡入淡出，避免白屏闪烁 ---------- */
+/* ==========================================================================
+   双缓冲渲染
+   ========================================================================== */
+
+/* iframe 内 keydown 转发：解决聚焦 iframe 后父页面快捷键失效 */
+function attachFrameKeys(f) {
+  try {
+    const doc = f.contentDocument;
+    if (!doc || doc.__keysBound) return;
+    doc.__keysBound = true;
+    doc.addEventListener('keydown', e => {
+      const ev = new KeyboardEvent('keydown', {
+        key: e.key,
+        code: e.code,
+        bubbles: true,
+        cancelable: true
+      });
+      const notPrevented = document.dispatchEvent(ev);
+      if (!notPrevented) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
+  } catch (_) { /* 跨域则静默忽略 */ }
+}
+
 function createBuffer() {
-    const f = document.createElement('iframe');
-    f.className = 'frame';
-    f.setAttribute('allowfullscreen', '');
-    f.setAttribute('title', '版本预览');
-    viewer.appendChild(f);
-    buffers.push(f);
-    return f;
+  const f = document.createElement('iframe');
+  f.className = 'viewer__frame';
+  f.setAttribute('allowfullscreen', '');
+  f.setAttribute('title', '版本预览');
+  f.setAttribute('scrolling', 'auto');
+  f.addEventListener('load', () => attachFrameKeys(f));
+  viewer.appendChild(f);
+  buffers.push(f);
+  return f;
 }
 
 function goTo(i) {
-    if (i < 0 || i >= N) return;
-    updateMeta(i);
-    pending = i;
-    if (frontVersion === i) return;      // 已在前台
-    if (loading) return;                 // 有加载在途：不打断，commit 后自动补载最新目标
-    loadIntoBack(i);
+  if (i < 0 || i >= N) return;
+  if (i === currentIndex && frontVersion === i) return;
+  updateMeta(i);
+  pending = i;
+  if (frontVersion === i) return;   // 已在前台
+  if (loading) return;              // 有加载在途，commit 后自动补载
+  loadIntoBack(i);
 }
 
 function loadIntoBack(i) {
-    if (i < 0 || i >= N) return;
-    const b = buffers[1 - front];
-    backVersion = i;
-    loading = true;
+  if (i < 0 || i >= N) return;
+  const b = buffers[1 - front];
+  backVersion = i;
+  loading = true;
 
-    // 无论命中还是未命中，1.5s 后强制 commit 防止永远等待
-    clearTimeout(loadTimer);
-    b.onload = () => { if (backVersion === i) commit(i); };
-    b.onerror = () => { if (backVersion === i) commit(i); };
-    loadTimer = setTimeout(() => { if (backVersion === i) commit(i); }, 1500);
+  clearTimeout(loadTimer);
+  b.onload  = () => { if (backVersion === i) commit(i); };
+  b.onerror = () => { if (backVersion === i) commit(i); };
+  loadTimer = setTimeout(() => { if (backVersion === i) commit(i); }, COMMIT_WAIT);
 
-    if (htmlCache[i]) {
-        // 缓存命中：直接写入，跳过网络请求与 HTML 解析，切换耗时 <50ms
-        const doc = b.contentDocument || b.contentWindow.document;
-        doc.open();
-        doc.write(htmlCache[i]);
-        doc.close();
-    } else {
-        // 缓存未命中：正常加载
-        b.src = versions[i].file;
-    }
+  if (htmlCache[i]) {
+    /* 缓存命中：直接写入，跳过网络请求 */
+    const doc = b.contentDocument || b.contentWindow.document;
+    doc.open();
+    doc.write(htmlCache[i]);
+    doc.close();
+    attachFrameKeys(b);
+    /* doc.write 不触发 load：双 rAF 等待布局完成再提交，避免闪白 */
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (backVersion === i) commit(i);
+    }));
+  } else {
+    b.src = versions[i].file;
+  }
 }
-
-let loadTimer = null;
 
 function commit(i) {
-    clearTimeout(loadTimer);
+  /* 无论如何先清掉计时器，防止残留空回调 */
+  clearTimeout(loadTimer);
+
+  /* 目标已在前台：不交换，但必须把播放/加载流水线接回去 */
+  if (frontVersion === i) {
     loading = false;
-    const nb = buffers[1 - front], ob = buffers[front];
-    /* 新帧置于上层淡入，旧帧保持不透明垫底：淡入过程中不会透出底色，避免忽明忽暗 */
-    nb.style.zIndex = '6';
-    ob.style.zIndex = '5';
-    nb.classList.add('active');
-    front = 1 - front;
-    frontVersion = i;
     backVersion = -1;
-    viewerHint.classList.add('hidden');
+    if (pending !== i) {
+      loadIntoBack(pending);
+    } else if (isPlaying) {
+      clearTimeout(playTimer);
+      playTimer = setTimeout(tick, PLAY_SPEED);
+    }
+    return;
+  }
 
-    clearTimeout(swapTimer);
-    swapTimer = setTimeout(() => { ob.classList.remove('active'); ob.style.zIndex = ''; }, 120);
+  loading = false;
 
-    if (pending !== i) loadIntoBack(pending);                    // 加载期间目标已变 → 立刻补载最新目标
-    else if (isPlaying) { clearTimeout(playTimer); playTimer = setTimeout(tick, playSpeed); } // 本帧显示后再推进一版
+  const nb = buffers[1 - front];
+  const ob = buffers[front];
+
+  nb.style.zIndex = '6';
+  ob.style.zIndex = '5';
+  nb.classList.add('is-active');
+
+  front = 1 - front;
+  frontVersion = i;
+  backVersion = -1;
+  viewerHint.classList.add('is-hidden');
+
+  clearTimeout(swapTimer);
+  swapTimer = setTimeout(() => {
+    ob.classList.remove('is-active');
+    ob.style.zIndex = '';
+  }, 120);
+
+  if (pending !== i) {
+    loadIntoBack(pending);
+  } else if (isPlaying) {
+    clearTimeout(playTimer);
+    playTimer = setTimeout(tick, PLAY_SPEED);
+  }
 }
 
-let swapTimer = null;
-
-/* ---------- 播放控制 ---------- */
+/* ==========================================================================
+   播放控制
+   ========================================================================== */
 function prev() { goTo(currentIndex - 1); }
 function next() { goTo(currentIndex + 1); }
 
 function tick() {
-    if (!isPlaying) return;
-    if (currentIndex >= N - 1) {
-        isPlaying = false;
-        playBtn.textContent = '▶';
-        clearTimeout(playTimer);
-        return;
-    }
-    goTo(currentIndex + 1);
+  if (!isPlaying) return;
+  if (currentIndex >= N - 1) {
+    isPlaying = false;
+    playBtn.textContent = '▶';
+    playBtn.setAttribute('aria-label', '播放');
+    clearTimeout(playTimer);
+    return;
+  }
+  goTo(currentIndex + 1);
 }
 
 function togglePlay() {
-    isPlaying = !isPlaying;
-    playBtn.textContent = isPlaying ? '⏸' : '▶';
-    clearTimeout(playTimer);
-    if (isPlaying) tick();
+  isPlaying = !isPlaying;
+  playBtn.textContent = isPlaying ? '⏸' : '▶';
+  playBtn.setAttribute('aria-label', isPlaying ? '暂停' : '播放');
+  clearTimeout(playTimer);
+  if (isPlaying) tick();
 }
 
-/* ---------- 拖动轨道快速定位 ---------- */
+/* ==========================================================================
+   轨道拖动定位
+   ========================================================================== */
 let scrubbing = false, scrubRaf = null, scrubX = 0;
+
 function indexFromX(clientX) {
-    const rect = track.getBoundingClientRect(), usable = rect.width - 18;
-    if (usable <= 0) return 0;
-    const r = (clientX - rect.left - 9) / usable;
-    return Math.max(0, Math.min(N - 1, Math.round(r * (N - 1))));
+  const rect = track.getBoundingClientRect();
+  const usable = rect.width - 18;
+  if (usable <= 0) return 0;
+  const r = (clientX - rect.left - 9) / usable;
+  return Math.max(0, Math.min(N - 1, Math.round(r * (N - 1))));
 }
+
 function queueScrub(x) {
-    scrubX = x;
-    if (scrubRaf) return;
-    scrubRaf = requestAnimationFrame(() => { scrubRaf = null; goTo(indexFromX(scrubX)); });
+  scrubX = x;
+  if (scrubRaf) return;
+  scrubRaf = requestAnimationFrame(() => {
+    scrubRaf = null;
+    goTo(indexFromX(scrubX));
+  });
 }
+
 track.addEventListener('pointerdown', e => {
-    scrubbing = true;
-    track.classList.add('scrubbing');
-    try { if (track.setPointerCapture) track.setPointerCapture(e.pointerId); } catch (_) { }
-    queueScrub(e.clientX);
+  scrubbing = true;
+  track.classList.add('is-scrubbing');
+  try { if (track.setPointerCapture) track.setPointerCapture(e.pointerId); } catch (_) {}
+  queueScrub(e.clientX);
 });
 track.addEventListener('pointermove', e => { if (scrubbing) queueScrub(e.clientX); });
-function endScrub() { scrubbing = false; track.classList.remove('scrubbing'); }
+
+function endScrub() {
+  scrubbing = false;
+  track.classList.remove('is-scrubbing');
+}
 track.addEventListener('pointerup', endScrub);
 track.addEventListener('pointercancel', endScrub);
 track.addEventListener('lostpointercapture', endScrub);
 
-/* ---------- 预热图片缓存 ---------- */
+/* ==========================================================================
+   图片预热
+   ========================================================================== */
 function warmImages() {
-    IMAGES.forEach(u => {
-        const im = new Image();
-        im.decoding = 'async';
-        im.src = u;
-        if (im.decode) im.decode().catch(() => { });
-    });
+  IMAGES.forEach(u => {
+    const im = new Image();
+    im.decoding = 'async';
+    im.src = u;
+    if (im.decode) im.decode().catch(() => {});
+  });
 }
 
-/* ---------- 后台预加载（6路并发 fetch 池，非阻塞） ---------- */
+/* ==========================================================================
+   后台预加载
+   — 用 attempted 判定完成，任一版失败也不会让计数停滞
+   ========================================================================== */
 function startWarmer() {
-    const POOL = 6;
-    let nextIdx = 1, loaded = 1, finished = false;
-    const pump = () => {
-        if (finished || nextIdx >= N) return;
-        const idx = nextIdx++;
-        const done = (success) => {
-            if (success) {
-                loaded++;
-                markPreloaded(idx, true);
-            }
-            preloadText.textContent = '后台预加载 ' + loaded + ' / ' + N;
-            if (loaded >= N) {
-                finished = true;
-                preloadText.textContent = '后台预加载完成';
-                preloadInfo.classList.add('done');
-            } else {
-                setTimeout(pump, 0);
-            }
-        };
-        fetch(versions[idx].file, { cache: 'default' })
-            .then(r => r.text())
-            .then(t => { htmlCache[idx] = t; done(true); })
-            .catch(() => { done(false); });
-    };
-    for (let k = 0; k < Math.min(POOL, N - 1); k++) pump();
+  let nextIdx   = 1;
+  let loaded    = 1;
+  let attempted = 1;
+  let finished  = false;
+
+  const updateLabel = () => {
+    if (attempted >= N) {
+      preloadText.textContent = loaded >= N
+        ? '后台预加载完成'
+        : `预加载完成（${loaded} / ${N}，部分失败）`;
+    } else {
+      preloadText.textContent = `后台预加载 ${loaded} / ${N}`;
+    }
+  };
+
+  const pump = () => {
+    if (finished || nextIdx >= N) return;
+    const idx = nextIdx++;
+
+    fetch(versions[idx].file, { cache: 'default' })
+      .then(r => r.text())
+      .then(t => {
+        htmlCache[idx] = t;
+        loaded++;
+        markPreloaded(idx, true);
+      })
+      .catch(() => { /* 失败不计入连续进度 */ })
+      .finally(() => {
+        attempted++;
+        updateLabel();
+        if (attempted >= N) {
+          finished = true;
+          preloadInfo.classList.add('is-done');
+        } else {
+          setTimeout(pump, 0);
+        }
+      });
+  };
+
+  for (let k = 0; k < Math.min(WARM_POOL, N - 1); k++) pump();
+  updateLabel();
 }
 
-/* ---------- 响应式布局：根据轨道宽度计算 marker 尺寸和轨道高度 ---------- */
+/* ==========================================================================
+   响应式布局
+   — marker 只作锚点，尺寸由 --ms 决定；位置由 left 决定
+   ========================================================================== */
 function updateTrackLayout() {
-    const w = track.offsetWidth;
-    if (w <= 0) return;
-    const usable = w - 18;
-    const minMarkerPx = Math.max(12, usable / (N - 1) * 0.8);
-    const ms = Math.min(18, minMarkerPx);
-    const mh = Math.max(36, ms * 3.5);
-    track.style.height = mh + 'px';
-    const halfM = ms / 2;
-    markers.forEach(m => {
-        m.style.width = ms + 'px';
-        m.style.height = ms + 'px';
-        m.style.marginLeft = -halfM + 'px';
-    });
-    track.style.setProperty('--ms', ms + 'px');
+  const w = track.offsetWidth;
+  if (w <= 0) return;
+
+  const usable = w - 18;
+  const gap = usable / Math.max(1, N - 1);
+
+  /* 圆点尺寸：间距的 75%，钳制在 4–16px */
+  const ms = Math.max(4, Math.min(16, gap * 0.75));
+  /* 轨道高度：随圆点尺寸微调，32–52px */
+  const th = Math.max(32, Math.min(52, ms * 3.5));
+
+  track.style.height = th + 'px';
+  track.style.setProperty('--ms', ms + 'px');
 }
 
-/* ---------- 窗口缩放：临时关闭进度条过渡，避免拖影 ---------- */
+/* ==========================================================================
+   窗口尺寸变化
+   ========================================================================== */
 let rzT;
-window.addEventListener('resize', () => {
-    track.classList.add('resizing');
-    clearTimeout(rzT);
-    rzT = setTimeout(() => { track.classList.remove('resizing'); updateTrackLayout(); }, 150);
-});
+function onResize() {
+  track.classList.add('is-resizing');
+  clearTimeout(rzT);
+  rzT = setTimeout(() => {
+    updateTrackLayout();
+    track.classList.remove('is-resizing');
+  }, 120);
+}
+window.addEventListener('resize', onResize);
+window.addEventListener('orientationchange', onResize);
 
-/* ---------- 事件 ---------- */
+/* visualViewport：移动端地址栏伸缩 */
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', onResize);
+}
+
+/* ==========================================================================
+   事件绑定
+   ========================================================================== */
 playBtn.addEventListener('click', togglePlay);
+prevBtn.addEventListener('click', prev);
+nextBtn.addEventListener('click', next);
 
 document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowLeft') prev();
-    else if (e.key === 'ArrowRight') next();
-    else if (e.key === ' ') { e.preventDefault(); togglePlay(); }
-    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
-    else if (e.key === 'End') { e.preventDefault(); goTo(N - 1); }
+  /* 忽略输入框内的按键 */
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+
+  switch (e.key) {
+    case 'ArrowLeft':  e.preventDefault(); prev(); break;
+    case 'ArrowRight': e.preventDefault(); next(); break;
+    case ' ':
+    case 'Spacebar':
+      e.preventDefault(); togglePlay(); break;
+    case 'Home': e.preventDefault(); goTo(0); break;
+    case 'End':  e.preventDefault(); goTo(N - 1); break;
+  }
 });
 
-document.addEventListener('touchstart', e => {
-    if (e.touches.length > 1) e.preventDefault();
-}, { passive: false });
-
+/* 移动端双击缩放抑制（保留单指操作与双指缩放） */
 let lastTouchEnd = 0;
 document.addEventListener('touchend', e => {
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) e.preventDefault();
-    lastTouchEnd = now;
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300 && e.touches.length === 0) {
+    e.preventDefault();
+  }
+  lastTouchEnd = now;
 }, { passive: false });
 
-/* ---------- 初始化 ---------- */
-createBuffer();
-createBuffer();
-buildTrack();
-updateTrackLayout();
+/* 阻止 iOS 橡皮筋 */
+document.addEventListener('touchmove', e => {
+  if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
 
-frontVersion = 0;
-pending = 0;
-buffers[0].onload = () => viewerHint.classList.add('hidden');
-setTimeout(() => { if (!viewerHint.classList.contains('hidden')) viewerHint.classList.add('hidden'); }, 2500);
-buffers[0].src = versions[0].file;
-buffers[0].classList.add('active');
-updateMeta(0);
+/* ==========================================================================
+   初始化
+   ========================================================================== */
+function init() {
+  createBuffer();
+  createBuffer();
+  buildTrack();
+  updateTrackLayout();
 
-warmImages();
-viewerHint.classList.remove('hidden');
+  frontVersion = 0;
+  pending = 0;
 
-// 延迟启动后台预加载，避免阻塞首帧渲染
-setTimeout(startWarmer, 800);
+  buffers[0].addEventListener('load', () => {
+    attachFrameKeys(buffers[0]);
+    viewerHint.classList.add('is-hidden');
+  });
+
+  setTimeout(() => viewerHint.classList.add('is-hidden'), 2500);
+
+  buffers[0].src = versions[0].file;
+  buffers[0].classList.add('is-active');
+  updateMeta(0);
+
+  warmImages();
+
+  /* 延迟启动预加载，避免阻塞首帧 */
+  setTimeout(startWarmer, 800);
+}
+
+if (N > 0) {
+  init();
+} else {
+  viewerHint.textContent = '暂无版本数据';
+}
