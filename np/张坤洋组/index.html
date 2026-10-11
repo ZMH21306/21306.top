@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="语文5组的神秘报纸——张坤洋组资源索引">
+    <title>语文5组的神秘报纸 · 张坤洋组资源 | 21306.top/np/张坤洋组</title>
+
+    <!-- ★ 仅报头使用 Web 毛笔字体，按需分片，加载极快 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           一、全局重置 + 设计变量
+           ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ink: #1a1714;
+            --ink-soft: #3a342c;
+            --paper: #fbf8f1;
+            --paper-warm: #f6f1e6;
+            --rule: #d3ccbb;
+            --rule-strong: #1a1714;
+            --rule-fine: #b9b1a0;
+            --red: #a3211e;
+            --red-soft: #8c1c19;
+            --stage: #cfc9bd;
+            --muted: #6a6558;
+
+            --font-body: Georgia, "Nimbus Roman", "Songti SC", "SimSun", "宋体", serif;
+            --font-title: "Ma Shan Zheng",
+                          "STXingkai", "华文行楷", "Xingkai SC",
+                          "LiSu", "隶书",
+                          "KaiTi", "楷体", "STKaiti",
+                          "Songti SC", "SimSun", "宋体", serif;
+            --font-headline: "STSong", "Songti SC", "SimSun", "宋体", serif;
+            --font-sub: "KaiTi", "楷体", "STKaiti", "Songti SC", serif;
+        }
+
+        /* ============================================================
+           二、页面基底
+           ============================================================ */
+        html {
+            height: 100%;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: clamp(6px, 1.2vw, 20px);
+            background: var(--stage);
+            color: var(--ink);
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        /* ============================================================
+           三、纸张容器
+           ============================================================ */
+        .page {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1180px;
+            flex: 1 1 auto;
+            min-height: 0;
+            background: var(--paper);
+            box-shadow:
+                0 1px 2px rgba(22, 19, 15, 0.05),
+                0 14px 38px -12px rgba(22, 19, 15, 0.22);
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        .page::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+        }
+
+        /* ============================================================
+           四、报头（红色顶条 + 报刊名左上角）
+           ============================================================ */
+        .masthead {
+            position: relative;
+            z-index: 2;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: clamp(14px, 2vw, 22px) clamp(18px, 3.2vw, 44px) clamp(10px, 1.2vw, 14px);
+            border-top: clamp(5px, 0.8vw, 9px) solid var(--red);
+            border-bottom: 0.7mm solid var(--rule-strong);
+        }
+
+        .masthead-title {
+            font-family: var(--font-title);
+            font-weight: 400;
+            font-size: clamp(22px, 2.8vw, 34px);
+            line-height: 1.15;
+            letter-spacing: 0.04em;
+            color: var(--red);
+            text-align: left;
+            overflow-wrap: break-word;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============================================================
+           五、版心
+           ============================================================ */
+        .main {
+            position: relative;
+            z-index: 1;
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            padding: clamp(26px, 4.5vw, 56px) clamp(18px, 3.5vw, 48px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .index-wrap {
+            width: 100%;
+            max-width: 1040px;
+            margin: auto;
+        }
+
+        /* 主标题 */
+        .index-title {
+            text-align: center;
+            font-family: var(--font-headline);
+            font-weight: 900;
+            font-size: clamp(24px, 4vw, 44px);
+            line-height: 1.18;
+            letter-spacing: 0.06em;
+            color: var(--ink);
+            margin-bottom: clamp(14px, 2vw, 22px);
+            overflow-wrap: break-word;
+        }
+
+        /* 分隔装饰 */
+        .index-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 0 auto clamp(26px, 4vw, 44px);
+            max-width: 520px;
+        }
+
+        .index-divider::before,
+        .index-divider::after {
+            content: "";
+            flex: 1 1 auto;
+            height: 1px;
+            background: linear-gradient(to right,
+                transparent 0%,
+                var(--rule-fine) 40%,
+                var(--rule-fine) 60%,
+                transparent 100%);
+        }
+
+        .index-divider .dot {
+            flex-shrink: 0;
+            width: 6px;
+            height: 6px;
+            background: var(--red);
+            transform: rotate(45deg);
+        }
+
+        /* ============================================================
+           六、资源卡片网格
+           ============================================================ */
+        .resource-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: clamp(14px, 2vw, 22px);
+        }
+
+        @media (min-width: 700px) {
+            .resource-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        /* 卡片主体 */
+        .resource-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: var(--paper);
+            border: 1px solid var(--rule);
+            color: inherit;
+            text-decoration: none;
+            transition:
+                box-shadow 0.28s cubic-bezier(0.2, 0, 0, 1),
+                border-color 0.28s ease,
+                transform 0.28s cubic-bezier(0.2, 0, 0, 1);
+            overflow: hidden;
+        }
+
+        /* 卡片顶部：深色装饰条 */
+        .resource-card::before {
+            content: "";
+            display: block;
+            height: 3px;
+            background: var(--rule-strong);
+        }
+
+        /* 卡片头部 */
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: clamp(12px, 1.4vw, 16px) clamp(16px, 1.8vw, 22px);
+            border-bottom: 1px solid var(--rule);
+            font-family: var(--font-headline);
+            font-weight: 900;
+            font-size: clamp(13px, 1.3vw, 15px);
+            letter-spacing: 0.12em;
+            color: var(--ink);
+            background: var(--paper);
+        }
+
+        .card-head .label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-head .label::before {
+            content: "";
+            flex-shrink: 0;
+            width: 3px;
+            height: 1em;
+            background: var(--red);
+        }
+
+        /* 状态标签 */
+        .card-status {
+            flex-shrink: 0;
+            font-family: var(--font-sub);
+            font-size: 11px;
+            line-height: 1;
+            padding: 4px 8px;
+            color: var(--red);
+            border: 1px solid rgba(163, 33, 30, 0.35);
+            background: rgba(163, 33, 30, 0.06);
+            border-radius: 2px;
+            letter-spacing: 0.1em;
+        }
+
+        .card-status.pending {
+            color: var(--muted);
+            border-color: rgba(106, 101, 88, 0.35);
+            background: rgba(106, 101, 88, 0.08);
+        }
+
+        /* 卡片主体 */
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(6px, 0.8vw, 10px);
+            padding: clamp(18px, 2vw, 24px);
+            flex: 1 1 auto;
+        }
+
+        .card-name {
+            font-family: var(--font-headline);
+            font-weight: 900;
+            font-size: clamp(15px, 1.4vw, 18px);
+            line-height: 1.4;
+            color: var(--ink);
+            overflow-wrap: break-word;
+            letter-spacing: 0.02em;
+        }
+
+        .card-desc {
+            font-family: var(--font-sub);
+            font-size: clamp(12px, 1.2vw, 14px);
+            line-height: 1.65;
+            color: var(--ink-soft);
+            overflow-wrap: break-word;
+        }
+
+        /* 卡片底部 CTA */
+        .card-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: clamp(12px, 1.4vw, 15px) clamp(16px, 1.8vw, 22px);
+            border-top: 1px solid var(--rule);
+            font-family: var(--font-sub);
+            font-size: clamp(12px, 1.2vw, 13.5px);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--red);
+            background: var(--paper);
+        }
+
+        .card-arrow {
+            display: inline-block;
+            transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        /* 悬停效果（仅真实指针设备） */
+        @media (hover: hover) and (pointer: fine) {
+            .resource-card:not([disabled]):hover {
+                border-color: var(--rule-strong);
+                box-shadow:
+                    0 2px 4px rgba(22, 19, 15, 0.06),
+                    0 18px 36px -16px rgba(22, 19, 15, 0.28);
+                transform: translateY(-2px);
+            }
+
+            .resource-card:not([disabled]):hover .card-arrow {
+                transform: translateX(4px);
+            }
+        }
+
+        .resource-card:focus-visible {
+            outline: 2px solid var(--red);
+            outline-offset: 3px;
+        }
+
+        /* 禁用卡片（暂未完成） */
+        .resource-card[disabled] {
+            cursor: not-allowed;
+            background: var(--paper-warm);
+        }
+
+        .resource-card[disabled]::before {
+            background: var(--rule-fine);
+        }
+
+        .resource-card[disabled] .card-head,
+        .resource-card[disabled] .card-foot {
+            background: var(--paper-warm);
+        }
+
+        .resource-card[disabled] .card-name,
+        .resource-card[disabled] .card-desc {
+            color: var(--muted);
+        }
+
+        .resource-card[disabled] .card-foot {
+            color: var(--muted);
+        }
+
+        /* ============================================================
+           七、页脚（编辑信息右下角）
+           ============================================================ */
+        .footer {
+            position: relative;
+            z-index: 2;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: clamp(12px, 1.4vw, 16px) clamp(18px, 3.2vw, 44px);
+            border-top: 0.5mm solid var(--rule-strong);
+            font-family: var(--font-sub);
+            font-size: clamp(11px, 1.1vw, 13px);
+            color: var(--ink-soft);
+            letter-spacing: 0.05em;
+        }
+
+        .footer-right {
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        /* ============================================================
+           八、减少动态效果
+           ============================================================ */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <!-- ==================== 报头 ==================== -->
+        <header class="masthead">
+            <div class="masthead-title">语文5组的神秘报纸</div>
+        </header>
+
+        <!-- ==================== 版心 ==================== -->
+        <main class="main">
+            <div class="index-wrap">
+                <h1 class="index-title">张坤洋组资源索引</h1>
+
+                <div class="index-divider" aria-hidden="true">
+                    <span class="dot"></span>
+                </div>
+
+                <div class="resource-grid">
+                    <!-- 图片资源 -->
+                    <a href="张坤洋组/0001.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">图片</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">0001.png</div>
+                            <div class="card-desc">张坤洋组图片资源 #1</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/0002-修改中.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">修改中</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">0002-修改中.png</div>
+                            <div class="card-desc">张坤洋组图片资源 #2</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/0003.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">图片</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">0003.png</div>
+                            <div class="card-desc">张坤洋组图片资源 #3</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/0004.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">图片</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">0004.png</div>
+                            <div class="card-desc">张坤洋组图片资源 #4</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/0005.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">图片</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">0005.png</div>
+                            <div class="card-desc">张坤洋组图片资源 #5</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/0006.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">图片</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">0006.png</div>
+                            <div class="card-desc">张坤洋组图片资源 #6</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/0007-修改中.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">修改中</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">0007-修改中.png</div>
+                            <div class="card-desc">张坤洋组图片资源 #7</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/0008.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">图片</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">0008.png</div>
+                            <div class="card-desc">张坤洋组图片资源 #8</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/0009-导出.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">导出</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">0009-导出.png</div>
+                            <div class="card-desc">张坤洋组图片资源 #9</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/0010.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">图片</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">0010.png</div>
+                            <div class="card-desc">张坤洋组图片资源 #10</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/0011.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">图片</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">0011.png</div>
+                            <div class="card-desc">张坤洋组图片资源 #11</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/0012.jpeg" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">图片</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">0012.jpeg</div>
+                            <div class="card-desc">张坤洋组图片资源 #12</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/标题.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">图片</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">标题.png</div>
+                            <div class="card-desc">张坤洋组图片资源 - 标题</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/配图.png" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">图片资源</span>
+                            <span class="card-status">图片</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">配图.png</div>
+                            <div class="card-desc">张坤洋组图片资源 - 配图</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览图片</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+
+                    <a href="张坤洋组/红黄色报纸风复古城市快报海报（竖版）.pdf" class="resource-card">
+                        <div class="card-head">
+                            <span class="label">PDF 资源</span>
+                            <span class="card-status">PDF</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-name">红黄色报纸风复古城市快报海报（竖版）.pdf</div>
+                            <div class="card-desc">张坤洋组 PDF 资源 - 复古城市快报海报</div>
+                        </div>
+                        <div class="card-foot">
+                            <span>预览 PDF</span>
+                            <span class="card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </main>
+
+        <!-- ==================== 页脚 ==================== -->
+        <footer class="footer">
+            <span class="footer-right">本版编辑：语文 6 班 5 组</span>
+        </footer>
+    </div>
+</body>
+</html>
