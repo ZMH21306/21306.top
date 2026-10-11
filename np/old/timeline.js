@@ -92,6 +92,7 @@ const htmlCache = new Array(N).fill(null);
    工具函数
    ========================================================================== */
 
+<<<<<<< HEAD
 /* N=1 时 R(i) 退化为 0，避免除零 → NaN */
 const R = i => (N <= 1 ? 0 : i / (N - 1));
 
@@ -105,6 +106,13 @@ function markPreloaded(i, ok) {
   preloaded[i] = true;
   while (plHead + 1 < N && preloaded[plHead + 1]) plHead++;
   progress.style.width = spanOf(0, plHead);
+=======
+function markPreloaded(i) {
+    if (i < 0 || i >= N || preloaded[i]) return;
+    preloaded[i] = true;
+    while (plHead + 1 < N && preloaded[plHead + 1]) plHead++;
+    progress.style.width = spanOf(0, plHead);
+>>>>>>> parent of 827ef38 (更新 timeline.js)
 }
 
 function parts(t) {
@@ -395,6 +403,7 @@ function warmImages() {
    — 用 attempted 判定完成，任一版失败也不会让计数停滞
    ========================================================================== */
 function startWarmer() {
+<<<<<<< HEAD
   let nextIdx   = 1;
   let loaded    = 1;
   let attempted = 1;
@@ -436,6 +445,31 @@ function startWarmer() {
 
   for (let k = 0; k < Math.min(WARM_POOL, N - 1); k++) pump();
   updateLabel();
+=======
+    const POOL = 6;
+    let nextIdx = 1, loaded = 1, finished = false;
+    const pump = () => {
+        if (finished || nextIdx >= N) return;
+        const idx = nextIdx++;
+        const done = () => {
+            loaded++;
+            markPreloaded(idx);
+            preloadText.textContent = '后台预加载 ' + loaded + ' / ' + N;
+            if (loaded >= N) {
+                finished = true;
+                preloadText.textContent = '后台预加载完成';
+                preloadInfo.classList.add('done');
+            } else {
+                setTimeout(pump, 0);
+            }
+        };
+        fetch(versions[idx].file, { cache: 'default' })
+            .then(r => r.text())
+            .then(t => { htmlCache[idx] = t; done(); })
+            .catch(done);
+    };
+    for (let k = 0; k < Math.min(POOL, N - 1); k++) pump();
+>>>>>>> parent of 827ef38 (更新 timeline.js)
 }
 
 /* ==========================================================================
