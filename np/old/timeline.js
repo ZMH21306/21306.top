@@ -326,19 +326,24 @@ function warmImages() {
 
 // ========== 初始化 ==========
 function init() {
+    // 1. 立即创建首帧iframe（src赋值后浏览器立即开始加载，页面继续渲染）
+    //    首帧onload后立即淡入显示并隐藏hint，确保内容渲染完成才可见
     createBufferedIframe(0).then(() => {
         iframePool[0].style.opacity = '1';
         iframePool[0].style.zIndex = '6';
         iframePool[0].style.pointerEvents = 'auto';
         viewerHint.classList.add('hidden');
     });
-    updateMeta(0);
-    updateTrackLayout(); // 首次计算布局
 
+    // 2. 立即更新元数据（标题/时间/进度条），用户马上看到文字信息
+    updateMeta(0);
+
+    // 3. 并发预加载其余版本（后台进行，不影响首帧显示）
     for (let k = 1; k < CONCURRENCY && k < N; k++) {
         createBufferedIframe(k);
     }
 
+    // 4. 继续预加载剩余版本（当有空位时）
     let next = CONCURRENCY;
     const loadInterval = setInterval(() => {
         if (poolLoadingDone || next >= N) {
@@ -385,6 +390,7 @@ document.addEventListener('touchend', e => {
 }, { passive: false });
 
 buildTrack();
+updateTrackLayout();
 viewerHint.classList.remove('hidden');
 warmImages();
 init();
