@@ -91,7 +91,8 @@
             background: var(--stage);
             color: var(--ink);
             margin: 0;
-            padding: 16px 0;
+            /* 原为 padding: 16px 0；去掉顶部间隙，第一页紧贴视口上沿 */
+            padding: 0 0 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
