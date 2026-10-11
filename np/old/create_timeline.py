@@ -37,12 +37,14 @@ body{font-family:"Noto Serif SC","SimSun","宋体",serif;background:var(--bg);co
 .tl-band-label{position:absolute;top:4px;left:7px;font-size:10px;color:var(--muted);white-space:nowrap;letter-spacing:.5px}
 .tl-band-label.right{left:auto;right:7px}
 .tl-baseline{position:absolute;top:50%;left:9px;right:9px;height:2px;background:repeating-linear-gradient(90deg,var(--rule) 0 5px,transparent 5px 10px);transform:translateY(-50%);z-index:1}
-.tl-progress{position:absolute;top:50%;left:9px;width:0;height:2px;background:var(--red);transform:translateY(-50%);transition:width .12s ease;z-index:2}
-.timeline-track.resizing .tl-progress{transition:none}
-.tl-marker{position:absolute;top:50%;width:18px;height:18px;margin-left:-9px;transform:translateY(-50%);z-index:3;cursor:pointer}
+.tl-progress{position:absolute;top:50%;left:9px;width:0;height:2px;background:var(--red);transform:translateY(-50%);transition:width .15s ease;z-index:2}
+.tl-marker{position:absolute;top:50%;width:18px;height:18px;margin-left:-9px;transform:translateY(-50%);z-index:3;cursor:pointer;transition:transform .14s}
+.tl-marker:hover{transform:translateY(-50%) scale(1.15)}
 .tl-marker::after{content:"";position:absolute;top:50%;left:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--paper);border:1.5px solid var(--rule);transition:background .14s,border-color .14s,width .14s,height .14s,margin .14s,box-shadow .14s}
 .tl-marker:hover::after{border-color:var(--red)}
 .tl-marker.active::after{background:var(--red);border-color:var(--red);width:13px;height:13px;margin:-6.5px 0 0 -6.5px;box-shadow:0 0 0 3px rgba(163,33,30,.18)}
+.tl-marker.preloaded::after{background:var(--red);border-color:var(--red);width:11px;height:11px;margin:-5.5px 0 0 -5.5px}
+.timeline-track.resizing .tl-progress{transition:none}
 .tl-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:1px;font-size:10px;color:var(--muted);white-space:nowrap;opacity:0;transition:opacity .14s;pointer-events:none}
 .tl-marker:hover .tl-tip,.tl-marker.active .tl-tip{opacity:1;color:var(--red)}
 
